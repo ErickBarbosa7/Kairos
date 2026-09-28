@@ -1,0 +1,51 @@
+# Dependencias y builds
+node_modules/
+.pnpm-store/
+dist/
+build/
+out/
+.turbo/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# Secretos: nunca se versionan (solo *.example)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jwk
+*.crt
+secrets/
+machine.config.json
+
+# Bases de datos y respaldos locales
+*.sql.gz
+*.dump
+*.bak
+*.sqlite
+*.sqlite3
+pgdata/
+
+# Archivos subidos en desarrollo
+uploads/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor y sistema
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+
+# Claude Code (configuración local)
+.claude/settings.local.json

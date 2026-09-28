@@ -1,0 +1,330 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────── Enums ─────────
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  CANCELLED
+}
+enum Plan {
+  TRIAL
+  BASIC
+  PRO
+}
+enum ThemeMode {
+  LIGHT
+  DARK
+  AUTO
+}
+enum TenantRole {
+  TENANT_ADMIN
+  TENANT_STAFF
+}
+enum MachineStatus {
+  ACTIVE
+  REVOKED
+}
+enum KeyAlgorithm {
+  ES256
+  EDDSA
+}
+enum TxType {
+  EARN
+  REDEEM
+  REFUND
+  ADJUST
+}
+enum CouponStatus {
+  PENDING
+  REDEEMED
+  EXPIRED
+  CANCELLED
+}
+enum SubjectType {
+  SUPER_ADMIN
+  TENANT_USER
+  CONSUMER
+}
+
+// ───────── Plataforma ─────────
+
+model SuperAdmin {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("super_admins")
+}
+
+model Tenant {
+  id                 String       @id @default(uuid()) @db.Uuid
+  name               String
+  slug               String       @unique
+  status             TenantStatus @default(ACTIVE)
+  plan               Plan         @default(TRIAL)
+  subscriptionEndsAt DateTime?    @map("subscription_ends_at")
+
+  logoUrl        String?   @map("logo_url")
+  primaryColor   String    @default("#7C3AED") @map("primary_color")
+  secondaryColor String?   @map("secondary_color")
+  themeMode      ThemeMode @default(AUTO) @map("theme_mode")
+
+  scorePerPoint    Int @default(10) @map("score_per_point")
+  maxPointsPerGame Int @default(50) @map("max_points_per_game")
+  maxGamesPerDay   Int @default(10) @map("max_games_per_day")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  stores      Store[]
+  machines    Machine[]
+  tenantUsers TenantUser[]
+  wallets     Wallet[]
+  rewards     Reward[]
+  coupons     Coupon[]
+  transactions PointTransaction[]
+  qrClaims    QrClaim[]
+
+  @@map("tenants")
+}
+
+model Store {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  name      String
+  address   String?
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tenant   Tenant       @relation(fields: [tenantId], references: [id])
+  machines Machine[]
+  staff    TenantUser[]
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+  @@map("stores")
+}
+
+model Machine {
+  id           String        @id @default(uuid()) @db.Uuid
+  tenantId     String        @map("tenant_id") @db.Uuid
+  storeId      String        @map("store_id") @db.Uuid
+  label        String
+  publicKey    String        @map("public_key")
+  keyAlgorithm KeyAlgorithm  @default(ES256) @map("key_algorithm")
+  status       MachineStatus @default(ACTIVE)
+  lastSeenAt   DateTime?     @map("last_seen_at")
+  revokedAt    DateTime?     @map("revoked_at")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  store    Store     @relation(fields: [tenantId, storeId], references: [tenantId, id])
+  qrClaims QrClaim[]
+
+  @@index([tenantId, storeId])
+  @@map("machines")
+}
+
+// ───────── Usuarios y sesiones ─────────
+
+model TenantUser {
+  id           String     @id @default(uuid()) @db.Uuid
+  tenantId     String     @map("tenant_id") @db.Uuid
+  storeId      String?    @map("store_id") @db.Uuid
+  email        String
+  passwordHash String     @map("password_hash")
+  name         String
+  role         TenantRole
+  isActive     Boolean    @default(true) @map("is_active")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  tenant           Tenant   @relation(fields: [tenantId], references: [id])
+  store            Store?   @relation(fields: [storeId], references: [id])
+  redeemedCoupons  Coupon[]
+
+  @@unique([tenantId, email])
+  @@map("tenant_users")
+}
+
+model Consumer {
+  id             String     @id @default(uuid()) @db.Uuid
+  phone           String?   @unique
+  phoneVerifiedAt DateTime? @map("phone_verified_at")
+  email           String?   @unique
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  displayName    String?    @map("display_name")
+  preferredTheme ThemeMode? @map("preferred_theme")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+  deletedAt      DateTime?  @map("deleted_at")
+
+  wallets  Wallet[]
+  qrClaims QrClaim[]
+
+  // CHECK (phone IS NOT NULL OR email IS NOT NULL) → SQL manual
+  @@map("consumers")
+}
+
+model RefreshToken {
+  id          String      @id @default(uuid()) @db.Uuid
+  subjectType SubjectType @map("subject_type")
+  subjectId   String      @map("subject_id") @db.Uuid
+  tokenHash   String      @unique @map("token_hash")
+  familyId    String      @map("family_id") @db.Uuid
+  expiresAt   DateTime    @map("expires_at")
+  revokedAt   DateTime?   @map("revoked_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  @@index([subjectType, subjectId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+// ───────── Puntos y premios ─────────
+
+model Wallet {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  consumerId     String   @map("consumer_id") @db.Uuid
+  balance        Int      @default(0) // CHECK (balance >= 0) → SQL manual
+  lifetimeEarned Int      @default(0) @map("lifetime_earned")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  tenant       Tenant             @relation(fields: [tenantId], references: [id])
+  consumer     Consumer           @relation(fields: [consumerId], references: [id])
+  transactions PointTransaction[]
+  coupons      Coupon[]
+
+  @@unique([tenantId, consumerId])
+  @@unique([tenantId, id])
+  @@index([consumerId])
+  @@map("wallets")
+}
+
+model Reward {
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String    @map("tenant_id") @db.Uuid
+  title       String
+  description String?
+  imageUrl    String?   @map("image_url")
+  pointsCost  Int       @map("points_cost") // CHECK (points_cost > 0) → SQL manual
+  stock       Int? // null = ilimitado; CHECK (stock >= 0) → SQL manual
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  coupons Coupon[]
+
+  @@unique([tenantId, id])
+  @@index([tenantId, isActive])
+  @@map("rewards")
+}
+
+model QrClaim {
+  id            String   @id @default(uuid()) @db.Uuid
+  jti           String   @unique
+  tenantId      String   @map("tenant_id") @db.Uuid
+  machineId     String   @map("machine_id") @db.Uuid
+  consumerId    String   @map("consumer_id") @db.Uuid
+  score         Int
+  pointsAwarded Int      @map("points_awarded")
+  qrIssuedAt    DateTime @map("qr_issued_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+  machine     Machine           @relation(fields: [machineId], references: [id])
+  consumer    Consumer          @relation(fields: [consumerId], references: [id])
+  transaction PointTransaction?
+
+  @@index([tenantId, createdAt])
+  @@index([consumerId, tenantId, createdAt])
+  @@map("qr_claims")
+}
+
+model PointTransaction {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  walletId     String   @map("wallet_id") @db.Uuid
+  type         TxType
+  points       Int      // con signo; CHECK (points <> 0) → SQL manual
+  balanceAfter Int      @map("balance_after")
+  qrClaimId    String?  @unique @map("qr_claim_id") @db.Uuid
+  couponId     String?  @map("coupon_id") @db.Uuid
+  note         String?
+  createdById  String?  @map("created_by_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  wallet  Wallet   @relation(fields: [tenantId, walletId], references: [tenantId, id])
+  qrClaim QrClaim? @relation(fields: [qrClaimId], references: [id])
+  coupon  Coupon?  @relation(fields: [couponId], references: [id])
+
+  @@index([walletId, createdAt(sort: Desc)])
+  @@index([tenantId, createdAt])
+  @@map("point_transactions")
+}
+
+model Coupon {
+  id              String       @id @default(uuid()) @db.Uuid
+  tenantId        String       @map("tenant_id") @db.Uuid
+  walletId        String       @map("wallet_id") @db.Uuid
+  rewardId        String       @map("reward_id") @db.Uuid
+  rewardTitle     String       @map("reward_title")
+  pointsCost      Int          @map("points_cost")
+  code            String
+  status          CouponStatus @default(PENDING)
+  expiresAt       DateTime     @map("expires_at")
+  redeemedAt      DateTime?    @map("redeemed_at")
+  redeemedById    String?      @map("redeemed_by_id") @db.Uuid
+  redeemedStoreId String?      @map("redeemed_store_id") @db.Uuid
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  tenant       Tenant             @relation(fields: [tenantId], references: [id])
+  wallet       Wallet             @relation(fields: [tenantId, walletId], references: [tenantId, id])
+  reward       Reward             @relation(fields: [tenantId, rewardId], references: [tenantId, id])
+  redeemedBy   TenantUser?        @relation(fields: [redeemedById], references: [id])
+  transactions PointTransaction[]
+
+  // UNIQUE parcial (tenant_id, code) WHERE status = 'PENDING' → SQL manual
+  @@index([walletId, createdAt(sort: Desc)])
+  @@index([tenantId, status, expiresAt])
+  @@map("coupons")
+}
+
+// ───────── Auditoría ─────────
+
+model AuditLog {
+  id         String      @id @default(uuid()) @db.Uuid
+  tenantId   String?     @map("tenant_id") @db.Uuid
+  actorType  SubjectType @map("actor_type")
+  actorId    String      @map("actor_id") @db.Uuid
+  action     String
+  targetType String?     @map("target_type")
+  targetId   String?     @map("target_id") @db.Uuid
+  metadata   Json?
+  ip         String?
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
