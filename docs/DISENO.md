@@ -1,6 +1,8 @@
 # Kairos — Guía de Diseño y Color
 
-Versión 0.3 · Estado: paleta y tipografía aprobadas
+Versión 0.4 · Estado: paleta "Berserker" aplicada al Admin.
+
+> **Vigente:** `design.md` (raíz) reemplaza la paleta (§3), la tipografía display y la forma (radios, bordes, sombras duras) de este documento. El sistema de theming del tenant (§4) no cambia.
 
 Este documento define la identidad visual de Kairos y el sistema de theming multi-tenant. Es la fuente única de verdad para Admin, Wallet PWA y Terminal Arcade.
 

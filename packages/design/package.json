@@ -1,0 +1,21 @@
+{
+  "name": "@kairos/design",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./theme-kairos.css": "./theme-kairos.css",
+    "./theme-tenant": "./src/theme-tenant.ts",
+    "./tokens.json": "./tokens.json"
+  },
+  "scripts": {
+    "build:css": "node scripts/build-css.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@kairos/config": "workspace:*",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}

@@ -1,0 +1,166 @@
+@import "tailwindcss";
+@import "@kairos/design/theme-kairos.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, :root:not([data-theme="light"]) &)) ;
+
+@theme inline {
+  --color-canvas: var(--bg);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-ink: var(--text);
+  --color-ink-2: var(--text-secondary);
+  --color-ink-3: var(--text-disabled);
+  --color-link: var(--link);
+  --color-primary: var(--kairos-primary);
+  --color-primary-hover: var(--kairos-primary-hover);
+  --color-on-primary: var(--kairos-on-primary);
+  --color-accent: var(--kairos-accent);
+  --color-reward: var(--kairos-reward);
+  --color-reward-ink: var(--warning-text);
+  --color-night: var(--kairos-night);
+  --color-paper: var(--kairos-paper);
+  --color-success: var(--success-text);
+  --color-warning: var(--warning-text);
+  --color-danger: var(--danger-text);
+  --color-info: var(--info-text);
+  --font-display: var(--type-display);
+  --font-serif: var(--type-accent);
+  --font-sans: var(--type-text);
+  --font-mono: var(--type-mono);
+  --radius-sm: var(--shape-sm);
+  --radius-md: var(--shape-md);
+  --radius-lg: var(--shape-lg);
+  --shadow-hard: 4px 4px 0 0 var(--line);
+  --shadow-hard-lg: 6px 6px 0 0 var(--line);
+}
+
+html {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--type-text);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+button:not(:disabled),
+select:not(:disabled),
+summary,
+label[for],
+[role="button"],
+[role="tab"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="color"],
+input[type="file"] {
+  cursor: pointer;
+}
+button:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Palabra en cursiva serif: una por título (DISENO.md 5) */
+em.k {
+  font-family: var(--type-accent);
+  font-style: italic;
+  font-weight: 400;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--type-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+dialog::backdrop {
+  background: var(--kairos-scrim);
+}
+
+/* Dropdown nativo con el diseño Kairos. El popup se estiliza donde el navegador lo permite. */
+@supports (appearance: base-select) {
+  .select-kairos,
+  .select-kairos::picker(select) {
+    appearance: base-select;
+  }
+  .select-kairos {
+    display: flex;
+    align-items: center;
+  }
+  .select-kairos::picker-icon {
+    display: none;
+  }
+  .select-kairos::picker(select) {
+    margin-top: 4px;
+    padding: 4px;
+    border: 2px solid var(--text);
+    border-radius: var(--shape-md);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-hard);
+  }
+  .select-kairos option {
+    min-height: 2.75rem;
+    padding: 0 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: var(--shape-sm);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .select-kairos option:hover,
+  .select-kairos option:focus-visible {
+    background: var(--text);
+    color: var(--bg);
+  }
+  .select-kairos option:checked {
+    background: color-mix(in srgb, var(--kairos-primary) 18%, transparent);
+    box-shadow: inset 4px 0 0 var(--kairos-primary);
+  }
+  .select-kairos option::checkmark {
+    order: 1;
+    margin-left: auto;
+  }
+}
+.select-kairos option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Login: fondo con retícula sutil y entrada corta de la tarjeta */
+.login-bg {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+@keyframes login-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.login-enter {
+  animation: login-enter 220ms ease-out both;
+}

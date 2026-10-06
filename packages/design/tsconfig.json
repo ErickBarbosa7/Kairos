@@ -1,0 +1,5 @@
+{
+  "extends": "@kairos/config/tsconfig.base.json",
+  "compilerOptions": { "noEmit": true, "moduleResolution": "Bundler", "module": "ESNext" },
+  "include": ["src"]
+}

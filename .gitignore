@@ -49,3 +49,6 @@ Thumbs.db
 
 # Claude Code (configuración local)
 .claude/settings.local.json
+
+# Credenciales locales de prueba
+docs/CREDENCIALES.md

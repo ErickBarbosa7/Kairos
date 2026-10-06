@@ -1,0 +1,81 @@
+/* GENERADO por scripts/build-css.mjs desde tokens.json. No editar a mano. */
+:root {
+  --kairos-primary: #B91C1C;
+  --kairos-primary-hover: #991B1B;
+  --kairos-accent: #F97316;
+  --kairos-reward: #FBBF24;
+  --kairos-night: #0A0708;
+  --kairos-night-raised: #161012;
+  --kairos-night-line: #3A2A2C;
+  --kairos-paper: #F2EDE6;
+  --kairos-paper-raised: #FBF8F4;
+  --kairos-paper-line: #D6CCC2;
+  --kairos-on-primary: #FFFFFF;
+  --kairos-scrim: rgb(10 7 8 / 0.8);
+  --type-display: 'Big Shoulders Display Variable', 'Arial Narrow', sans-serif;
+  --type-accent: 'Instrument Serif', Georgia, serif;
+  --type-text: 'Figtree Variable', system-ui, sans-serif;
+  --type-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --shape-sm: 0px;
+  --shape-md: 2px;
+  --shape-lg: 4px;
+  --bg: #F2EDE6;
+  --surface: #FBF8F4;
+  --line: #D6CCC2;
+  --text: #140D0E;
+  --text-secondary: #4A3E3C;
+  --text-disabled: #8A7D78;
+  --focus: #991B1B;
+  --success: #16A34A;
+  --success-text: #15803D;
+  --warning: #D97706;
+  --warning-text: #B45309;
+  --danger: #DC2626;
+  --danger-text: #B91C1C;
+  --info: #0284C7;
+  --info-text: #0369A1;
+  --link: #991B1B;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A0708;
+    --surface: #161012;
+    --line: #3A2A2C;
+    --text: #F2EBE4;
+    --text-secondary: #C2B5AE;
+    --text-disabled: #7A6C68;
+    --focus: #F97316;
+    --success: #16A34A;
+    --success-text: #4ADE80;
+    --warning: #D97706;
+    --warning-text: #FBBF24;
+    --danger: #DC2626;
+    --danger-text: #F87171;
+    --info: #0284C7;
+    --info-text: #38BDF8;
+    --link: #FCA5A5;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0A0708;
+  --surface: #161012;
+  --line: #3A2A2C;
+  --text: #F2EBE4;
+  --text-secondary: #C2B5AE;
+  --text-disabled: #7A6C68;
+  --focus: #F97316;
+  --success: #16A34A;
+  --success-text: #4ADE80;
+  --warning: #D97706;
+  --warning-text: #FBBF24;
+  --danger: #DC2626;
+  --danger-text: #F87171;
+  --info: #0284C7;
+  --info-text: #38BDF8;
+  --link: #FCA5A5;
+  color-scheme: dark;
+}

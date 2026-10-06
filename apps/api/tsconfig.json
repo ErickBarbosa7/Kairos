@@ -1,8 +1,5 @@
 {
   "extends": "@kairos/config/tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["src"]
+  "compilerOptions": { "noEmit": true, "types": ["node"] },
+  "include": ["src", "test", "vitest.config.ts"]
 }
