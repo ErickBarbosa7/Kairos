@@ -22,7 +22,7 @@ export const t = {
   login: {
     headline: "Fidelización que se",
     headlineWord: "juega",
-    tagline: "Panel de administración de la plataforma Kairos.",
+    tagline: "Kairos es un programa de lealtad para negocios con local físico. Tus clientes juegan en una máquina Arcade, ganan premios en su celular y vuelven por más. Tú lo controlas desde este panel.",
     title: "Iniciar sesión",
     subtitle: "Acceso exclusivo para el administrador de la plataforma.",
     email: "Correo",
@@ -41,6 +41,7 @@ export const t = {
     rateLimited: "Demasiados intentos. Espera unos minutos antes de volver a entrar.",
     unavailable: "No se pudo iniciar sesión. Intenta de nuevo.",
     footer: "Kairos · Panel de administración",
+    trialNote: "Sin tarjeta. Configura tu negocio en minutos.",
     trialPrompt: "¿Aún no tienes cuenta?",
     trialAction: "Prueba gratis",
     backToLogin: "Ya tengo cuenta",
@@ -94,19 +95,20 @@ export const t = {
   },
   landing: {
     scroll: "Conoce cómo funciona",
-    howTitle: "Cómo funciona",
+    howTitle: "Así funciona Kairos",
+    howIntro: "En lugar de tarjetas de sellos, tus clientes juegan para ganar recompensas en tu negocio. Tú solo defines los premios.",
     how: [
       {
-        title: "Máquina Arcade",
-        body: "Tus clientes juegan en tu local y, al llegar a la meta, giran una ruleta con tus recompensas.",
+        title: "1. Juegan",
+        body: "En tu local, tu cliente juega una partida corta en la máquina Arcade y, al llegar a la meta, gira una ruleta con tus premios.",
       },
       {
-        title: "Wallet",
-        body: "Escanean su código desde el teléfono y reciben su recompensa, sin descargar ninguna app.",
+        title: "2. Ganan",
+        body: "Escanea el código QR con su celular y el premio queda guardado en su Wallet. No descarga ninguna app.",
       },
       {
-        title: "Tu panel",
-        body: "Administra premios, marca y caja para validar cupones al instante.",
+        title: "3. Canjean y vuelven",
+        body: "Muestra su cupón en caja y tu personal lo valida al instante desde tu panel. Ya tiene un motivo para regresar.",
       },
     ],
     arcade: {
