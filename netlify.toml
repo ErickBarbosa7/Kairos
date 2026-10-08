@@ -1,0 +1,13 @@
+[build]
+  base = "/"
+  command = "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @kairos/admin build"
+  publish = "apps/admin/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# SPA: cualquier ruta devuelve index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
