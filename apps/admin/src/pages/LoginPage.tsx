@@ -193,7 +193,7 @@ export function LoginPage() {
           <ArrowIcon />
         </a>
       </div>
-      <Modal open={formOpen} title={mode === "register" ? t.login.registerTitle : t.login.title} onClose={() => !busy && setFormOpen(false)}>
+      <Modal dismissible open={formOpen} title={mode === "register" ? t.login.registerTitle : t.login.title} onClose={() => !busy && setFormOpen(false)}>
           <form id="login" onSubmit={mode === "register" ? submitRegister : submit} noValidate aria-busy={busy} className="w-full min-w-0">
             {mode === "login" && (
               <div role="group" aria-label={t.login.title} className="grid grid-cols-2 rounded-md border-2 border-ink overflow-hidden mb-4">
