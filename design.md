@@ -92,6 +92,13 @@ Cambio de paquete: añadir `@fontsource-variable/big-shoulders-display`; retirar
 - **Toast:** borde izquierdo 4 px del estado + icono + texto.
 - **Navegación:** item activo con barra 4 px `primary` y texto `display` uppercase.
 
+### Login y adaptación a dispositivos
+
+- **Login:** Kairos en Instrument Serif cursiva, con tamaño fluido de 72–160 px. Marca y mensaje a la izquierda del formulario desde 1024 px; composición apilada en móvil y tablet. Mantener ambos tipos de acceso y selector de tema.
+- **Premios:** ojo de 44×44 px para alternar `isActive`, solo para el administrador del negocio. Estado siempre con icono y texto; ocultar conserva el premio en el panel, su stock y los cupones emitidos.
+- **Panel:** navegación en cuadrícula bajo 1024 px; barra lateral contraíble en escritorio. Negocios como tarjetas bajo 768 px y tabla desde ese tamaño. Formularios con vista previa en dos columnas desde 1280 px.
+- **Diálogos:** altura limitada al viewport dinámico, scroll interno y acciones apiladas en pantallas pequeñas. Campos y acciones deben poder usarse desde 320 px, con teclado y en ambos temas.
+
 ## 6. Movimiento
 
 Transiciones de 80–120 ms, `steps` o `ease-out`; sin rebotes. Respetar `prefers-reduced-motion` (ya está en `index.css`).

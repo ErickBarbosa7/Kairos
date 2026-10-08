@@ -185,6 +185,7 @@ Se crea de forma perezosa en el primer escaneo de un QR del tenant.
 | `score` | int | Puntaje crudo firmado por la máquina |
 | `points_awarded` | int | Ya con `score_per_point` y tope aplicados |
 | `qr_issued_at` | timestamptz | `iat` del JWT |
+| `reward_id` | uuid FK null | Recompensa que anunciaba el QR (ruleta). Null = QR de puntos; en ese caso `points_awarded` es 0 |
 
 Solo se insertan QR válidos y acreditados. Limpieza: las filas con más de la ventana de `exp` no se necesitan para evitar repetición (el JWT ya estaría vencido), pero se conservan como historial de juego.
 
@@ -219,6 +220,7 @@ Solo se insertan QR válidos y acreditados. Limpieza: las filas con más de la v
 | `redeemed_at` | timestamptz null | |
 | `redeemed_by_id` | uuid FK null | `tenant_users.id` que lo entregó |
 | `redeemed_store_id` | uuid null | Sucursal donde se entregó |
+| `qr_claim_id` | uuid UQ null | Premio ganado en la ruleta: el QR que lo originó. UQ evita entregarlo dos veces. En estos cupones `points_cost` es 0 |
 | | UQ parcial `(tenant_id, code) WHERE status = 'PENDING'` | El código solo debe ser único entre cupones vivos |
 
 ### 3.4 Auditoría

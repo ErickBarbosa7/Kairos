@@ -16,7 +16,7 @@ export function ThemeSwitch({ className }: { className?: string }) {
       title={dark ? t.common.theme.toLight : t.common.theme.toDark}
       onClick={toggle}
       className={cx(
-        "relative inline-flex h-9 w-[4.5rem] shrink-0 items-center rounded-md border-2 border-ink bg-surface p-0.5 shadow-hard transition-colors duration-150",
+        "relative inline-flex h-11 w-[4.5rem] shrink-0 items-center rounded-md border-2 border-ink bg-surface p-0.5 shadow-hard transition-colors duration-150",
         className,
       )}
     >

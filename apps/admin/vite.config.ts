@@ -10,6 +10,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     // Mismo origen en desarrollo: la cookie del refresh token viaja sin CORS
-    proxy: { "/auth": api, "/admin": api, "/tenant": api },
+    // /tenants pertenece al frontend: no debe coincidir con el prefijo /tenant.
+    proxy: { "^/auth(?:/|$)": api, "^/admin(?:/|$)": api, "^/tenant(?:/|$)": api, "^/public(?:/|$)": api },
   },
 });

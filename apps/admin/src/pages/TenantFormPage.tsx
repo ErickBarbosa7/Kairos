@@ -52,7 +52,7 @@ type Errors = Partial<Record<string, string>>;
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <h2 className="mb-5 font-display text-lg font-bold">{title}</h2>
       <div className="grid gap-5 sm:grid-cols-2">{children}</div>
     </Card>
@@ -183,7 +183,7 @@ export function TenantFormPage() {
         </h1>
       </div>
 
-      <form onSubmit={submit} noValidate className="grid items-start gap-8 lg:grid-cols-[1fr_20rem]">
+      <form onSubmit={submit} noValidate className="grid min-w-0 grid-cols-[minmax(0,1fr)] items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="flex flex-col gap-6">
           <Section title={t.form.sections.business}>
             <Field floating label={t.form.name} htmlFor="name" error={errors.name}>
@@ -256,8 +256,8 @@ export function TenantFormPage() {
           )}
 
           {!editing && (
-            <Card className="p-6">
-              <div className="flex items-start justify-between gap-4">
+            <Card className="p-4 sm:p-6">
+              <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <h2 className="font-display text-lg font-bold">{t.form.sections.admin}</h2>
                   <p className="mt-1 text-sm text-ink-2">{t.form.adminHint}</p>
@@ -306,8 +306,8 @@ export function TenantFormPage() {
           </div>
         </div>
 
-        <Card className="p-5 lg:sticky lg:top-8">
-          <BrandPreview name={f.name} primary={f.primary} themeMode={f.themeMode} />
+        <Card className="min-w-0 p-4 sm:p-5 xl:sticky xl:top-8">
+          <BrandPreview name={f.name} primary={f.primary} themeMode={f.themeMode} logoUrl={existing.data?.logoUrl} />
         </Card>
       </form>
     </div>

@@ -87,6 +87,36 @@ describe("marca", () => {
 });
 
 describe("premios", () => {
+  it("oculta y muestra sin alterar el premio ni los cupones emitidos", async () => {
+    const created = await request(app).post("/tenant/rewards").set(a.h).send({ title: "Galleta", pointsCost: 80, stock: 0, description: "Recién horneada" });
+    const id = created.body.id;
+    const coupon = await makeCoupon(A.tenant.id, "HIDE22");
+    const walletBefore = await prisma.wallet.findUniqueOrThrow({ where: { id: coupon.walletId } });
+
+    const hidden = await request(app).patch(`/tenant/rewards/${id}`).set(a.h).send({ isActive: false });
+    expect(hidden.status).toBe(200);
+    expect(hidden.body).toMatchObject({ id, isActive: false, title: "Galleta", pointsCost: 80, stock: 0, description: "Recién horneada", deletedAt: null });
+    const list = await request(app).get("/tenant/rewards").set(a.h);
+    expect(list.body.data).toEqual([expect.objectContaining({ id, isActive: false })]);
+    expect(await prisma.coupon.findUniqueOrThrow({ where: { id: coupon.id } })).toEqual(coupon);
+    expect(await prisma.wallet.findUniqueOrThrow({ where: { id: coupon.walletId } })).toEqual(walletBefore);
+    expect((await request(app).post("/tenant/coupons/by-code/HIDE22/redeem").set(a.h)).status).toBe(200);
+
+    const shown = await request(app).patch(`/tenant/rewards/${id}`).set(a.h).send({ isActive: true });
+    expect(shown.status).toBe(200);
+    expect(shown.body).toMatchObject({ id, isActive: true, stock: 0, pointsCost: 80 });
+  });
+
+  it("solo el administrador del tenant puede cambiar la visibilidad", async () => {
+    const created = await request(app).post("/tenant/rewards").set(a.h).send({ title: "Galleta", pointsCost: 80 });
+    const staff = await makeStaff(A.tenant.id, "a");
+    const s = await loginTenant("a", staff.email);
+    const path = `/tenant/rewards/${created.body.id}`;
+    expect((await request(app).patch(path).set(s.h).send({ isActive: false })).status).toBe(403);
+    expect((await request(app).patch(path).set(b.h).send({ isActive: false })).status).toBe(404);
+    expect((await prisma.reward.findUniqueOrThrow({ where: { id: created.body.id } })).isActive).toBe(true);
+  });
+
   it("crea, lista, edita y borra (lógico)", async () => {
     const created = await request(app).post("/tenant/rewards").set(a.h).send({ title: "Galleta", pointsCost: 80, stock: 5, description: "Recién horneada" });
     expect(created.status).toBe(201);

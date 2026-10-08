@@ -9,6 +9,9 @@ export interface Tenant {
   status: TenantStatus;
   plan: Plan;
   subscriptionEndsAt: string | null;
+  /** Plan de pago que el negocio pidió al terminar su prueba; el Super Admin lo activa. */
+  requestedPlan: Plan | null;
+  planRequestedAt: string | null;
   logoUrl: string | null;
   primaryColor: string;
   secondaryColor: string | null;
@@ -42,6 +45,31 @@ export interface TenantBrand {
   themeMode: ThemeMode;
 }
 
+/** Precios y límites de los planes, tal como los publica la API (`/public/plans`). */
+export interface PlansCatalog {
+  currency: string;
+  period: string;
+  trialDays: number;
+  plans: { key: Plan; priceMonthly: number; limits: { stores: number; machines: number } }[];
+}
+
+/** Subscription con lo que lleva usado el negocio de cada límite. */
+export interface SubscriptionDetail extends Subscription {
+  planRequestedAt: string | null;
+  limits: { stores: number; machines: number };
+  usage: { stores: number; machines: number };
+}
+
+/** Estado de la prueba o del plan de un negocio. `endsAt` y `daysLeft` son null si no vence. */
+export interface Subscription {
+  plan: Plan;
+  endsAt: string | null;
+  daysLeft: number | null;
+  expired: boolean;
+  onTrial: boolean;
+  requestedPlan: Plan | null;
+}
+
 export interface TenantMe {
   id: string;
   email: string;
@@ -49,6 +77,7 @@ export interface TenantMe {
   role: "tenant_admin" | "tenant_staff";
   storeId: string | null;
   tenant: TenantBrand & { id: string };
+  subscription: Subscription;
 }
 
 export type Me = SuperAdminMe | TenantMe;
@@ -88,6 +117,7 @@ export interface Machine {
   storeId: string;
   label: string;
   keyAlgorithm: "ES256" | "EDDSA";
+  authMode: "DEVICE_KEY" | "WEB_SESSION";
   status: "ACTIVE" | "REVOKED";
   lastSeenAt: string | null;
   revokedAt: string | null;

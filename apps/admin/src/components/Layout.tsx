@@ -1,4 +1,4 @@
-import { Building2, Gift, LogOut, Palette, PanelLeftClose, PanelLeftOpen, ScanLine, Store, Users } from "lucide-react";
+import { Building2, CreditCard, Gift, LogOut, Palette, PanelLeftClose, PanelLeftOpen, ScanLine, Store, Users } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../api/auth";
@@ -7,7 +7,7 @@ import { ThemeSwitch } from "./ThemeSwitch";
 import { cx } from "./ui";
 
 export function Wordmark({ className }: { className?: string }) {
-  return <span className={cx("font-serif text-3xl italic leading-none", className)}>Kairos</span>;
+  return <span className={cx("font-serif italic leading-none", className)}>{t.appName}</span>;
 }
 
 const NAV = {
@@ -18,6 +18,7 @@ const NAV = {
     { to: "/stores", label: t.nav.stores, Icon: Store },
     { to: "/staff", label: t.nav.staff, Icon: Users },
     { to: "/brand", label: t.nav.brand, Icon: Palette },
+    { to: "/plan", label: t.nav.plan, Icon: CreditCard },
   ],
   tenant_staff: [
     { to: "/caja", label: t.nav.caja, Icon: ScanLine },
@@ -47,12 +48,15 @@ function Tip({ children }: { children: string }) {
 }
 
 const iconBtn =
-  "group/tip relative inline-flex size-11 shrink-0 items-center justify-center rounded-md border-2 border-transparent text-ink-2 transition-colors duration-100 hover:border-ink hover:text-ink";
+  "group/tip relative size-11 shrink-0 items-center justify-center rounded-md border-2 border-transparent text-ink-2 transition-colors duration-100 hover:border-ink hover:text-ink";
 
 export function Layout() {
   const { user, logout } = useAuth();
   const items = user ? NAV[user.role] : [];
   const tenant = user && "tenant" in user ? user.tenant : null;
+  // Días que quedan de prueba gratis (null si no está en prueba o ya venció).
+  const sub = user && "subscription" in user ? user.subscription : null;
+  const trialDays = sub && sub.onTrial && !sub.expired && sub.daysLeft !== null ? sub.daysLeft : null;
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const initial = (user?.name ?? "?").trim().charAt(0).toUpperCase();
 
@@ -70,19 +74,19 @@ export function Layout() {
   return (
     <div
       className={cx(
-        "min-h-screen transition-[grid-template-columns] duration-150 lg:grid",
-        collapsed ? "lg:grid-cols-[4.75rem_1fr]" : "lg:grid-cols-[16rem_1fr]",
+        "min-h-dvh transition-[grid-template-columns] duration-150 lg:grid",
+        collapsed ? "lg:grid-cols-[4.75rem_minmax(0,1fr)]" : "lg:grid-cols-[16rem_minmax(0,1fr)]",
       )}
     >
       <aside
         id="sidebar"
         data-collapsed={collapsed}
-        className="group flex items-center justify-between gap-4 border-b-2 border-line bg-surface px-4 py-3 lg:sticky lg:top-0 lg:h-screen lg:flex-col lg:items-stretch lg:justify-start lg:gap-6 lg:border-b-0 lg:border-r-2 lg:px-3 lg:py-4"
+        className="group flex items-center justify-between gap-3 border-b-2 border-line bg-surface px-4 py-3 lg:sticky lg:top-0 lg:h-dvh lg:flex-col lg:items-stretch lg:justify-start lg:gap-6 lg:border-b-0 lg:border-r-2 lg:px-3 lg:py-4"
       >
         <div className={cx("flex items-center gap-2", collapsed ? "lg:flex-col lg:gap-3" : "lg:justify-between lg:pl-2")}>
           <div className={cx("flex items-baseline gap-2", collapsed && "lg:hidden")}>
-            <Wordmark className="text-primary" />
-            <span className="text-xs font-bold uppercase tracking-wider text-ink-3">Admin</span>
+            <Wordmark className="text-3xl text-primary" />
+            <span className="hidden text-xs font-bold uppercase tracking-wider text-ink-2 sm:inline">{t.common.admin}</span>
           </div>
           <button
             type="button"
@@ -111,7 +115,7 @@ export function Layout() {
           </div>
         )}
 
-        <nav aria-label="Principal" className="hidden flex-col gap-1 lg:flex">
+        <nav aria-label={t.common.navigation} className="hidden flex-col gap-1 lg:flex">
           <p className={cx("mb-1 px-3 text-xs font-bold uppercase tracking-wider text-ink-3", collapsed && "lg:sr-only")}>
             {t.common.sidebar.menu}
           </p>
@@ -155,31 +159,41 @@ export function Layout() {
               <p className="truncate text-xs text-ink-2">{user ? t.role[user.role] : ""}</p>
             </div>
           </div>
-          <button type="button" onClick={() => void logout()} aria-label={t.common.logout} className={cx(iconBtn, "hover:border-danger hover:text-danger")}>
+          <button type="button" onClick={() => void logout()} aria-label={t.common.logout} className={cx(iconBtn, "inline-flex hover:border-danger hover:text-danger")}>
             <LogOut size={18} aria-hidden />
             <Tip>{t.common.logout}</Tip>
           </button>
         </div>
       </aside>
 
-      <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-8 lg:py-8">
+      <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <div className="mb-4 flex justify-end">
           <ThemeSwitch />
         </div>
+        {trialDays !== null && (
+          <div role="status" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-md border-2 border-primary bg-primary/10 px-4 py-3 text-sm font-medium">
+            <span>{t.trial.banner(trialDays)}</span>
+            {user?.role === "tenant_admin" && (
+              <NavLink to="/plan" className="inline-flex min-h-11 items-center font-bold text-link underline underline-offset-2 hover:text-ink">
+                {t.trial.link}
+              </NavLink>
+            )}
+          </div>
+        )}
         {items.length > 1 && (
-          <nav aria-label="Principal" className="-mx-4 mb-6 flex gap-1 overflow-x-auto border-b-2 border-line px-4 pb-3 sm:-mx-8 sm:px-8 lg:hidden">
+          <nav aria-label={t.common.navigation} className="mb-6 grid grid-cols-2 gap-2 border-b-2 border-line pb-4 sm:grid-cols-3 lg:hidden">
             {items.map(({ to, label, Icon }) => (
               <NavLink
                 key={to}
                 to={to}
                 className={({ isActive }) =>
                   cx(
-                    "flex min-h-11 shrink-0 items-center gap-2 rounded-md px-3 font-display text-base font-bold uppercase tracking-wide",
+                    "flex min-h-11 min-w-0 items-center gap-2 rounded-md px-3 py-2 font-display text-base font-bold uppercase tracking-wide",
                     isActive ? "bg-primary/15 text-ink shadow-[inset_0_-3px_0_0_var(--kairos-primary)]" : "text-ink-2",
                   )
                 }
               >
-                <Icon size={18} aria-hidden />
+                <Icon size={18} aria-hidden className="shrink-0" />
                 {label}
               </NavLink>
             ))}

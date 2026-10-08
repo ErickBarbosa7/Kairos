@@ -112,7 +112,8 @@ tenantsRouter.patch("/:id", async (req, res) => {
   if (!existing) throw notFound("Tenant no encontrado");
 
   const tenant = await prisma.$transaction(async (tx) => {
-    const t = await tx.tenant.update({ where: { id }, data });
+    // Al fijar un plan se atiende la solicitud pendiente.
+    const t = await tx.tenant.update({ where: { id }, data: { ...data, ...(data.plan && { requestedPlan: null, planRequestedAt: null }) } });
     await tx.auditLog.create({
       data: {
         actorType: "SUPER_ADMIN",

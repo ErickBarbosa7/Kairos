@@ -66,7 +66,7 @@ function StaffModal({ staff, onClose }: { staff: Partial<Staff> | null; onClose(
           </Select>
         </Field>
         {errors.form && <p role="alert" className="text-sm text-danger">{errors.form}</p>}
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button type="button" onClick={onClose}>{t.common.cancel}</Button>
           <Button type="submit" variant="primary" disabled={save.isPending}>{t.common.save}</Button>
         </div>
@@ -111,7 +111,7 @@ export function StaffPage() {
               const isAdmin = u.role === "TENANT_ADMIN";
               return (
                 <li key={u.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
-                  <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex min-w-0 max-w-full items-center gap-3">
                     <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-link">
                       <UserRound size={18} aria-hidden />
                     </span>
@@ -123,7 +123,7 @@ export function StaffPage() {
                       <p className="truncate text-sm text-ink-2">{u.email} · {storeName(u.storeId)}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className={cx("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold", u.isActive ? "bg-success/10 text-success" : "bg-line/60 text-ink-2")}>
                       {u.isActive ? <CheckCircle2 size={13} aria-hidden /> : <PauseCircle size={13} aria-hidden />}
                       {u.isActive ? t.staff.active : t.staff.inactive}

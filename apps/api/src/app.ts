@@ -9,6 +9,8 @@ import { tenantsRouter } from "./modules/admin/tenants.routes.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { publicRouter } from "./modules/public/brand.routes.js";
 import { tenantRouter } from "./modules/tenant/index.js";
+import { walletRouter } from "./modules/wallet/wallet.routes.js";
+import { terminalRouter } from "./modules/terminal/terminal.routes.js";
 import { uploadsRoot } from "./lib/storage.js";
 
 export function createApp(opts: { rateLimit?: boolean } = {}) {
@@ -39,6 +41,8 @@ export function createApp(opts: { rateLimit?: boolean } = {}) {
   app.use("/admin/tenants", tenantsRouter);
   app.use("/public", publicRouter({ rateLimit: useRateLimit }));
   app.use("/tenant", tenantRouter({ rateLimit: useRateLimit }));
+  app.use("/wallet", walletRouter({ rateLimit: useRateLimit }));
+  app.use("/terminal", terminalRouter({ rateLimit: useRateLimit }));
   app.use(
     "/uploads",
     express.static(uploadsRoot, {

@@ -65,8 +65,8 @@ export function TenantBrandPage() {
         <p className="mt-2 text-ink-2">{t.brand.intro}</p>
       </header>
 
-      <form onSubmit={submit} noValidate className="grid items-start gap-8 lg:grid-cols-[1fr_20rem]">
-        <Card className="flex flex-col gap-6 p-6">
+      <form onSubmit={submit} noValidate className="grid min-w-0 grid-cols-[minmax(0,1fr)] items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        <Card className="min-w-0 flex flex-col gap-6 p-4 sm:p-6">
           <ImageUpload label={t.brand.logo} hint={t.brand.logoHint} value={logo} onChange={setLogo} />
           <div className="grid gap-5 sm:grid-cols-2">
             <ColorField id="primary" label={t.form.primary} value={primary} onChange={setPrimary} error={errors.primaryColor} />
@@ -90,7 +90,7 @@ export function TenantBrandPage() {
           </div>
         </Card>
 
-        <Card className="p-5 lg:sticky lg:top-8">
+        <Card className="min-w-0 p-4 sm:p-5 xl:sticky xl:top-8">
           <BrandPreview name={data.name} primary={primary} themeMode={mode} logoUrl={logo} />
         </Card>
       </form>

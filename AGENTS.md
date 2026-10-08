@@ -18,7 +18,7 @@ Antes de tocar el modelo de datos, la seguridad o la UI, lee:
 | Tarea | Comando |
 |---|---|
 | Tipos (gate real de calidad) | `pnpm typecheck` — corre api, admin y design |
-| Tests | `pnpm test` — Vitest en `apps/api` (71) y `packages/design` (14). `apps/admin` no tiene tests |
+| Tests | `pnpm test` — Vitest en `apps/api` (138) y `packages/design` (14). `apps/admin` no tiene tests |
 | Un solo archivo de test | `pnpm --filter @kairos/api exec vitest run test/isolation.test.ts` |
 | Base de datos | `pnpm db:up` / `pnpm db:down` — Postgres 17 en **localhost:5433** (no 5432) |
 | API (dev) | `pnpm --filter @kairos/api dev` — tsx watch, puerto 3000 |
@@ -29,6 +29,7 @@ Antes de tocar el modelo de datos, la seguridad o la UI, lee:
 
 Scripts de apoyo: `seed:admin` (`ADMIN_EMAIL`, `ADMIN_NAME`, `ADMIN_PASSWORD`),
 `seed:coupon` (`TENANT_SLUG`, se niega a correr en producción),
+`seed:consumer` (cliente demo y su token de Wallet; solo desarrollo),
 `gen:machine-key <nombre>` (ES256; escribe el par en `apps/api/secrets/`).
 
 ### Scripts raíz que NO funcionan (verificado, no es bug tuyo)
@@ -69,10 +70,20 @@ Scripts de apoyo: `seed:admin` (`ADMIN_EMAIL`, `ADMIN_NAME`, `ADMIN_PASSWORD`),
   balance y stock; índice parcial `coupons_tenant_code_pending_key`; trigger
   `point_transactions_immutable`). Edita a mano lo que Prisma no expresa; no esperes que
   `prisma migrate dev` lo genere.
+- **Acreditación de QR** (`src/modules/wallet/`, detalle en `docs/ACREDITACION.md`): `POST /wallet/claims`
+  verifica el JWT de la máquina con su llave pública y acredita en una transacción con la billetera
+  bloqueada. Un QR con `reward_id` (ruleta de la terminal) crea un cupón de premio y descuenta stock;
+  sin `reward_id` es de puntos. Es ruta de **cliente**, no de tenant: usa el `prisma` global y escribe `tenantId` a mano
+  (sale de la máquina verificada). Su token tiene audiencia `kairos-wallet`, separada de la del panel.
+  El inicio de sesión del cliente (OTP) aún no existe; los tokens salen de `seed:consumer` y de las pruebas.
+- **Prueba gratis y planes** (`docs/SUSCRIPCIONES.md`): `POST /auth/register` crea un negocio en `TRIAL`
+  (`TRIAL_DAYS`). Si `subscription_ends_at` ya pasó, `requireActiveSubscription` responde 402 en el panel
+  (salvo `/tenant/subscription*`) y las máquinas no acreditan (`subscription_expired`). Sin fecha = no vence.
+  Precios y límites por plan (sucursales y máquinas activas) viven en `src/lib/plans.ts`; se aplican con `plan_limit` (403).
 - **Roles**: `super_admin | tenant_admin | tenant_staff` (`src/lib/tokens.ts`). El refresh token va en
   cookie `HttpOnly` `kairos_rt`; el access token vive **en memoria** en
   `apps/admin/src/api/client.ts` y se refresca con una única petición compartida.
-- En dev el Admin usa el **proxy de Vite** para `/auth`, `/admin`, `/tenant` → mismo origen, sin CORS.
+- En dev el Admin usa el **proxy de Vite** para `/auth`, `/admin`, `/tenant`, `/public` → mismo origen, sin CORS.
   `VITE_API_URL` solo se usa en producción.
 - **Errores**: lanza `HttpError` con los helpers de `src/lib/errors.ts`
   (`unauthorized`/`forbidden`/`notFound`/`conflict`); `middleware/error.ts` los serializa como

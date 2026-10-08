@@ -79,9 +79,9 @@ export function CajaPage() {
         <p className="mt-2 text-ink-2">{t.caja.intro}</p>
       </header>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <form onSubmit={find} className="flex flex-col gap-4 sm:flex-row sm:items-end">
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <Field floating label={t.caja.code} htmlFor="code">
               <Input
                 id="code"
@@ -110,12 +110,12 @@ export function CajaPage() {
       </Card>
 
       {coupon && ui && (
-        <section aria-live="polite" className={cx("rounded-lg border-2 p-6", delivered ? "border-success/50 bg-success/10" : ui.tone)}>
+        <section aria-live="polite" className={cx("rounded-lg border-2 p-4 sm:p-6", delivered ? "border-success/50 bg-success/10" : ui.tone)}>
           <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
             {delivered ? <PartyPopper size={18} aria-hidden /> : <ui.Icon size={18} aria-hidden />}
             {delivered ? t.caja.delivered : t.caja.status[coupon.status]}
           </div>
-          <p className="mt-3 font-display text-4xl font-extrabold leading-tight text-ink">{coupon.rewardTitle}</p>
+          <p className="mt-3 break-words font-display text-3xl font-extrabold leading-tight text-ink sm:text-4xl">{coupon.rewardTitle}</p>
           <p className="mt-1 font-mono text-sm text-ink-2">
             {groups(coupon.code)} · {coupon.pointsCost} {t.rewards.pts}
           </p>
@@ -149,12 +149,12 @@ export function CajaPage() {
           ) : (
             <ul className="divide-y divide-line">
               {recent.data.map((c) => (
-                <li key={c.id} className="flex items-center justify-between gap-3 px-5 py-3.5">
+                <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-5">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{c.rewardTitle}</p>
                     <p className="font-mono text-xs text-ink-2">{groups(c.code)}</p>
                   </div>
-                  <div className="shrink-0 text-right text-xs text-ink-2">
+                  <div className="min-w-0 max-w-full break-words text-xs text-ink-2 sm:text-right">
                     <p className="tabular-nums">{c.redeemedAt ? time.format(new Date(c.redeemedAt)) : ""}</p>
                     {c.redeemedBy && <p>{t.caja.by(c.redeemedBy)}</p>}
                   </div>

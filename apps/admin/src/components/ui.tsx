@@ -18,7 +18,7 @@ export function Button({ variant = "secondary", className, ...p }: BtnProps) {
     <button
       {...p}
       className={cx(
-        "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border-2 px-4 font-display text-base font-bold uppercase tracking-wide transition-[transform,box-shadow,background-color] duration-100",
+        "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border-2 px-4 font-display text-base font-bold uppercase tracking-wide transition-[transform,box-shadow,background-color] duration-100 [&>svg]:shrink-0",
         "disabled:cursor-not-allowed disabled:opacity-50",
         styles,
         className,
@@ -29,7 +29,7 @@ export function Button({ variant = "secondary", className, ...p }: BtnProps) {
 
 const floatLabel = (multiline?: boolean) =>
   cx(
-    "pointer-events-none absolute left-2 -translate-y-1/2 z-10 bg-surface px-1.5 text-base leading-none text-ink-3 transition-all duration-100",
+    "pointer-events-none absolute left-2 -translate-y-1/2 z-10 bg-surface px-1.5 text-base leading-none text-ink-2 transition-all duration-100",
     multiline ? "top-6" : "top-1/2",
     "peer-focus:top-0 peer-focus:text-sm peer-focus:font-bold peer-focus:uppercase peer-focus:text-ink",
     "peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-sm peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:text-ink",
@@ -53,7 +53,7 @@ export function Field({
   htmlFor: string;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex min-w-0 flex-col gap-1.5">
       {floating ? (
         <div className="relative">
           {children}
@@ -91,13 +91,13 @@ export function FloatingField({
   const [shown, setShown] = useState(false);
   const isPassword = type === "password";
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex min-w-0 flex-col gap-1.5">
       <div className="relative">
         <input
           {...p}
           id={id}
           aria-invalid={!!error || undefined}
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
           type={isPassword && shown ? "text" : type}
           placeholder=" "
           className={cx(inputCls, "min-h-14", isPassword && "pr-12", className)}
@@ -107,7 +107,7 @@ export function FloatingField({
           {label}
         </label>
       </div>
-      {hint && !error && <p className="text-xs text-ink-2">{hint}</p>}
+      {hint && !error && <p id={`${id}-hint`} className="text-xs text-ink-2">{hint}</p>}
       {error && (
         <p id={`${id}-error`} role="alert" className="flex items-center gap-1 text-xs font-bold text-danger">
           <AlertCircle size={14} aria-hidden /> {error}
@@ -118,7 +118,7 @@ export function FloatingField({
 }
 
 const inputCls =
-  "peer min-h-11 w-full rounded-md border-2 border-line bg-surface px-3 text-base text-ink placeholder:text-ink-3 focus:border-focus focus-visible:outline-none aria-[invalid=true]:border-danger";
+  "peer min-h-11 min-w-0 w-full rounded-md border-2 border-line bg-surface px-3 text-base text-ink placeholder:text-ink-2 focus:border-focus aria-[invalid=true]:border-danger";
 
 function EyeToggle({ shown, onClick }: { shown: boolean; onClick(): void }) {
   const label = shown ? t.common.password.hide : t.common.password.show;
@@ -129,7 +129,7 @@ function EyeToggle({ shown, onClick }: { shown: boolean; onClick(): void }) {
       aria-label={label}
       aria-pressed={shown}
       title={label}
-      className="absolute right-1 top-1/2 z-20 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-md border-2 border-transparent text-ink-2 hover:border-ink hover:text-ink"
+      className="absolute right-1 top-1/2 z-20 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-md border-2 border-transparent text-ink-2 hover:border-ink hover:text-ink"
     >
       {shown ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}
     </button>

@@ -13,6 +13,8 @@ const TENANT_MODELS = new Set([
   "QrClaim",
   "PointTransaction",
   "Coupon",
+  "TerminalPairing",
+  "TerminalSession",
 ]);
 
 const WHERE_OPS = new Set([

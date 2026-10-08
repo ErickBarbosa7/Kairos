@@ -29,13 +29,13 @@ export function Modal({ open, title, onClose, children, className }: Props) {
         onClose();
       }}
       className={cx(
-        "m-auto max-h-[92vh] w-[min(94vw,34rem)] overflow-y-auto rounded-lg border border-line bg-surface p-6 text-ink shadow-xl",
+        "m-auto max-h-[calc(100dvh-2rem)] w-[min(calc(100%-2rem),34rem)] overflow-y-auto rounded-lg border-2 border-line bg-surface p-4 text-ink shadow-hard-lg sm:p-6",
         className,
       )}
     >
       {open && (
         <>
-          <h2 className="mb-5 font-display text-xl font-bold">{title}</h2>
+          <h2 className="mb-5 break-words font-display text-xl font-bold">{title}</h2>
           {children}
         </>
       )}

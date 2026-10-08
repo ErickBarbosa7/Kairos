@@ -1,7 +1,9 @@
 import { createPublicKey } from "node:crypto";
 import { Router } from "express";
 import { z } from "zod";
+import { prisma } from "../../db/prisma.js";
 import { HttpError, notFound } from "../../lib/errors.js";
+import { assertWithinPlan } from "../../lib/plans.js";
 import { tenantAdminOnly } from "../../middleware/tenant.js";
 
 const idParam = z.object({ id: z.uuid() });
@@ -28,6 +30,7 @@ const view = (m: {
   storeId: string;
   label: string;
   keyAlgorithm: string;
+  authMode: string;
   status: string;
   lastSeenAt: Date | null;
   revokedAt: Date | null;
@@ -37,6 +40,7 @@ const view = (m: {
   storeId: m.storeId,
   label: m.label,
   keyAlgorithm: m.keyAlgorithm,
+  authMode: m.authMode,
   status: m.status,
   lastSeenAt: m.lastSeenAt,
   revokedAt: m.revokedAt,
@@ -64,8 +68,15 @@ machinesRouter.post("/machines", tenantAdminOnly, async (req, res) => {
   const store = await req.db!.store.findFirst({ where: { id: body.storeId, isActive: true } });
   if (!store) throw notFound("Sucursal no encontrada");
 
+  // Primero se valida la llave (400) y después el tope del plan (403).
+  const publicKey = normalizePublicKey(body.publicKey, body.keyAlgorithm);
+
+  // Máquinas activas contra el tope del plan (las revocadas no cuentan).
+  const tenant = await prisma.tenant.findUniqueOrThrow({ where: { id: req.auth!.tid! }, select: { plan: true } });
+  assertWithinPlan(tenant.plan, "machines", await req.db!.machine.count({ where: { status: "ACTIVE" } }));
+
   const machine = await req.db!.machine.create({
-    data: { ...body, publicKey: normalizePublicKey(body.publicKey, body.keyAlgorithm) } as never,
+    data: { ...body, publicKey } as never,
   });
   res.status(201).json(view(machine));
 });
@@ -81,5 +92,7 @@ machinesRouter.patch("/machines/:id", tenantAdminOnly, async (req, res) => {
 machinesRouter.post("/machines/:id/revoke", tenantAdminOnly, async (req, res) => {
   const { id } = idParam.parse(req.params);
   if (!(await req.db!.machine.findFirst({ where: { id } }))) throw notFound("Máquina no encontrada");
-  res.json(view(await req.db!.machine.update({ where: { id }, data: { status: "REVOKED", revokedAt: new Date() } })));
+  const machine = await req.db!.machine.update({ where: { id }, data: { status: "REVOKED", revokedAt: new Date() } });
+  await prisma.terminalSession.updateMany({ where: { machineId: id, revokedAt: null }, data: { revokedAt: new Date() } });
+  res.json(view(machine));
 });

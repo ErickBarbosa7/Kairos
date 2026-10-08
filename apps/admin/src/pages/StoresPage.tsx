@@ -1,16 +1,16 @@
-import { Check, Copy, Cpu, MapPin, Pencil, Plus, ShieldOff, Store as StoreIcon } from "lucide-react";
+import { Check, Copy, Cpu, MapPin, Pencil, Plus, ShieldOff, Smartphone, Store as StoreIcon } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { useAuth } from "../api/auth";
 import { ApiError } from "../api/client";
 import type { Machine, Store } from "../api/types";
-import { useCreateMachine, useMachines, useRevokeMachine, useSaveStore, useStores } from "../api/tenantPanel";
+import { useApproveTerminalPairing, useCreateMachine, useMachines, useRevokeMachine, useSaveStore, useStores } from "../api/tenantPanel";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { Modal } from "../components/Modal";
 import { useToast } from "../components/Toast";
 import { Button, Card, cx, Field, Input, Select, Spinner, Textarea } from "../components/ui";
 import { t } from "../strings";
 
-function CopyId({ value }: { value: string }) {
+function CopyId({ value, label = t.stores.storeId }: { value: string; label?: string }) {
   const [done, setDone] = useState(false);
   return (
     <button
@@ -25,7 +25,7 @@ function CopyId({ value }: { value: string }) {
         }
       }}
       className="inline-flex min-h-9 items-center gap-1.5 rounded-sm px-2 text-xs font-semibold text-link hover:bg-line/50"
-      aria-label={`${t.stores.copy} ${t.stores.storeId}`}
+      aria-label={`${t.stores.copy} ${label}`}
     >
       {done ? <Check size={14} aria-hidden /> : <Copy size={14} aria-hidden />}
       {done ? t.stores.copied : t.stores.copy}
@@ -48,8 +48,8 @@ function StoreModal({ store, open, onClose }: { store: Partial<Store> | null; op
       await save.mutateAsync({ id: store?.id, name: name.trim(), address: address.trim() || null, ...(store?.id && { isActive: active }) });
       toast(t.stores.saved);
       onClose();
-    } catch {
-      setError(t.errors.generic);
+    } catch (err) {
+      setError(err instanceof ApiError && err.code === "plan_limit" ? err.message : t.errors.generic);
     }
   }
 
@@ -68,7 +68,7 @@ function StoreModal({ store, open, onClose }: { store: Partial<Store> | null; op
             {t.stores.active}
           </label>
         )}
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button type="button" onClick={onClose}>{t.common.cancel}</Button>
           <Button type="submit" variant="primary" disabled={save.isPending}>{t.common.save}</Button>
         </div>
@@ -97,12 +97,13 @@ function MachineModal({ store, onClose }: { store: Store | null; onClose(): void
       toast(t.stores.machineSaved);
       onClose();
     } catch (err) {
-      setErrors({ publicKey: err instanceof ApiError ? err.message : t.errors.generic });
+      if (err instanceof ApiError && err.code === "plan_limit") setErrors({ form: err.message });
+      else setErrors({ publicKey: err instanceof ApiError ? err.message : t.errors.generic });
     }
   }
 
   return (
-    <Modal open={!!store} onClose={onClose} title={`${t.stores.machineTitle} · ${store?.name ?? ""}`} className="w-[min(94vw,40rem)]">
+    <Modal open={!!store} onClose={onClose} title={`${t.stores.machineTitle} · ${store?.name ?? ""}`} className="w-[min(calc(100%-2rem),40rem)]">
       <form onSubmit={submit} noValidate className="flex flex-col gap-5">
         <div className="grid gap-5 sm:grid-cols-2">
           <Field floating label={t.stores.machineLabel} htmlFor="m-label" error={errors.label}>
@@ -118,9 +119,48 @@ function MachineModal({ store, onClose }: { store: Store | null; onClose(): void
         <Field floating multiline label={t.stores.publicKey} htmlFor="m-key" hint={t.stores.publicKeyHint} error={errors.publicKey}>
           <Textarea id="m-key" value={key} onChange={(e) => setKey(e.target.value)} spellCheck={false} className="font-mono text-xs" aria-invalid={!!errors.publicKey} />
         </Field>
-        <div className="flex justify-end gap-2">
+        {errors.form && <p role="alert" className="text-sm font-medium text-danger">{errors.form}</p>}
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button type="button" onClick={onClose}>{t.common.cancel}</Button>
           <Button type="submit" variant="primary" disabled={create.isPending}>{t.stores.addMachine}</Button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+function TabletModal({ store, onClose }: { store: Store | null; onClose(): void }) {
+  const approve = useApproveTerminalPairing();
+  const toast = useToast();
+  const [code, setCode] = useState("");
+  const [label, setLabel] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    if (!store) return;
+    if (!/^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$/i.test(code.trim())) return setError(t.errors.required);
+    if (label.trim().length < 2) return setError(t.errors.required);
+    try {
+      await approve.mutateAsync({ code: code.trim().toUpperCase(), storeId: store.id, label: label.trim() });
+      toast(t.stores.tabletSaved);
+      onClose();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : t.errors.generic);
+    }
+  }
+  return (
+    <Modal open={!!store} onClose={onClose} title={`${t.stores.tabletTitle} · ${store?.name ?? ""}`}>
+      <form onSubmit={submit} noValidate className="flex flex-col gap-5">
+        <p className="text-sm text-ink-2">{t.stores.tabletHint}</p>
+        <Field floating label={t.stores.pairingCode} htmlFor="tablet-code" error={error ?? undefined}>
+          <Input id="tablet-code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength={8} className="font-mono tracking-[0.22em]" aria-invalid={!!error} />
+        </Field>
+        <Field floating label={t.stores.tabletLabel} htmlFor="tablet-label">
+          <Input id="tablet-label" value={label} onChange={(e) => setLabel(e.target.value)} />
+        </Field>
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" onClick={onClose}>{t.common.cancel}</Button>
+          <Button type="submit" variant="primary" disabled={approve.isPending}>{t.stores.linkTablet}</Button>
         </div>
       </form>
     </Modal>
@@ -131,14 +171,18 @@ function MachineRow({ m, canEdit, onRevoke }: { m: Machine; canEdit: boolean; on
   const active = m.status === "ACTIVE";
   return (
     <li className="flex flex-wrap items-center justify-between gap-3 py-3">
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 max-w-full items-center gap-3">
         <Cpu size={18} className="shrink-0 text-ink-3" aria-hidden />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">{m.label}</p>
-          <p className="font-mono text-xs text-ink-2">{m.keyAlgorithm}</p>
+          <p className="font-mono text-xs text-ink-2">{m.authMode === "WEB_SESSION" ? t.stores.webTerminal : m.keyAlgorithm}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-1 text-xs text-ink-2">
+            {t.stores.machineId}: <code className="break-all font-mono">{m.id}</code>
+            <CopyId value={m.id} label={t.stores.machineId} />
+          </p>
         </div>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <span className={cx("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold", active ? "bg-success/10 text-success" : "bg-danger/10 text-danger")}>
           {active ? <Check size={13} aria-hidden /> : <ShieldOff size={13} aria-hidden />}
           {active ? t.stores.machineActive : t.stores.machineRevoked}
@@ -160,6 +204,7 @@ export function StoresPage() {
   const toast = useToast();
   const [storeModal, setStoreModal] = useState<Partial<Store> | null>(null);
   const [machineStore, setMachineStore] = useState<Store | null>(null);
+  const [tabletStore, setTabletStore] = useState<Store | null>(null);
   const [toRevoke, setToRevoke] = useState<Machine | null>(null);
 
   return (
@@ -193,16 +238,16 @@ export function StoresPage() {
             const list = (machines.data ?? []).filter((m) => m.storeId === s.id);
             return (
               <li key={s.id}>
-                <Card className="p-6">
+                <Card className="p-4 sm:p-6">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <h2 className="flex items-center gap-2 font-display text-xl font-bold">
+                      <h2 className="flex flex-wrap items-center gap-2 break-words font-display text-xl font-bold">
                         {s.name}
                         {!s.isActive && <span className="rounded-full bg-line/60 px-2.5 py-0.5 font-sans text-xs font-semibold text-ink-2">{t.stores.inactive}</span>}
                       </h2>
                       {s.address && (
-                        <p className="mt-1 flex items-center gap-1.5 text-sm text-ink-2">
-                          <MapPin size={14} aria-hidden /> {s.address}
+                        <p className="mt-1 flex items-start gap-1.5 break-words text-sm text-ink-2">
+                          <MapPin size={14} aria-hidden className="mt-0.5 shrink-0" /> {s.address}
                         </p>
                       )}
                       <p className="mt-2 flex flex-wrap items-center gap-1 text-xs text-ink-2">
@@ -218,12 +263,13 @@ export function StoresPage() {
                   </div>
 
                   <div className="mt-5 border-t border-line pt-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <h3 className="text-sm font-bold uppercase tracking-wider text-ink-2">{t.stores.machines}</h3>
                       {canEdit && s.isActive && (
-                        <Button onClick={() => setMachineStore(s)}>
-                          <Plus size={15} aria-hidden /> {t.stores.addMachine}
-                        </Button>
+                        <div className="flex flex-wrap gap-2">
+                          <Button onClick={() => setTabletStore(s)}><Smartphone size={15} aria-hidden /> {t.stores.linkTablet}</Button>
+                          <Button onClick={() => setMachineStore(s)}><Plus size={15} aria-hidden /> {t.stores.addMachine}</Button>
+                        </div>
                       )}
                     </div>
                     {list.length === 0 ? (
@@ -246,6 +292,7 @@ export function StoresPage() {
       {/* key fuerza estado limpio en cada apertura */}
       <StoreModal key={`store-${storeModal?.id ?? (storeModal ? "new" : "closed")}`} store={storeModal} open={!!storeModal} onClose={() => setStoreModal(null)} />
       <MachineModal key={`machine-${machineStore?.id ?? "closed"}`} store={machineStore} onClose={() => setMachineStore(null)} />
+      <TabletModal key={`tablet-${tabletStore?.id ?? "closed"}`} store={tabletStore} onClose={() => setTabletStore(null)} />
       <ConfirmDialog
         open={!!toRevoke}
         danger

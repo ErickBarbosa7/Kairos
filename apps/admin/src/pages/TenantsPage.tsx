@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSetTenantStatus, useTenantCount, useTenants } from "../api/tenants";
 import type { Tenant, TenantStatus } from "../api/types";
+import { TenantLogo } from "../components/TenantLogo";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useToast } from "../components/Toast";
 import { Button, Card, Input, Select, Spinner, StatusBadge } from "../components/ui";
@@ -16,6 +17,33 @@ function Stat({ label, status, tone }: { label: string; status?: TenantStatus; t
       <span className="text-sm font-medium text-ink-2">{label}</span>
       <span className={`font-display text-4xl font-extrabold tabular-nums ${tone}`}>{data ?? "–"}</span>
     </Card>
+  );
+}
+
+function RequestedBadge({ plan }: { plan: NonNullable<Tenant["requestedPlan"]> }) {
+  return (
+    <span className="ml-2 inline-flex rounded-full border border-warning px-2 py-0.5 text-xs font-semibold text-warning">
+      {t.tenants.requested(t.tenants.plan[plan])}
+    </span>
+  );
+}
+
+function TenantActions({ tenant, onStatus }: { tenant: Tenant; onStatus(action: "suspend" | "activate"): void }) {
+  return (
+    <div className="flex flex-wrap gap-2 md:justify-end">
+      <Link to={`/tenants/${tenant.id}`} aria-label={`${t.common.edit} ${tenant.name}`} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md border-2 border-ink px-3 text-sm font-semibold hover:bg-ink hover:text-canvas">
+        <Pencil size={15} aria-hidden /> {t.common.edit}
+      </Link>
+      {tenant.status === "ACTIVE" ? (
+        <Button variant="danger" onClick={() => onStatus("suspend")}>
+          <PauseCircle size={15} aria-hidden /> {t.tenants.suspend}
+        </Button>
+      ) : tenant.status === "SUSPENDED" ? (
+        <Button onClick={() => onStatus("activate")}>
+          <Play size={15} aria-hidden /> {t.tenants.activate}
+        </Button>
+      ) : null}
+    </div>
   );
 }
 
@@ -62,14 +90,14 @@ export function TenantsPage() {
         </Link>
       </header>
 
-      <section aria-label="Resumen" className="grid gap-4 sm:grid-cols-3">
+      <section aria-label={t.tenants.summary} className="grid gap-4 sm:grid-cols-3">
         <Stat label={t.tenants.stats.total} tone="text-ink" />
         <Stat label={t.tenants.stats.active} status="ACTIVE" tone="text-success" />
         <Stat label={t.tenants.stats.suspended} status="SUSPENDED" tone="text-danger" />
       </section>
 
-      <div className="flex flex-wrap gap-3">
-        <div className="relative min-w-64 flex-1">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_14rem]">
+        <div className="relative min-w-0">
           <Search size={18} aria-hidden className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
           <Input
             type="search"
@@ -109,74 +137,78 @@ export function TenantsPage() {
         ) : data.data.length === 0 ? (
           <p className="p-10 text-center text-sm text-ink-2">{filtered ? t.tenants.emptyFiltered : t.tenants.empty}</p>
         ) : (
-          <div className={`overflow-x-auto ${isFetching ? "opacity-70" : ""}`}>
-            <table className="w-full min-w-[42rem] text-left text-sm">
-              <thead className="sticky top-0 border-b border-line bg-surface text-xs uppercase tracking-wider text-ink-2">
-                <tr>
-                  <th scope="col" className="px-5 py-3 font-semibold">{t.tenants.cols.name}</th>
-                  <th scope="col" className="px-3 py-3 font-semibold">{t.tenants.cols.plan}</th>
-                  <th scope="col" className="px-3 py-3 font-semibold">{t.tenants.cols.status}</th>
-                  <th scope="col" className="px-3 py-3 font-semibold">{t.tenants.cols.ends}</th>
-                  <th scope="col" className="px-5 py-3 text-right font-semibold">{t.tenants.cols.actions}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {data.data.map((tn) => (
-                  <tr key={tn.id} className="h-16">
-                    <td className="px-5">
-                      <div className="flex items-center gap-3">
-                        <span
-                          aria-hidden
-                          className="size-9 shrink-0 rounded-md border border-line"
-                          style={{ background: tn.primaryColor }}
-                        />
-                        <div className="min-w-0">
-                          <p className="truncate font-semibold">{tn.name}</p>
-                          <p className="truncate font-mono text-xs text-ink-2">{tn.slug}</p>
-                        </div>
+          <div className={isFetching ? "opacity-70" : ""}>
+            <ul className="divide-y-2 divide-line md:hidden">
+              {data.data.map((tn) => (
+                <li key={tn.id} className="flex min-w-0 flex-col gap-4 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <TenantLogo logoUrl={tn.logoUrl} color={tn.primaryColor} className="size-11" />
+                      <div className="min-w-0 flex-1">
+                        <h2 className="break-words font-display text-xl font-bold">{tn.name}</h2>
+                        <p className="mt-1 break-all font-mono text-xs text-ink-2">{tn.slug}</p>
                       </div>
-                    </td>
-                    <td className="px-3">
-                      <span className="rounded-full border border-line px-2.5 py-1 text-xs font-medium text-ink-2">
-                        {t.tenants.plan[tn.plan]}
-                      </span>
-                    </td>
-                    <td className="px-3">
-                      <StatusBadge status={tn.status} />
-                    </td>
-                    <td className="px-3 tabular-nums text-ink-2">
-                      {tn.subscriptionEndsAt ? formatDate(tn.subscriptionEndsAt) : t.tenants.noEnd}
-                    </td>
-                    <td className="px-5">
-                      <div className="flex justify-end gap-2">
-                        <Link
-                          to={`/tenants/${tn.id}`}
-                          className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-line px-3 text-sm font-semibold hover:border-ink-3"
-                        >
-                          <Pencil size={15} aria-hidden /> {t.common.edit}
-                        </Link>
-                        {tn.status === "ACTIVE" ? (
-                          <Button onClick={() => setTarget({ tenant: tn, action: "suspend" })}>
-                            <PauseCircle size={15} aria-hidden /> {t.tenants.suspend}
-                          </Button>
-                        ) : tn.status === "SUSPENDED" ? (
-                          <Button onClick={() => setTarget({ tenant: tn, action: "activate" })}>
-                            <Play size={15} aria-hidden /> {t.tenants.activate}
-                          </Button>
-                        ) : null}
-                      </div>
-                    </td>
+                    </div>
+                    <StatusBadge status={tn.status} />
+                  </div>
+                  <dl className="grid grid-cols-2 gap-3 text-sm">
+                    <div><dt className="text-xs text-ink-2">{t.tenants.cols.plan}</dt><dd className="mt-1 font-semibold">{t.tenants.plan[tn.plan]}{tn.requestedPlan && <RequestedBadge plan={tn.requestedPlan} />}</dd></div>
+                    <div><dt className="text-xs text-ink-2">{t.tenants.cols.ends}</dt><dd className="mt-1 tabular-nums">{tn.subscriptionEndsAt ? formatDate(tn.subscriptionEndsAt) : t.tenants.noEnd}</dd></div>
+                  </dl>
+                  <TenantActions tenant={tn} onStatus={(action) => setTarget({ tenant: tn, action })} />
+                </li>
+              ))}
+            </ul>
+            <div className="hidden overflow-x-auto md:block">
+              <table className="w-full min-w-[42rem] text-left text-sm">
+                <thead className="sticky top-0 border-b border-line bg-surface text-xs uppercase tracking-wider text-ink-2">
+                  <tr>
+                    <th scope="col" className="px-5 py-3 font-semibold">{t.tenants.cols.name}</th>
+                    <th scope="col" className="px-3 py-3 font-semibold">{t.tenants.cols.plan}</th>
+                    <th scope="col" className="px-3 py-3 font-semibold">{t.tenants.cols.status}</th>
+                    <th scope="col" className="px-3 py-3 font-semibold">{t.tenants.cols.ends}</th>
+                    <th scope="col" className="px-5 py-3 text-right font-semibold">{t.tenants.cols.actions}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-line">
+                  {data.data.map((tn) => (
+                    <tr key={tn.id} className="h-16">
+                      <td className="px-5">
+                        <div className="flex items-center gap-3">
+                          <TenantLogo logoUrl={tn.logoUrl} color={tn.primaryColor} />
+                          <div className="min-w-0">
+                            <p className="truncate font-semibold">{tn.name}</p>
+                            <p className="truncate font-mono text-xs text-ink-2">{tn.slug}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-3">
+                        <span className="rounded-full border border-line px-2.5 py-1 text-xs font-medium text-ink-2">
+                          {t.tenants.plan[tn.plan]}
+                        </span>
+                        {tn.requestedPlan && <RequestedBadge plan={tn.requestedPlan} />}
+                      </td>
+                      <td className="px-3">
+                        <StatusBadge status={tn.status} />
+                      </td>
+                      <td className="px-3 tabular-nums text-ink-2">
+                        {tn.subscriptionEndsAt ? formatDate(tn.subscriptionEndsAt) : t.tenants.noEnd}
+                      </td>
+                      <td className="px-5">
+                        <TenantActions tenant={tn} onStatus={(action) => setTarget({ tenant: tn, action })} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {data && pages > 1 && (
-          <div className="flex items-center justify-between border-t border-line px-5 py-3">
+          <div className="flex flex-col gap-3 border-t-2 border-line px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-sm text-ink-2">{t.tenants.page(page, pages)}</span>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
                 <ChevronLeft size={16} aria-hidden /> {t.tenants.prev}
               </Button>

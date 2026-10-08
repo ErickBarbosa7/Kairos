@@ -13,6 +13,7 @@
     "prisma:generate": "prisma generate",
     "seed:admin": "tsx src/scripts/create-super-admin.ts",
     "seed:coupon": "tsx src/scripts/dev-seed-coupon.ts",
+    "seed:consumer": "tsx src/scripts/dev-seed-consumer.ts",
     "seed:test-users": "tsx src/scripts/dev-seed-test-users.ts",
     "gen:machine-key": "tsx src/scripts/gen-machine-key.ts"
   },

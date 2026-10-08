@@ -91,6 +91,15 @@ export function useCreateMachine() {
   });
 }
 
+export function useApproveTerminalPairing() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { code: string; storeId: string; label: string }) =>
+      api<Machine>(`/tenant/terminal-pairings/${encodeURIComponent(body.code)}/approve`, { method: "POST", body: { storeId: body.storeId, label: body.label } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["machines"] }),
+  });
+}
+
 export function useRevokeMachine() {
   const qc = useQueryClient();
   return useMutation({

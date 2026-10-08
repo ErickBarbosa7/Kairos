@@ -3,7 +3,8 @@ import { randomUUID } from "node:crypto";
 import { env } from "../../config/env.js";
 import { prisma } from "../../db/prisma.js";
 import { unauthorized } from "../../lib/errors.js";
-import { verifyPassword } from "../../lib/password.js";
+import { hashPassword, verifyPassword } from "../../lib/password.js";
+import { subscriptionState } from "../../lib/subscription.js";
 import { hashToken, newRefreshToken, type Role, signAccessToken } from "../../lib/tokens.js";
 
 interface Subject {
@@ -60,6 +61,57 @@ export async function loginTenantUser(tenantSlug: string, email: string, passwor
   return {
     session,
     user: { id: user.id, email: user.email, name: user.name, role, tenantId: tenant.id, storeId: user.storeId },
+  };
+}
+
+/** "Café Aurora" → "cafe-aurora". Siempre devuelve un identificador válido de 3 a 34 caracteres. */
+export function slugFromName(name: string): string {
+  const base = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 34)
+    .replace(/-+$/g, "");
+  return base.length >= 3 ? base : "negocio";
+}
+
+async function freeSlug(name: string): Promise<string> {
+  const base = slugFromName(name);
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const candidate = attempt === 0 ? base : `${base.slice(0, 34)}-${randomUUID().slice(0, 4)}`;
+    if (!(await prisma.tenant.findUnique({ where: { slug: candidate }, select: { id: true } }))) return candidate;
+  }
+  throw new Error("No se pudo generar un identificador libre");
+}
+
+/**
+ * Alta de un negocio por su cuenta: queda en prueba gratis (TRIAL) por TRIAL_DAYS días y el que lo
+ * registra es su administrador. Al terminar la prueba el panel pide elegir un plan.
+ */
+export async function registerTenant(input: { businessName: string; adminName: string; email: string; password: string }, ip?: string) {
+  const passwordHash = await hashPassword(input.password);
+  const slug = await freeSlug(input.businessName);
+  const trialEndsAt = new Date(Date.now() + env.TRIAL_DAYS * 86_400_000);
+  const { tenant, user } = await prisma.$transaction(async (tx) => {
+    const tenant = await tx.tenant.create({
+      data: { name: input.businessName, slug, plan: "TRIAL", status: "ACTIVE", subscriptionEndsAt: trialEndsAt },
+    });
+    const user = await tx.tenantUser.create({
+      data: { tenantId: tenant.id, email: input.email.toLowerCase(), name: input.adminName, passwordHash, role: "TENANT_ADMIN" },
+    });
+    await tx.auditLog.create({
+      data: { tenantId: tenant.id, actorType: "TENANT_USER", actorId: user.id, action: "tenant.self_register", targetType: "tenant", targetId: tenant.id, ip },
+    });
+    return { tenant, user };
+  });
+  const session = await issueSession({ type: "TENANT_USER", id: user.id, role: "tenant_admin", tenantId: tenant.id });
+  return {
+    session,
+    tenant: { id: tenant.id, name: tenant.name, slug: tenant.slug },
+    trialEndsAt,
+    user: { id: user.id, email: user.email, name: user.name, role: "tenant_admin" as const, tenantId: tenant.id, storeId: user.storeId },
   };
 }
 
@@ -134,5 +186,6 @@ export async function getProfile(userId: string, role: Role) {
       secondaryColor: t.secondaryColor,
       themeMode: t.themeMode,
     },
+    subscription: subscriptionState(t),
   };
 }

@@ -36,9 +36,9 @@ export function ImageUpload({ value, onChange, label, hint, shape = "square" }: 
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-2">
       <span className="text-sm font-medium">{label}</span>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <div
           className={cx(
             "grid shrink-0 place-items-center overflow-hidden rounded-md border border-dashed border-line bg-canvas",
@@ -51,12 +51,13 @@ export function ImageUpload({ value, onChange, label, hint, shape = "square" }: 
             <ImagePlus size={28} className="text-ink-3" aria-hidden />
           )}
         </div>
-        <div className="flex flex-col items-start gap-2">
+        <div className="flex min-w-0 max-w-full flex-col items-start gap-2">
           <input
             ref={input}
             type="file"
             accept={TYPES.join(",")}
             className="sr-only"
+            tabIndex={-1}
             aria-label={label}
             onChange={(e) => void pick(e.target.files?.[0])}
           />

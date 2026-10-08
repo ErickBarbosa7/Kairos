@@ -11,6 +11,7 @@
   --color-ink-2: var(--text-secondary);
   --color-ink-3: var(--text-disabled);
   --color-link: var(--link);
+  --color-focus: var(--focus);
   --color-primary: var(--kairos-primary);
   --color-primary-hover: var(--kairos-primary-hover);
   --color-on-primary: var(--kairos-on-primary);
@@ -42,7 +43,7 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 body {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
 }
 
@@ -79,6 +80,17 @@ h1, h2, h3, .font-display {
   font-family: var(--type-display);
   text-transform: uppercase;
   letter-spacing: 0.02em;
+}
+
+main h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  overflow-wrap: anywhere;
+}
+
+/* La marca es el foco del login; los formularios conservan una escala de lectura. */
+.login-wordmark {
+  font-size: clamp(4.5rem, 12vw, 10rem);
+  letter-spacing: -0.04em;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -143,7 +155,7 @@ dialog::backdrop {
   color: var(--text);
 }
 
-/* Login: fondo con retícula sutil y entrada corta de la tarjeta */
+/* Login: fondo con retícula sutil. */
 .login-bg {
   background-color: var(--bg);
   background-image:
@@ -151,16 +163,19 @@ dialog::backdrop {
     linear-gradient(90deg, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px);
   background-size: 40px 40px;
 }
-@keyframes login-enter {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }
-.login-enter {
-  animation: login-enter 220ms ease-out both;
+
+/* La flecha animada del login es oscura: en tema oscuro se invierte para que se vea. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .arrow-lottie {
+    filter: invert(1);
+  }
+}
+:root[data-theme="dark"] .arrow-lottie {
+  filter: invert(1);
 }

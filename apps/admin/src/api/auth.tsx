@@ -11,6 +11,15 @@ interface AuthState {
   login(c: Credentials): Promise<void>;
   logout(): Promise<void>;
   refreshMe(): Promise<void>;
+  /** Crea un negocio en prueba gratis y entra al panel. Devuelve el identificador asignado. */
+  register(input: RegisterInput): Promise<{ slug: string }>;
+}
+
+export interface RegisterInput {
+  businessName: string;
+  adminName: string;
+  email: string;
+  password: string;
 }
 
 const Ctx = createContext<AuthState | null>(null);
@@ -59,6 +68,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(await api<Me>("/auth/me"));
   }, []);
 
+  const register = useCallback(async (input: RegisterInput) => {
+    const res = await api<{ accessToken: string; tenant: { slug: string } }>("/auth/register", { method: "POST", body: input, auth: false });
+    setAccessToken(res.accessToken);
+    setUser(await api<Me>("/auth/me"));
+    return { slug: res.tenant.slug };
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await api("/auth/logout", { method: "POST", auth: false });
@@ -71,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(await api<Me>("/auth/me"));
   }, []);
 
-  const value = useMemo(() => ({ user, loading, login, logout, refreshMe }), [user, loading, login, logout, refreshMe]);
+  const value = useMemo(() => ({ user, loading, login, logout, refreshMe, register }), [user, loading, login, logout, refreshMe, register]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

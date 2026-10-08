@@ -15,6 +15,8 @@ const schema = z.object({
   PUBLIC_API_URL: z.string().url().default("http://localhost:3000"),
   UPLOADS_DIR: z.string().default("uploads"),
   TRUST_PROXY: z.coerce.number().int().min(0).default(0),
+  // Días de prueba gratis al registrarse un negocio
+  TRIAL_DAYS: z.coerce.number().int().min(1).max(90).default(14),
 });
 
 const parsed = schema.safeParse(process.env);

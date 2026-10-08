@@ -31,13 +31,13 @@ export function ConfirmDialog({ open, title, body, confirmLabel, danger, busy, o
         onCancel();
       }}
       aria-labelledby="dlg-title"
-      className="m-auto w-[min(92vw,28rem)] rounded-lg border border-line bg-surface p-6 text-ink shadow-xl"
+      className="m-auto max-h-[calc(100dvh-2rem)] w-[min(calc(100%-2rem),28rem)] overflow-y-auto rounded-lg border-2 border-line bg-surface p-4 text-ink shadow-hard-lg sm:p-6"
     >
-      <h2 id="dlg-title" className="font-display text-xl font-bold">
+      <h2 id="dlg-title" className="break-words font-display text-xl font-bold">
         {title}
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-ink-2">{body}</p>
-      <div className="mt-6 flex justify-end gap-2">
+      <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Button onClick={onCancel} disabled={busy}>
           {t.common.cancel}
         </Button>
