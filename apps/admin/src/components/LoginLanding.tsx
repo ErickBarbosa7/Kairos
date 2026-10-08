@@ -93,27 +93,20 @@ function ArcadePreview() {
  * Cada bloque tiene su propio aspecto para que no se lea como una sola lista de tarjetas:
  * tarjetas con ícono, un recorrido numerado, una banda oscura para suscripciones y un cierre.
  */
-export default function LoginLanding({ onStartTrial }: { onStartTrial?: () => void }) {
+export default function LoginLanding({ onStartTrial, onLogin }: { onStartTrial?: () => void; onLogin?: () => void }) {
   const { data: catalog } = usePlans();
-  function scrollToLogin() {
-    const form = document.getElementById("login");
-    if (!form) return;
-    form.scrollIntoView({ behavior: "smooth", block: "start" });
-    // El foco va al primer campo, para poder escribir sin tocar nada.
-    window.setTimeout(() => (document.getElementById("slug") ?? document.getElementById("email"))?.focus({ preventScroll: true }), 400);
-  }
-
   return (
     <>
       {/* 1. Cómo funciona: tres piezas de la plataforma, en tarjetas con ícono. */}
       <section id="como-funciona" aria-labelledby="how-title" className="scroll-mt-4 px-4 py-16 sm:px-8 lg:px-12">
         <div className="mx-auto w-full max-w-6xl">
-          <div className="mb-8 flex items-center gap-3">
+          <div className="mb-3 flex items-center gap-3">
             <h2 id="how-title" className="font-display text-4xl font-black uppercase tracking-wide sm:text-5xl">
               {t.landing.howTitle}
             </h2>
             <ArrowIcon className="mt-2 size-9" />
           </div>
+          <p className="mb-8 max-w-2xl text-lg leading-relaxed text-ink-2">{t.landing.howIntro}</p>
           <div className="grid gap-4 sm:grid-cols-3">
             {t.landing.how.map((item, i) => {
               const Icon = HOW_ICONS[i] ?? Gamepad2;
@@ -221,7 +214,7 @@ export default function LoginLanding({ onStartTrial }: { onStartTrial?: () => vo
               {t.landing.trialAction}
             </button>
           )}
-          <button type="button" onClick={scrollToLogin} className={ctaButton}>
+          <button type="button" onClick={onLogin} className={ctaButton}>
             {t.landing.action}
           </button>
         </div>

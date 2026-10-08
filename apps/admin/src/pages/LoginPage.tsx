@@ -6,6 +6,7 @@ import arrow from "../assets/arrow.json";
 import { useAuth } from "../api/auth";
 import { ApiError } from "../api/client";
 import { Wordmark } from "../components/Layout";
+import { Modal } from "../components/Modal";
 import { ThemeSwitch } from "../components/ThemeSwitch";
 import { useToast } from "../components/Toast";
 import { Button, cx, FloatingField } from "../components/ui";
@@ -53,6 +54,7 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
 
   if (user) return <Navigate to="/" replace />;
 
@@ -60,8 +62,8 @@ export function LoginPage() {
     setMode(next);
     setError(null);
     setErrors({});
-    document.getElementById("login")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    window.setTimeout(() => document.getElementById(next === "register" ? "businessName" : "slug")?.focus({ preventScroll: true }), 300);
+    setFormOpen(true);
+    window.setTimeout(() => (document.getElementById(next === "register" ? "businessName" : slug ? "email" : "slug") ?? document.getElementById("email"))?.focus(), 50);
   }
 
   async function submitRegister(e: FormEvent) {
@@ -148,26 +150,53 @@ export function LoginPage() {
   return (
     <div>
       <div className="login-bg flex min-h-dvh flex-col px-4 py-6 sm:px-8 lg:px-12">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-end">
-          <ThemeSwitch />
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3">
+          <Wordmark className="login-wordmark block text-primary" />
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => switchMode("login")}
+              className="min-h-11 rounded-md border-2 border-ink px-4 font-display text-base font-bold uppercase tracking-wide text-ink hover:bg-line/60"
+            >
+              {t.login.title}
+            </button>
+            <ThemeSwitch />
+          </div>
         </div>
-        <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-8 py-8 sm:gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:gap-16 lg:py-12">
+        <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-8 py-8 sm:gap-10 lg:grid-cols-2 lg:gap-16 lg:py-12">
           <header className="min-w-0 text-center lg:text-left">
-            <Wordmark className="login-wordmark block text-primary" />
-            <h1 className="mx-auto mt-5 max-w-lg font-display text-3xl font-black leading-tight sm:text-4xl lg:mx-0 lg:mt-8 lg:text-5xl">
+            <h1 className="mx-auto max-w-xl font-display text-4xl font-black leading-tight sm:text-5xl lg:mx-0 lg:text-6xl">
               {t.login.headline} <em className="k text-reward-ink">{t.login.headlineWord}</em>
             </h1>
-            <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-ink-2 sm:text-base lg:mx-0">{t.login.tagline}</p>
-            <div className="mt-6 hidden lg:block">
-              <Suspense fallback={null}>
-                <LoginAnimation />
-              </Suspense>
+            <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-ink-2 sm:text-lg lg:mx-0">{t.login.tagline}</p>
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+              <Button type="button" variant="primary" onClick={() => switchMode("register")} className="min-h-12 px-8 text-lg">
+                {t.login.trialAction}
+              </Button>
+              <a href="#como-funciona" className="inline-flex min-h-12 items-center px-2 font-semibold text-link underline underline-offset-2 hover:text-ink">
+                {t.landing.scroll}
+              </a>
             </div>
+            <p className="mt-3 text-sm text-ink-2">{t.login.trialNote}</p>
           </header>
-
-          <form id="login" onSubmit={mode === "register" ? submitRegister : submit} noValidate aria-busy={busy} className="mx-auto w-full max-w-md min-w-0 rounded-md border-2 border-ink bg-surface shadow-hard-lg">
+          <div className="mx-auto w-full max-w-xs lg:max-w-md">
+            <Suspense fallback={null}>
+              <LoginAnimation />
+            </Suspense>
+          </div>
+        </div>
+        <a
+          href="#como-funciona"
+          className="mx-auto mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-ink-2 hover:text-ink"
+        >
+          {t.landing.scroll}
+          <ArrowIcon />
+        </a>
+      </div>
+      <Modal open={formOpen} title={mode === "register" ? t.login.registerTitle : t.login.title} onClose={() => !busy && setFormOpen(false)}>
+          <form id="login" onSubmit={mode === "register" ? submitRegister : submit} noValidate aria-busy={busy} className="w-full min-w-0">
             {mode === "login" && (
-              <div role="group" aria-label={t.login.title} className="grid grid-cols-2 border-b-2 border-ink">
+              <div role="group" aria-label={t.login.title} className="grid grid-cols-2 rounded-md border-2 border-ink overflow-hidden mb-4">
                 {(["tenant", "super"] as const).map((k) => (
                   <button
                     key={k}
@@ -190,10 +219,9 @@ export function LoginPage() {
               </div>
             )}
 
-            <div className="flex flex-col gap-5 p-5 sm:p-8">
+            <div className="flex flex-col gap-5 pt-1">
               <div>
-                <h2 className="font-display text-2xl font-bold">{mode === "register" ? t.login.registerTitle : t.login.title}</h2>
-                <p className="mt-1 text-sm text-ink-2">
+                <p className="text-sm text-ink-2">
                   {mode === "register" ? t.login.registerSubtitle : kind === "tenant" ? t.login.tenantSubtitle : t.login.subtitle}
                 </p>
               </div>
@@ -289,17 +317,9 @@ export function LoginPage() {
               </p>
             </div>
           </form>
-        </div>
-        <a
-          href="#como-funciona"
-          className="mx-auto mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-ink-2 hover:text-ink"
-        >
-          {t.landing.scroll}
-          <ArrowIcon />
-        </a>
-      </div>
+      </Modal>
       <Suspense fallback={null}>
-        <LoginLanding onStartTrial={() => switchMode("register")} />
+        <LoginLanding onStartTrial={() => switchMode("register")} onLogin={() => switchMode("login")} />
       </Suspense>
       <footer className="mx-auto w-full max-w-6xl border-t-2 border-line pt-4 text-center text-xs text-ink-2 lg:text-left">
         {t.login.footer}
