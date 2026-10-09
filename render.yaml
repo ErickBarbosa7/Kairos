@@ -1,0 +1,40 @@
+services:
+  - type: web
+    runtime: node
+    name: kairos-api
+    plan: free
+    # En el plan Free no hay preDeployCommand. Las migraciones se ejecutan en
+    # startCommand de forma idempotente antes de levantar la API.
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm --filter @kairos/api prisma:generate && pnpm --filter @kairos/api build
+    startCommand: pnpm --filter @kairos/api exec prisma migrate deploy && pnpm --filter @kairos/api start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kairos-db
+          property: connectionString
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: ACCESS_TOKEN_TTL_SECONDS
+        value: "900"
+      - key: REFRESH_TOKEN_TTL_DAYS
+        value: "7"
+      - key: CORS_ORIGINS
+        sync: false
+      - key: PUBLIC_API_URL
+        sync: false
+      - key: UPLOADS_DIR
+        value: uploads
+      - key: TRUST_PROXY
+        value: "1"
+      - key: TRIAL_DAYS
+        value: "14"
+
+databases:
+  - name: kairos-db
+    plan: free
+    databaseName: kairos
+    user: kairos
+    postgresMajorVersion: "17"
