@@ -35,4 +35,30 @@ describe("terminal web", () => {
     const pairing = await request(app).post("/terminal/pairings").send({}).expect(201);
     await request(app).post(`/terminal/pairings/${pairing.body.code}/complete`).send({ secret: "x".repeat(43) }).expect(400);
   });
+
+  it("vincula una terminal nativa con token Bearer y la revocación invalida su sesión", async () => {
+    const { tenant } = await makeTenant("native");
+    const store = await prisma.store.create({ data: { tenantId: tenant.id, name: "Norte" } });
+    const { h } = await loginTenant("native");
+    const pairing = await request(app).post("/terminal/pairings").send({}).expect(201);
+
+    const machine = await request(app)
+      .post(`/tenant/terminal-pairings/${pairing.body.code}/approve`)
+      .set(h)
+      .send({ storeId: store.id, label: "Arcade norte" })
+      .expect(201);
+
+    const completed = await request(app)
+      .post(`/terminal/pairings/${pairing.body.code}/complete`)
+      .send({ secret: pairing.body.secret, client: "native" })
+      .expect(200);
+    expect(completed.body.terminalToken).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(completed.body.expiresAt).toBeTruthy();
+
+    const terminal = { Authorization: `Bearer ${completed.body.terminalToken}` };
+    await request(app).get("/terminal/config").set(terminal).expect(200);
+    await request(app).post("/terminal/claims").set(terminal).send({ score: 500 }).expect(200);
+    await request(app).post(`/tenant/machines/${machine.body.id}/revoke`).set(h).expect(200);
+    await request(app).get("/terminal/config").set(terminal).expect(401);
+  });
 });

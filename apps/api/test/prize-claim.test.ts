@@ -22,13 +22,14 @@ beforeEach(async () => {
 });
 
 describe("QR de premio (ruleta)", () => {
-  it("entrega un cupón PENDING con la recompensa, sin mover puntos", async () => {
+  it("entrega un cupón PENDING sin costo y suma los puntos de la partida", async () => {
     const rig = await setup();
     const r = await reward(rig.tenant.id, { title: "Galleta de avena", stock: 3 });
     const res = await claim(await prize(rig, r.id));
 
     expect(res.status).toBe(201);
-    expect(res.body.pointsAwarded).toBe(0);
+    expect(res.body.pointsAwarded).toBe(50);
+    expect(res.body.balance).toBe(50);
     expect(res.body.reward).toMatchObject({ id: r.id, title: "Galleta de avena" });
     expect(res.body.coupon.code).toMatch(/^[2-9A-HJ-NP-Z]{6}$/);
 
@@ -39,10 +40,11 @@ describe("QR de premio (ruleta)", () => {
     expect(days).toBeLessThan(7.1);
 
     const claimRow = await prisma.qrClaim.findFirstOrThrow();
-    expect(claimRow).toMatchObject({ rewardId: r.id, pointsAwarded: 0 });
+    expect(claimRow).toMatchObject({ rewardId: r.id, pointsAwarded: 50 });
     expect(coupon.qrClaimId).toBe(claimRow.id);
-    expect(await prisma.pointTransaction.count()).toBe(0);
-    expect((await prisma.wallet.findFirstOrThrow()).balance).toBe(0);
+    expect(await prisma.pointTransaction.count()).toBe(1);
+    expect(await prisma.pointTransaction.findFirstOrThrow()).toMatchObject({ type: "EARN", points: 50, qrClaimId: claimRow.id });
+    expect((await prisma.wallet.findFirstOrThrow()).balance).toBe(50);
     expect((await prisma.reward.findUniqueOrThrow({ where: { id: r.id } })).stock).toBe(2);
   });
 

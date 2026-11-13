@@ -2,6 +2,7 @@ import { Router } from "express";
 import { tenantAuth } from "../../middleware/tenant.js";
 import { brandRouter } from "./brand.routes.js";
 import { couponsRouter } from "./coupons.routes.js";
+import { economyRouter } from "./economy.routes.js";
 import { machinesRouter } from "./machines.routes.js";
 import { rewardsRouter } from "./rewards.routes.js";
 import { staffRouter } from "./staff.routes.js";
@@ -17,6 +18,7 @@ export function tenantRouter(opts: { rateLimit: boolean }) {
   r.use(subscriptionRouter);
   r.use(requireActiveSubscription);
   r.use(brandRouter);
+  r.use(economyRouter);
   r.use(rewardsRouter);
   r.use(couponsRouter(opts));
   r.use(storesRouter);

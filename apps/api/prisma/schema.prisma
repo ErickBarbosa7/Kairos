@@ -152,7 +152,7 @@ model Machine {
   @@map("machines")
 }
 
-/// Código de una sola vez que aparece en una tableta antes de que el administrador la vincule.
+/// Código de una sola vez que aparece en una terminal antes de que el administrador la vincule.
 model TerminalPairing {
   id          String   @id @default(uuid()) @db.Uuid
   code        String   @unique
@@ -171,7 +171,7 @@ model TerminalPairing {
   @@map("terminal_pairings")
 }
 
-/// Sesión revocable de una PWA instalada. Solo se guarda el hash del token de cookie.
+/// Sesión revocable de una terminal web o nativa. Solo se guarda el hash de su credencial.
 model TerminalSession {
   id        String   @id @default(uuid()) @db.Uuid
   tenantId  String   @map("tenant_id") @db.Uuid
@@ -217,6 +217,8 @@ model Consumer {
   email           String?   @unique
   emailVerifiedAt DateTime? @map("email_verified_at")
   displayName    String?    @map("display_name")
+  // Invitado: se creó solo al escanear su primer QR, sin teléfono ni correo.
+  isGuest        Boolean    @default(false) @map("is_guest")
   preferredTheme ThemeMode? @map("preferred_theme")
   createdAt      DateTime   @default(now()) @map("created_at")
   updatedAt      DateTime   @updatedAt @map("updated_at")
@@ -345,6 +347,8 @@ model Coupon {
   pointsCost      Int          @map("points_cost")
   code            String
   status          CouponStatus @default(PENDING)
+  // Desde cuándo se puede canjear en caja. Los premios de ruleta se desbloquean después para invitar a volver.
+  validFrom       DateTime     @default(now()) @map("valid_from")
   expiresAt       DateTime     @map("expires_at")
   redeemedAt      DateTime?    @map("redeemed_at")
   redeemedById    String?      @map("redeemed_by_id") @db.Uuid

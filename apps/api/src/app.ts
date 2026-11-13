@@ -3,7 +3,10 @@ import cors from "cors";
 import express from "express";
 import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
-import { env } from "./config/env.js";
+import { env, isProd } from "./config/env.js";
+
+/** Orígenes de red local (solo desarrollo): http://localhost, 192.168.x.x, 10.x.x.x, 172.16-31.x.x. */
+const LAN_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/;
 import { errorHandler, notFoundHandler } from "./middleware/error.js";
 import { tenantsRouter } from "./modules/admin/tenants.routes.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
@@ -23,7 +26,8 @@ export function createApp(opts: { rateLimit?: boolean } = {}) {
   app.use(helmet());
   app.use(
     cors({
-      origin: (origin, cb) => cb(null, !origin || env.CORS_ORIGINS.includes(origin)),
+      // En desarrollo también se acepta la red local: la Wallet web se abre desde el teléfono (http://192.168.x.x:5174).
+      origin: (origin, cb) => cb(null, !origin || env.CORS_ORIGINS.includes(origin) || (!isProd && LAN_ORIGIN.test(origin))),
       credentials: true,
     }),
   );

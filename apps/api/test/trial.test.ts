@@ -101,7 +101,7 @@ describe("cuando termina la prueba", () => {
     await expire("cafe-aurora");
     const h = bearer(res.body.accessToken);
 
-    for (const path of ["/tenant/stores", "/tenant/rewards", "/tenant/machines", "/tenant/coupons"]) {
+    for (const path of ["/tenant/stores", "/tenant/rewards", "/tenant/economy", "/tenant/machines", "/tenant/coupons"]) {
       const r = await request(app).get(path).set(h);
       expect(r.status).toBe(402);
       expect(r.body.error.code).toBe("subscription_required");

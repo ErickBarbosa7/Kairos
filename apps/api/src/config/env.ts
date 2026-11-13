@@ -16,6 +16,10 @@ const schema = z.object({
   UPLOADS_DIR: z.string().default("uploads"),
   TRUST_PROXY: z.coerce.number().int().min(0).default(0),
   // Días de prueba gratis al registrarse un negocio
+  // Horas que tarda en poder canjearse en caja un premio de ruleta (invita a volver). 0 = al instante.
+  PRIZE_UNLOCK_HOURS: z.coerce.number().int().min(0).max(168).default(12),
+  // Vigencia del token de un cliente invitado (vive en su teléfono).
+  GUEST_TOKEN_DAYS: z.coerce.number().int().min(1).max(730).default(365),
   TRIAL_DAYS: z.coerce.number().int().min(1).max(90).default(14),
 });
 

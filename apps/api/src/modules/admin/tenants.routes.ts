@@ -2,7 +2,8 @@ import type { Prisma } from "@prisma/client";
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../db/prisma.js";
-import { notFound } from "../../lib/errors.js";
+import { conflict, notFound } from "../../lib/errors.js";
+import { economyFields } from "../../lib/economy.js";
 import { hashPassword } from "../../lib/password.js";
 import { requireAuth, requireRole } from "../../middleware/auth.js";
 
@@ -33,9 +34,7 @@ const updateBody = z
     primaryColor: hex,
     secondaryColor: hex.nullable(),
     themeMode: z.enum(["LIGHT", "DARK", "AUTO"]),
-    scorePerPoint: z.number().int().positive(),
-    maxPointsPerGame: z.number().int().positive(),
-    maxGamesPerDay: z.number().int().positive(),
+    ...economyFields,
   })
   .partial()
   .strict();
@@ -48,6 +47,23 @@ const listQuery = z.object({
 });
 
 const idParam = z.object({ id: z.string().uuid() });
+const adminBody = z
+  .object({ email: z.email().max(254), name: z.string().trim().min(2).max(100), password })
+  .strict();
+
+const tenantView = <T extends { _count: { tenantUsers: number } }>(tenant: T) => {
+  const { _count, ...data } = tenant;
+  return { ...data, hasAdmin: _count.tenantUsers > 0 };
+};
+
+const adminView = (user: { id: string; email: string; name: string; role: string; isActive: boolean; createdAt: Date }) => ({
+  id: user.id,
+  email: user.email,
+  name: user.name,
+  role: user.role,
+  isActive: user.isActive,
+  createdAt: user.createdAt,
+});
 
 export const tenantsRouter = Router();
 tenantsRouter.use(requireAuth, requireRole("super_admin"));
@@ -60,17 +76,26 @@ tenantsRouter.get("/", async (req, res) => {
     ...(q && { OR: [{ name: { contains: q, mode: "insensitive" } }, { slug: { contains: q, mode: "insensitive" } }] }),
   };
   const [data, total] = await Promise.all([
-    prisma.tenant.findMany({ where, orderBy: { createdAt: "desc" }, skip: (page - 1) * limit, take: limit }),
+    prisma.tenant.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+      include: { _count: { select: { tenantUsers: { where: { role: "TENANT_ADMIN" } } } } },
+    }),
     prisma.tenant.count({ where }),
   ]);
-  res.json({ data, total, page, limit });
+  res.json({ data: data.map(tenantView), total, page, limit });
 });
 
 tenantsRouter.get("/:id", async (req, res) => {
   const { id } = idParam.parse(req.params);
-  const tenant = await prisma.tenant.findFirst({ where: { id, deletedAt: null } });
+  const tenant = await prisma.tenant.findFirst({
+    where: { id, deletedAt: null },
+    include: { _count: { select: { tenantUsers: { where: { role: "TENANT_ADMIN" } } } } },
+  });
   if (!tenant) throw notFound("Tenant no encontrado");
-  res.json(tenant);
+  res.json(tenantView(tenant));
 });
 
 tenantsRouter.post("/", async (req, res) => {
@@ -103,6 +128,44 @@ tenantsRouter.post("/", async (req, res) => {
     return t;
   });
   res.status(201).json(tenant);
+});
+
+/** Crea la cuenta inicial de un negocio que se dio de alta sin administrador. */
+tenantsRouter.post("/:id/admin", async (req, res) => {
+  const { id } = idParam.parse(req.params);
+  const admin = adminBody.parse(req.body);
+  const passwordHash = await hashPassword(admin.password);
+
+  const user = await prisma.$transaction(async (tx) => {
+    const tenant = await tx.tenant.findFirst({ where: { id, deletedAt: null } });
+    if (!tenant) throw notFound("Tenant no encontrado");
+
+    const existingAdmin = await tx.tenantUser.findFirst({ where: { tenantId: id, role: "TENANT_ADMIN" }, select: { id: true } });
+    if (existingAdmin) throw conflict("Este negocio ya tiene un administrador");
+
+    const created = await tx.tenantUser.create({
+      data: {
+        tenantId: id,
+        email: admin.email.toLowerCase(),
+        name: admin.name,
+        passwordHash,
+        role: "TENANT_ADMIN",
+      },
+    });
+    await tx.auditLog.create({
+      data: {
+        tenantId: id,
+        actorType: "SUPER_ADMIN",
+        actorId: req.auth!.sub,
+        action: "tenant.admin_create",
+        targetType: "tenant_user",
+        targetId: created.id,
+        ip: req.ip,
+      },
+    });
+    return created;
+  });
+  res.status(201).json(adminView(user));
 });
 
 tenantsRouter.patch("/:id", async (req, res) => {

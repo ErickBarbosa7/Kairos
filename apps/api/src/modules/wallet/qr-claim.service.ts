@@ -14,7 +14,7 @@ const MAX_IAT_IN_FUTURE_SECONDS = 30;
 const MAX_SCORE = 100_000_000;
 /** El tope diario cuenta las acreditaciones de las últimas 24 horas. */
 const DAILY_WINDOW_MS = 24 * 60 * 60 * 1000;
-/** Un premio de la ruleta se puede canjear en caja durante este tiempo. */
+/** Un premio de la ruleta se puede canjear en caja durante este tiempo, contado desde que se desbloquea. */
 const PRIZE_COUPON_DAYS = 7;
 const CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"; // sin 0/O/1/I
 const newCouponCode = () => Array.from({ length: 6 }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join("");
@@ -149,10 +149,12 @@ const placeOf = ({ tenant, machine }: Ctx) => ({
   store: { id: machine.store.id, name: machine.store.name },
 });
 
+const pointsFor = ({ tenant, claims }: Ctx) => Math.min(Math.floor(claims.score / tenant.scorePerPoint), tenant.maxPointsPerGame);
+
 /** QR de puntos (ESQUEMA.md 5.1): suma `min(score / score_per_point, max_points_per_game)` al saldo. */
 async function claimPoints(ctx: Ctx) {
   const { consumerId, tenant, machine, claims: c } = ctx;
-  const points = Math.min(Math.floor(c.score / tenant.scorePerPoint), tenant.maxPointsPerGame);
+  const points = pointsFor(ctx);
   if (points <= 0) throw new HttpError(422, "El puntaje no alcanza para ganar puntos", "score_too_low");
 
   return prisma.$transaction(async (tx) => {
@@ -189,10 +191,12 @@ async function claimPoints(ctx: Ctx) {
 
 /**
  * QR de premio (ruleta de la terminal): entrega la recompensa que salió como un cupón PENDING que se
- * canjea en caja con su código. No cuesta puntos ni mueve el libro de puntos. Descuenta el stock.
+ * canjea en caja con su código. El cupón no cuesta puntos. Además, la partida suma sus puntos de Wallet
+ * (si el puntaje alcanza para alguno). Descuenta el stock.
  */
 async function claimPrize(ctx: Ctx, rewardId: string) {
   const { consumerId, tenant, machine, claims: c } = ctx;
+  const points = pointsFor(ctx);
   // La recompensa debe ser de ESTE negocio: el tenant sale de la máquina, no del QR.
   const reward = await prisma.reward.findFirst({ where: { id: rewardId, tenantId: tenant.id, deletedAt: null } });
   if (!reward) throw invalid();
@@ -207,7 +211,7 @@ async function claimPrize(ctx: Ctx, rewardId: string) {
         machineId: machine.id,
         consumerId,
         score: c.score,
-        pointsAwarded: 0,
+        pointsAwarded: points,
         rewardId: reward.id,
         qrIssuedAt: new Date(c.iat * 1000),
       },
@@ -218,6 +222,8 @@ async function claimPrize(ctx: Ctx, rewardId: string) {
       if (taken.count === 0) throw new HttpError(409, "Esta recompensa se agotó", "reward_sold_out");
     }
 
+    // El premio se desbloquea después: da motivo para volver al local (PRIZE_UNLOCK_HOURS).
+    const validFrom = new Date(Date.now() + env.PRIZE_UNLOCK_HOURS * 60 * 60 * 1000);
     let code = newCouponCode();
     for (let i = 0; i < 5 && (await tx.coupon.findFirst({ where: { tenantId: tenant.id, code, status: "PENDING" }, select: { id: true } })); i++) {
       code = newCouponCode();
@@ -231,19 +237,29 @@ async function claimPrize(ctx: Ctx, rewardId: string) {
         pointsCost: 0,
         code,
         qrClaimId: claim.id,
-        expiresAt: new Date(Date.now() + PRIZE_COUPON_DAYS * 24 * 60 * 60 * 1000),
+        validFrom,
+        expiresAt: new Date(validFrom.getTime() + PRIZE_COUPON_DAYS * 24 * 60 * 60 * 1000),
       },
     });
-    const wallet = await tx.wallet.findUniqueOrThrow({ where: { id: walletId } });
+    let wallet = await tx.wallet.findUniqueOrThrow({ where: { id: walletId } });
+    if (points > 0) {
+      wallet = await tx.wallet.update({
+        where: { id: walletId },
+        data: { balance: { increment: points }, lifetimeEarned: { increment: points } },
+      });
+      await tx.pointTransaction.create({
+        data: { tenantId: tenant.id, walletId, type: "EARN", points, balanceAfter: wallet.balance, qrClaimId: claim.id },
+      });
+    }
 
     return {
       claimId: claim.id,
-      pointsAwarded: 0,
+      pointsAwarded: points,
       score: c.score,
       balance: wallet.balance,
       lifetimeEarned: wallet.lifetimeEarned,
       reward: { id: reward.id, title: reward.title, imageUrl: reward.imageUrl },
-      coupon: { id: coupon.id, code: coupon.code, expiresAt: coupon.expiresAt },
+      coupon: { id: coupon.id, code: coupon.code, validFrom: coupon.validFrom, expiresAt: coupon.expiresAt },
       ...placeOf(ctx),
     };
   });

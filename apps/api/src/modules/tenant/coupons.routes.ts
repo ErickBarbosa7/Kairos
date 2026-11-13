@@ -17,6 +17,7 @@ const view = (c: {
   status: CouponStatus;
   rewardTitle: string;
   pointsCost: number;
+  validFrom: Date;
   expiresAt: Date;
   redeemedAt: Date | null;
   createdAt: Date;
@@ -26,6 +27,7 @@ const view = (c: {
   status: effective(c),
   rewardTitle: c.rewardTitle,
   pointsCost: c.pointsCost,
+  validFrom: c.validFrom,
   expiresAt: c.expiresAt,
   redeemedAt: c.redeemedAt,
   createdAt: c.createdAt,
@@ -84,7 +86,7 @@ export function couponsRouter(opts: { rateLimit: boolean }) {
 
     // Un solo UPDATE condicional: dos cajeros con el mismo código no pueden canjear ambos
     const claimed = await req.db!.coupon.updateMany({
-      where: { code, status: "PENDING", expiresAt: { gt: new Date() } },
+      where: { code, status: "PENDING", validFrom: { lte: new Date() }, expiresAt: { gt: new Date() } },
       data: {
         status: "REDEEMED",
         redeemedAt: new Date(),
@@ -97,6 +99,9 @@ export function couponsRouter(opts: { rateLimit: boolean }) {
       const coupon = await findByCode(req, code);
       if (!coupon) throw notFound("Código no encontrado");
       const s = effective(coupon);
+      if (s === "PENDING" && coupon.validFrom > new Date()) {
+        throw new HttpError(409, "Este premio aún no está disponible. Se desbloquea más tarde", "coupon_not_yet_valid");
+      }
       const msg = {
         REDEEMED: "Este cupón ya fue canjeado",
         EXPIRED: "Este cupón está vencido",

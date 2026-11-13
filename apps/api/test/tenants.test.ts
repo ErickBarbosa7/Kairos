@@ -39,6 +39,33 @@ describe("CRUD de tenants (super admin)", () => {
     expect(await prisma.auditLog.count({ where: { action: "tenant.create" } })).toBe(1);
   });
 
+  it("crea después el administrador de un negocio sin cuenta", async () => {
+    const tenant = await prisma.tenant.create({ data: { name: "Sin cuenta", slug: "sin-cuenta" } });
+
+    const before = await request(app).get(`/admin/tenants/${tenant.id}`).set(auth());
+    expect(before.body.hasAdmin).toBe(false);
+
+    const created = await request(app)
+      .post(`/admin/tenants/${tenant.id}/admin`)
+      .set(auth())
+      .send({ email: "dueno@sin-cuenta.test", name: "Dueño", password: "una-clave-larga-123" });
+    expect(created.status).toBe(201);
+    expect(created.body).toMatchObject({ email: "dueno@sin-cuenta.test", name: "Dueño", role: "TENANT_ADMIN" });
+    expect(created.body.passwordHash).toBeUndefined();
+
+    const login = await request(app)
+      .post("/auth/tenant/login")
+      .send({ tenantSlug: "sin-cuenta", email: "dueno@sin-cuenta.test", password: "una-clave-larga-123" });
+    expect(login.status).toBe(200);
+    expect(await prisma.auditLog.count({ where: { action: "tenant.admin_create", tenantId: tenant.id } })).toBe(1);
+
+    const duplicate = await request(app)
+      .post(`/admin/tenants/${tenant.id}/admin`)
+      .set(auth())
+      .send({ email: "otro@sin-cuenta.test", name: "Otra persona", password: "una-clave-larga-123" });
+    expect(duplicate.status).toBe(409);
+  });
+
   it("rechaza slug repetido, slug inválido y color inválido", async () => {
     await makeTenant("cafe");
     const dup = await request(app).post("/admin/tenants").set(auth()).send({ name: "Otro", slug: "cafe" });

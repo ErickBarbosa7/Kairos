@@ -27,6 +27,7 @@ const cookieBase: CookieOptions = {
 };
 
 export interface TerminalContext {
+  sessionId: string;
   machine: { id: string; tenantId: string; storeId: string; label: string; status: "ACTIVE" | "REVOKED"; authMode: "DEVICE_KEY" | "WEB_SESSION" };
 }
 
@@ -39,8 +40,9 @@ declare global {
 }
 
 export const requireTerminal: RequestHandler = async (req, _res, next) => {
-  const token = req.cookies?.[COOKIE] as string | undefined;
-  if (!token) throw unauthorized("Esta tableta no está vinculada");
+  const authorization = req.headers.authorization;
+  const token = authorization?.startsWith("Bearer ") ? authorization.slice(7) : (req.cookies?.[COOKIE] as string | undefined);
+  if (!token) throw unauthorized("Esta terminal no está vinculada");
   const session = await prisma.terminalSession.findUnique({
     where: { tokenHash: hash(token) },
     include: {
@@ -54,9 +56,9 @@ export const requireTerminal: RequestHandler = async (req, _res, next) => {
     },
   });
   if (!session || session.revokedAt || session.expiresAt <= new Date() || session.machine.status !== "ACTIVE" || session.machine.revokedAt || session.machine.authMode !== "WEB_SESSION" || session.machine.tenant.status !== "ACTIVE" || session.machine.tenant.deletedAt || !session.machine.store.isActive) {
-    throw unauthorized("Esta tableta ya no está activa");
+    throw unauthorized("Esta terminal ya no está activa");
   }
-  req.terminal = { machine: session.machine };
+  req.terminal = { sessionId: session.id, machine: session.machine };
   next();
 };
 
@@ -82,7 +84,7 @@ export function terminalRouter(opts: { rateLimit: boolean }) {
 
   r.post("/pairings/:code/complete", async (req, res) => {
     const pairingCode = z.string().length(8).parse(req.params.code).toUpperCase();
-    const body = z.object({ secret: z.string().min(40).max(100) }).strict().parse(req.body);
+    const body = z.object({ secret: z.string().min(40).max(100), client: z.enum(["web", "native"]).default("web") }).strict().parse(req.body);
     const pairing = await prisma.terminalPairing.findUnique({ where: { code: pairingCode }, include: { machine: true } });
     if (!pairing || pairing.expiresAt <= new Date() || pairing.completedAt || pairing.secretHash !== hash(body.secret)) {
       throw new HttpError(400, "El código de vinculación no es válido o venció", "pairing_invalid");
@@ -97,8 +99,11 @@ export function terminalRouter(opts: { rateLimit: boolean }) {
       prisma.terminalSession.create({ data: { tenantId: pairing.machine.tenantId, machineId: pairing.machine.id, tokenHash: hash(token), expiresAt } }),
       prisma.terminalPairing.update({ where: { id: pairing.id }, data: { completedAt: new Date() } }),
     ]);
-    res.cookie(COOKIE, token, { ...cookieBase, expires: expiresAt });
-    res.json({ machine: { id: pairing.machine.id, label: pairing.machine.label } });
+    if (body.client === "web") res.cookie(COOKIE, token, { ...cookieBase, expires: expiresAt });
+    res.json({
+      machine: { id: pairing.machine.id, label: pairing.machine.label },
+      ...(body.client === "native" ? { terminalToken: token, expiresAt: expiresAt.toISOString() } : {}),
+    });
   });
 
   r.get("/config", requireTerminal, async (req, res) => {
@@ -127,8 +132,7 @@ export function terminalRouter(opts: { rateLimit: boolean }) {
   });
 
   r.post("/logout", requireTerminal, async (req, res) => {
-    const token = req.cookies?.[COOKIE] as string;
-    await prisma.terminalSession.updateMany({ where: { tokenHash: hash(token), machineId: req.terminal!.machine.id }, data: { revokedAt: new Date() } });
+    await prisma.terminalSession.update({ where: { id: req.terminal!.sessionId }, data: { revokedAt: new Date() } });
     res.clearCookie(COOKIE, cookieBase);
     res.status(204).end();
   });

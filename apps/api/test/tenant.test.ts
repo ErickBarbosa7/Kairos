@@ -86,6 +86,32 @@ describe("marca", () => {
   });
 });
 
+describe("economía", () => {
+  it("el administrador ajusta su economía y queda registrada en auditoría", async () => {
+    const res = await request(app).patch("/tenant/economy").set(a.h).send({ scorePerPoint: 25, maxPointsPerGame: 80, maxGamesPerDay: 3 });
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ scorePerPoint: 25, maxPointsPerGame: 80, maxGamesPerDay: 3 });
+    expect((await request(app).get("/tenant/economy").set(a.h)).body).toEqual({ scorePerPoint: 25, maxPointsPerGame: 80, maxGamesPerDay: 3 });
+    expect(await prisma.auditLog.count({ where: { action: "tenant.economy_update", tenantId: A.tenant.id } })).toBe(1);
+  });
+
+  it("valida enteros positivos y rechaza campos desconocidos", async () => {
+    for (const bad of [{ scorePerPoint: 0 }, { scorePerPoint: 1.5 }, { maxPointsPerGame: -1 }, { maxGamesPerDay: 0 }, { scorePerPoint: "10" }, { plan: "PRO" }]) {
+      expect((await request(app).patch("/tenant/economy").set(a.h).send(bad)).status).toBe(400);
+    }
+    expect((await prisma.tenant.findUniqueOrThrow({ where: { id: A.tenant.id } })).scorePerPoint).toBe(10);
+  });
+
+  it("solo el administrador edita; el staff lee; otro negocio no se afecta", async () => {
+    const staff = await makeStaff(A.tenant.id, "a");
+    const s = await loginTenant("a", staff.email);
+    expect((await request(app).get("/tenant/economy").set(s.h)).status).toBe(200);
+    expect((await request(app).patch("/tenant/economy").set(s.h).send({ scorePerPoint: 5 })).status).toBe(403);
+    await request(app).patch("/tenant/economy").set(a.h).send({ scorePerPoint: 5 });
+    expect((await request(app).get("/tenant/economy").set(b.h)).body.scorePerPoint).toBe(10);
+  });
+});
+
 describe("premios", () => {
   it("oculta y muestra sin alterar el premio ni los cupones emitidos", async () => {
     const created = await request(app).post("/tenant/rewards").set(a.h).send({ title: "Galleta", pointsCost: 80, stock: 0, description: "Recién horneada" });
