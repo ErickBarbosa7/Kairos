@@ -19,6 +19,8 @@ export interface Tenant {
   scorePerPoint: number;
   maxPointsPerGame: number;
   maxGamesPerDay: number;
+  /** El negocio cuenta con la cuenta administradora que le permite acceder al panel. */
+  hasAdmin: boolean;
   createdAt: string;
 }
 
@@ -43,6 +45,13 @@ export interface TenantBrand {
   primaryColor: string;
   secondaryColor: string | null;
   themeMode: ThemeMode;
+}
+
+/** Parámetros de puntos que el negocio puede ajustar desde su panel. */
+export interface TenantEconomy {
+  scorePerPoint: number;
+  maxPointsPerGame: number;
+  maxGamesPerDay: number;
 }
 
 /** Precios y límites de los planes, tal como los publica la API (`/public/plans`). */

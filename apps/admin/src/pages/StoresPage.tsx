@@ -1,13 +1,13 @@
-import { Check, Copy, Cpu, MapPin, Pencil, Plus, ShieldOff, Smartphone, Store as StoreIcon } from "lucide-react";
+import { Check, Copy, Cpu, MapPin, Pencil, Plus, ShieldOff, Store as StoreIcon } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { useAuth } from "../api/auth";
 import { ApiError } from "../api/client";
 import type { Machine, Store } from "../api/types";
-import { useApproveTerminalPairing, useCreateMachine, useMachines, useRevokeMachine, useSaveStore, useStores } from "../api/tenantPanel";
+import { useApproveTerminalPairing, useMachines, useRevokeMachine, useSaveStore, useStores } from "../api/tenantPanel";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { Modal } from "../components/Modal";
 import { useToast } from "../components/Toast";
-import { Button, Card, cx, Field, Input, Select, Spinner, Textarea } from "../components/ui";
+import { Button, Card, cx, Field, Input, Spinner } from "../components/ui";
 import { t } from "../strings";
 
 function CopyId({ value, label = t.stores.storeId }: { value: string; label?: string }) {
@@ -71,58 +71,6 @@ function StoreModal({ store, open, onClose }: { store: Partial<Store> | null; op
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button type="button" onClick={onClose}>{t.common.cancel}</Button>
           <Button type="submit" variant="primary" disabled={save.isPending}>{t.common.save}</Button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function MachineModal({ store, onClose }: { store: Store | null; onClose(): void }) {
-  const create = useCreateMachine();
-  const toast = useToast();
-  const [label, setLabel] = useState("");
-  const [algorithm, setAlgorithm] = useState<"ES256" | "EDDSA">("ES256");
-  const [key, setKey] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    const errs: Record<string, string> = {};
-    if (label.trim().length < 2) errs.label = t.errors.required;
-    if (key.trim().length < 40) errs.publicKey = t.errors.required;
-    setErrors(errs);
-    if (Object.keys(errs).length || !store) return;
-    try {
-      await create.mutateAsync({ storeId: store.id, label: label.trim(), keyAlgorithm: algorithm, publicKey: key.trim() });
-      toast(t.stores.machineSaved);
-      onClose();
-    } catch (err) {
-      if (err instanceof ApiError && err.code === "plan_limit") setErrors({ form: err.message });
-      else setErrors({ publicKey: err instanceof ApiError ? err.message : t.errors.generic });
-    }
-  }
-
-  return (
-    <Modal open={!!store} onClose={onClose} title={`${t.stores.machineTitle} · ${store?.name ?? ""}`} className="w-[min(calc(100%-2rem),40rem)]">
-      <form onSubmit={submit} noValidate className="flex flex-col gap-5">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field floating label={t.stores.machineLabel} htmlFor="m-label" error={errors.label}>
-            <Input id="m-label" value={label} onChange={(e) => setLabel(e.target.value)} />
-          </Field>
-          <Field label={t.stores.algorithm} htmlFor="m-alg">
-            <Select id="m-alg" value={algorithm} onChange={(e) => setAlgorithm(e.target.value as "ES256" | "EDDSA")}>
-              <option value="ES256">ES256 (P-256)</option>
-              <option value="EDDSA">EdDSA (Ed25519)</option>
-            </Select>
-          </Field>
-        </div>
-        <Field floating multiline label={t.stores.publicKey} htmlFor="m-key" hint={t.stores.publicKeyHint} error={errors.publicKey}>
-          <Textarea id="m-key" value={key} onChange={(e) => setKey(e.target.value)} spellCheck={false} className="font-mono text-xs" aria-invalid={!!errors.publicKey} />
-        </Field>
-        {errors.form && <p role="alert" className="text-sm font-medium text-danger">{errors.form}</p>}
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button type="button" onClick={onClose}>{t.common.cancel}</Button>
-          <Button type="submit" variant="primary" disabled={create.isPending}>{t.stores.addMachine}</Button>
         </div>
       </form>
     </Modal>
@@ -203,7 +151,6 @@ export function StoresPage() {
   const revoke = useRevokeMachine();
   const toast = useToast();
   const [storeModal, setStoreModal] = useState<Partial<Store> | null>(null);
-  const [machineStore, setMachineStore] = useState<Store | null>(null);
   const [tabletStore, setTabletStore] = useState<Store | null>(null);
   const [toRevoke, setToRevoke] = useState<Machine | null>(null);
 
@@ -267,8 +214,7 @@ export function StoresPage() {
                       <h3 className="text-sm font-bold uppercase tracking-wider text-ink-2">{t.stores.machines}</h3>
                       {canEdit && s.isActive && (
                         <div className="flex flex-wrap gap-2">
-                          <Button onClick={() => setTabletStore(s)}><Smartphone size={15} aria-hidden /> {t.stores.linkTablet}</Button>
-                          <Button onClick={() => setMachineStore(s)}><Plus size={15} aria-hidden /> {t.stores.addMachine}</Button>
+                          <Button onClick={() => setTabletStore(s)}><Cpu size={15} aria-hidden /> {t.stores.linkTablet}</Button>
                         </div>
                       )}
                     </div>
@@ -291,7 +237,6 @@ export function StoresPage() {
 
       {/* key fuerza estado limpio en cada apertura */}
       <StoreModal key={`store-${storeModal?.id ?? (storeModal ? "new" : "closed")}`} store={storeModal} open={!!storeModal} onClose={() => setStoreModal(null)} />
-      <MachineModal key={`machine-${machineStore?.id ?? "closed"}`} store={machineStore} onClose={() => setMachineStore(null)} />
       <TabletModal key={`tablet-${tabletStore?.id ?? "closed"}`} store={tabletStore} onClose={() => setTabletStore(null)} />
       <ConfirmDialog
         open={!!toRevoke}

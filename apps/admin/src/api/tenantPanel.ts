@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
-import type { Coupon, Machine, Reward, Staff, Store, TenantBrand, ThemeMode } from "./types";
+import type { Coupon, Machine, Reward, Staff, Store, TenantBrand, TenantEconomy, ThemeMode } from "./types";
 
 export const useBrand = () => useQuery({ queryKey: ["brand"], queryFn: () => api<TenantBrand>("/tenant/brand") });
 
@@ -16,6 +16,16 @@ export function useUpdateBrand() {
   return useMutation({
     mutationFn: (body: Partial<BrandInput>) => api<TenantBrand>("/tenant/brand", { method: "PATCH", body }),
     onSuccess: (data) => qc.setQueryData(["brand"], data),
+  });
+}
+
+export const useEconomy = () => useQuery({ queryKey: ["economy"], queryFn: () => api<TenantEconomy>("/tenant/economy") });
+
+export function useUpdateEconomy() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Partial<TenantEconomy>) => api<TenantEconomy>("/tenant/economy", { method: "PATCH", body }),
+    onSuccess: (data) => qc.setQueryData(["economy"], data),
   });
 }
 

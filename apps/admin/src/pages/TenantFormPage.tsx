@@ -1,12 +1,13 @@
 import { isHex } from "@kairos/design/theme-tenant";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, UserPlus } from "lucide-react";
 import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError } from "../api/client";
-import { useCreateTenant, useTenant, useUpdateTenant } from "../api/tenants";
+import { useCreateTenant, useCreateTenantAdmin, useTenant, useUpdateTenant } from "../api/tenants";
 import type { Plan, ThemeMode } from "../api/types";
 import { BrandPreview } from "../components/BrandPreview";
 import { ColorField } from "../components/ColorField";
+import { Modal } from "../components/Modal";
 import { useToast } from "../components/Toast";
 import { Button, Card, Field, Input, Select, Spinner } from "../components/ui";
 import { slugify, toDateInput } from "../lib/format";
@@ -59,6 +60,56 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+function CreateAdminModal({ tenantId, onClose }: { tenantId: string; onClose(): void }) {
+  const createAdmin = useCreateTenantAdmin(tenantId);
+  const toast = useToast();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Errors>({});
+
+  async function submit(ev: FormEvent) {
+    ev.preventDefault();
+    const next: Errors = {};
+    if (name.trim().length < 2) next.name = t.errors.required;
+    if (!/^\S+@\S+\.\S+$/.test(email)) next.email = t.errors.invalidEmail;
+    if (password.length < 10) next.password = t.errors.passwordMin;
+    setErrors(next);
+    if (Object.keys(next).length) return;
+
+    try {
+      await createAdmin.mutateAsync({ name: name.trim(), email: email.trim(), password });
+      toast(t.form.adminCreated);
+      onClose();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) setErrors({ form: t.form.adminExists });
+      else if (err instanceof ApiError && err.issues.length) setErrors(Object.fromEntries(err.issues.map((i) => [i.path, i.message])));
+      else setErrors({ form: t.errors.generic });
+    }
+  }
+
+  return (
+    <Modal open title={t.form.adminCreateTitle} onClose={onClose}>
+      <form onSubmit={submit} noValidate className="flex flex-col gap-5">
+        <Field floating label={t.form.adminName} htmlFor="deferred-admin-name" error={errors.name}>
+          <Input id="deferred-admin-name" autoComplete="off" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={!!errors.name} />
+        </Field>
+        <Field floating label={t.form.adminEmail} htmlFor="deferred-admin-email" error={errors.email}>
+          <Input id="deferred-admin-email" type="email" autoComplete="off" value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={!!errors.email} />
+        </Field>
+        <Field floating label={t.form.adminPassword} htmlFor="deferred-admin-password" error={errors.password}>
+          <Input id="deferred-admin-password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} aria-invalid={!!errors.password} />
+        </Field>
+        {errors.form && <p role="alert" className="text-sm text-danger">{errors.form}</p>}
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" onClick={onClose} disabled={createAdmin.isPending}>{t.common.cancel}</Button>
+          <Button type="submit" variant="primary" disabled={createAdmin.isPending}>{t.form.adminCreateSubmit}</Button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
 export function TenantFormPage() {
   const { id } = useParams();
   const editing = !!id;
@@ -72,6 +123,7 @@ export function TenantFormPage() {
   const [slugTouched, setSlugTouched] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState<string | null>(null);
+  const [creatingAdmin, setCreatingAdmin] = useState(false);
 
   useEffect(() => {
     const tn = existing.data;
@@ -255,6 +307,15 @@ export function TenantFormPage() {
             </Section>
           )}
 
+          {editing && existing.data && !existing.data.hasAdmin && (
+            <Card className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6">
+              <p className="text-sm text-ink-2">{t.form.adminMissing}</p>
+              <Button type="button" variant="primary" onClick={() => setCreatingAdmin(true)}>
+                <UserPlus size={18} aria-hidden /> {t.form.adminCreateLater}
+              </Button>
+            </Card>
+          )}
+
           {!editing && (
             <Card className="p-4 sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
@@ -310,6 +371,7 @@ export function TenantFormPage() {
           <BrandPreview name={f.name} primary={f.primary} themeMode={f.themeMode} logoUrl={existing.data?.logoUrl} />
         </Card>
       </form>
+      {creatingAdmin && id && <CreateAdminModal tenantId={id} onClose={() => setCreatingAdmin(false)} />}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { StaffPage } from "./pages/StaffPage";
 import { StoresPage } from "./pages/StoresPage";
 import { RewardsPage } from "./pages/RewardsPage";
 import { TenantBrandPage } from "./pages/TenantBrandPage";
+import { TenantEconomyPage } from "./pages/TenantEconomyPage";
 import { TenantFormPage } from "./pages/TenantFormPage";
 import { TenantsPage } from "./pages/TenantsPage";
 
@@ -65,6 +66,7 @@ export function App() {
           <Route element={<Protected roles={["tenant_admin"]} />}>
             <Route element={<RequireSubscription />}>
               <Route path="/brand" element={<TenantBrandPage />} />
+              <Route path="/economy" element={<TenantEconomyPage />} />
               <Route path="/staff" element={<StaffPage />} />
             </Route>
           </Route>

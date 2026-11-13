@@ -1,4 +1,4 @@
-import { Building2, CreditCard, Gift, LogOut, Palette, PanelLeftClose, PanelLeftOpen, ScanLine, Store, Users } from "lucide-react";
+import { Building2, Coins, CreditCard, Gift, LogOut, Palette, PanelLeftClose, PanelLeftOpen, ScanLine, Store, Users } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../api/auth";
@@ -15,6 +15,7 @@ const NAV = {
   tenant_admin: [
     { to: "/caja", label: t.nav.caja, Icon: ScanLine },
     { to: "/rewards", label: t.nav.rewards, Icon: Gift },
+    { to: "/economy", label: t.nav.economy, Icon: Coins },
     { to: "/stores", label: t.nav.stores, Icon: Store },
     { to: "/staff", label: t.nav.staff, Icon: Users },
     { to: "/brand", label: t.nav.brand, Icon: Palette },
@@ -58,7 +59,10 @@ export function Layout() {
   const sub = user && "subscription" in user ? user.subscription : null;
   const trialDays = sub && sub.onTrial && !sub.expired && sub.daysLeft !== null ? sub.daysLeft : null;
   const [collapsed, setCollapsed] = useState(readCollapsed);
+  const [hoverOpen, setHoverOpen] = useState(false);
   const initial = (user?.name ?? "?").trim().charAt(0).toUpperCase();
+  const expanded = !collapsed || hoverOpen;
+  const toggleLabel = collapsed && hoverOpen ? t.common.sidebar.pin : collapsed ? t.common.sidebar.expand : t.common.sidebar.collapse;
 
   function toggleSidebar() {
     setCollapsed((c) => {
@@ -80,43 +84,48 @@ export function Layout() {
     >
       <aside
         id="sidebar"
-        data-collapsed={collapsed}
-        className="group flex items-center justify-between gap-3 border-b-2 border-line bg-surface px-4 py-3 lg:sticky lg:top-0 lg:h-dvh lg:flex-col lg:items-stretch lg:justify-start lg:gap-6 lg:border-b-0 lg:border-r-2 lg:px-3 lg:py-4"
+        data-collapsed={!expanded}
+        onMouseEnter={() => collapsed && setHoverOpen(true)}
+        onMouseLeave={() => setHoverOpen(false)}
+        className={cx(
+          "group flex items-center justify-between gap-3 border-b-2 border-line bg-surface px-4 py-3 lg:sticky lg:top-0 lg:h-dvh lg:flex-col lg:items-stretch lg:justify-start lg:gap-6 lg:border-b-0 lg:border-r-2 lg:px-3 lg:py-4 lg:transition-[width,box-shadow] lg:duration-150",
+          collapsed && (hoverOpen ? "lg:z-20 lg:w-64 lg:shadow-hard" : "lg:w-[4.75rem]"),
+        )}
       >
-        <div className={cx("flex items-center gap-2", collapsed ? "lg:flex-col lg:gap-3" : "lg:justify-between lg:pl-2")}>
-          <div className={cx("flex items-baseline gap-2", collapsed && "lg:hidden")}>
+        <div className={cx("flex items-center gap-2", !expanded ? "lg:flex-col lg:gap-3" : "lg:justify-between lg:pl-2")}>
+          <div className={cx("flex items-baseline gap-2", !expanded && "lg:hidden")}>
             <Wordmark className="text-3xl text-primary" />
             <span className="hidden text-xs font-bold uppercase tracking-wider text-ink-2 sm:inline">{t.common.admin}</span>
           </div>
           <button
             type="button"
             onClick={toggleSidebar}
-            aria-expanded={!collapsed}
+            aria-expanded={expanded}
             aria-controls="sidebar"
-            aria-label={collapsed ? t.common.sidebar.expand : t.common.sidebar.collapse}
+            aria-label={toggleLabel}
             className={cx(iconBtn, "hidden lg:inline-flex")}
           >
             {collapsed ? <PanelLeftOpen size={20} aria-hidden /> : <PanelLeftClose size={20} aria-hidden />}
-            <Tip>{collapsed ? t.common.sidebar.expand : t.common.sidebar.collapse}</Tip>
+            <Tip>{toggleLabel}</Tip>
           </button>
         </div>
 
         {tenant && (
           <div
             title={tenant.name}
-            className={cx("hidden items-center gap-3 rounded-md border-2 border-line p-2 lg:flex", collapsed && "lg:justify-center lg:border-transparent lg:p-0")}
+            className={cx("hidden items-center gap-3 rounded-md border-2 border-line p-2 lg:flex", !expanded && "lg:justify-center lg:border-transparent lg:p-0")}
           >
             {tenant.logoUrl ? (
               <img src={tenant.logoUrl} alt="" className="size-9 shrink-0 rounded-sm object-contain" />
             ) : (
               <span aria-hidden className="size-9 shrink-0 rounded-sm" style={{ background: tenant.primaryColor }} />
             )}
-            <span className={cx("truncate text-sm font-bold", collapsed && "lg:hidden")}>{tenant.name}</span>
+            <span className={cx("truncate text-sm font-bold", !expanded && "lg:hidden")}>{tenant.name}</span>
           </div>
         )}
 
         <nav aria-label={t.common.navigation} className="hidden flex-col gap-1 lg:flex">
-          <p className={cx("mb-1 px-3 text-xs font-bold uppercase tracking-wider text-ink-3", collapsed && "lg:sr-only")}>
+          <p className={cx("mb-1 px-3 text-xs font-bold uppercase tracking-wider text-ink-3", !expanded && "lg:sr-only")}>
             {t.common.sidebar.menu}
           </p>
           {items.map(({ to, label, Icon }) => (
@@ -127,7 +136,7 @@ export function Layout() {
               className={({ isActive }) =>
                 cx(
                   "group/tip relative flex min-h-11 items-center gap-3 rounded-md px-3 font-display text-lg font-bold uppercase tracking-wide transition-colors duration-100",
-                  collapsed && "lg:justify-center lg:px-0",
+                  !expanded && "lg:justify-center lg:px-0",
                   isActive
                     ? "bg-primary/15 text-ink before:absolute before:inset-y-1 before:left-0 before:w-1 before:rounded-sm before:bg-primary"
                     : "text-ink-2 hover:bg-line/60 hover:text-ink",
@@ -135,7 +144,7 @@ export function Layout() {
               }
             >
               <Icon size={20} aria-hidden className="shrink-0" />
-              <span className={cx(collapsed && "lg:hidden")}>{label}</span>
+              <span className={cx(!expanded && "lg:hidden")}>{label}</span>
               <Tip>{label}</Tip>
             </NavLink>
           ))}
@@ -144,17 +153,17 @@ export function Layout() {
         <div
           className={cx(
             "flex items-center gap-2 lg:mt-auto lg:border-t-2 lg:border-line lg:pt-4",
-            collapsed ? "lg:flex-col" : "lg:justify-between",
+            !expanded ? "lg:flex-col" : "lg:justify-between",
           )}
         >
-          <div className={cx("hidden min-w-0 items-center gap-3 px-1 lg:flex", collapsed && "lg:px-0")} title={user?.name}>
+          <div className={cx("hidden min-w-0 items-center gap-3 px-1 lg:flex", !expanded && "lg:px-0")} title={user?.name}>
             <span
               aria-hidden
               className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border-2 border-ink font-display text-lg font-black"
             >
               {initial}
             </span>
-            <div className={cx("min-w-0", collapsed && "lg:hidden")}>
+            <div className={cx("min-w-0", !expanded && "lg:hidden")}>
               <p className="truncate text-sm font-bold">{user?.name}</p>
               <p className="truncate text-xs text-ink-2">{user ? t.role[user.role] : ""}</p>
             </div>

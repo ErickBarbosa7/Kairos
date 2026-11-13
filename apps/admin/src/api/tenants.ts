@@ -57,6 +57,12 @@ export type UpdateTenantInput = Partial<
   >
 >;
 
+export interface CreateTenantAdminInput {
+  name: string;
+  email: string;
+  password: string;
+}
+
 function useInvalidate() {
   const qc = useQueryClient();
   return () => Promise.all([qc.invalidateQueries({ queryKey: ["tenants"] }), qc.invalidateQueries({ queryKey: ["tenant"] }), qc.invalidateQueries({ queryKey: ["tenant-count"] })]);
@@ -74,6 +80,14 @@ export function useUpdateTenant(id: string) {
   const invalidate = useInvalidate();
   return useMutation({
     mutationFn: (body: UpdateTenantInput) => api<Tenant>(`/admin/tenants/${id}`, { method: "PATCH", body }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useCreateTenantAdmin(id: string) {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (body: CreateTenantAdminInput) => api(`/admin/tenants/${id}/admin`, { method: "POST", body }),
     onSuccess: invalidate,
   });
 }
