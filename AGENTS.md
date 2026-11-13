@@ -3,8 +3,9 @@
 Monorepo pnpm del SaaS Kairos (fidelización B2B2C: máquina Arcade → Wallet PWA → panel multi-tenant).
 
 **Estado:** parcial 1 implementado (API + panel Admin con Super Admin y panel Tenant).
-`apps/wallet` está vacío (solo `.gitkeep`); la Wallet PWA (parcial 2) y la terminal Unity
-(repo aparte) no existen todavía.
+`apps/wallet` es la Wallet en **Flutter** (Android, iOS y web; `flutter run -d web-server --web-port 5174 --web-hostname 0.0.0.0`,
+Flutter en `~/flutter/bin`). Sesión de invitado, progreso, premios y escáner QR; sin tests. No es parte del workspace
+pnpm. La terminal Arcade vive en el repo aparte `Kairos-Godot`.
 
 Antes de tocar el modelo de datos, la seguridad o la UI, lee:
 `docs/ARQUITECTURA.md` (decisiones), `docs/ESQUEMA.md` (esquema y operaciones críticas),

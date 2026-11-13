@@ -44,7 +44,8 @@ Puerto 5173 es `strictPort`: si está ocupado, Vite falla en vez de cambiar.
 - Super Admin: `http://localhost:5173` con el email/contraseña del seed.
 - Panel Tenant: crea un tenant desde el panel Super Admin y entra con las credenciales del tenant.
 - Cupón de prueba: `TENANT_SLUG=<slug> pnpm --filter @kairos/api seed:coupon` (no corre en producción).
-- Llave de máquina arcade: `pnpm --filter @kairos/api gen:machine-key <nombre>` (par ES256 en `apps/api/secrets/`).
+- Terminal Arcade: abre la terminal, inicia la vinculación y escribe su código temporal de 8 caracteres desde **Sucursales y máquinas → Vincular terminal**. No requiere ejecutar comandos ni copiar llaves.
+- La llave de máquina (`pnpm --filter @kairos/api gen:machine-key <nombre>`) solo se conserva para terminales `DEVICE_KEY` heredadas.
 
 ## Verificación
 

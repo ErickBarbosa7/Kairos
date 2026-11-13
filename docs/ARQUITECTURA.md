@@ -92,6 +92,17 @@ Propuesta:
 - La API guarda cada `jti` usado y rechaza repetidos. Además limita el puntaje máximo por partida y la frecuencia por usuario.
 - Si una máquina se ve comprometida, se revoca su llave pública sin afectar a las demás.
 
+### 4.2.1 Terminales en línea
+
+Una terminal que siempre opera conectada puede usar `WEB_SESSION` en vez de una llave local:
+
+- La terminal muestra un código de vinculación temporal de 8 caracteres. El administrador lo aprueba desde el panel, eligiendo sucursal y nombre.
+- La terminal completa el vínculo con el secreto de un solo uso que recibió al crear el código. La API crea una sesión revocable de 30 días y guarda solo el hash de su credencial.
+- La PWA recibe esa sesión en una cookie `HttpOnly`; un cliente nativo recibe una vez un token opaco y lo envía como `Authorization: Bearer`.
+- La API emite el JWT del QR para estas terminales. Revocar la máquina invalida todas sus sesiones de inmediato.
+
+Las máquinas `DEVICE_KEY` ya registradas conservan su firma asimétrica local; el panel no las ofrece como alta habitual.
+
 Esto reemplaza la "llave secreta" de `planeacion.md` (paso 3.3). Ese documento debería actualizarse cuando lo apruebes.
 
 ### 4.3 Canje con OTP

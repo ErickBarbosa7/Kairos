@@ -12,7 +12,7 @@ Define el modelo de datos de PostgreSQL y su equivalente en Prisma. Complementa 
 | 2 | El consumidor es **global**, no pertenece a un tenant. El saldo vive en `wallets` (consumidor × tenant) | Una persona con una sola cuenta en la Wallet acumula puntos en varias tiendas, cada una con su saldo aislado |
 | 3 | Los puntos se llevan como **libro contable** (`point_transactions`, solo inserciones) más un saldo en `wallets` | Auditable. El saldo se puede recalcular y verificar contra el historial |
 | 4 | Sucursal (`stores`) separada de empresa (`tenants`) | El QR y la API usan `store_id`. Un negocio con varias sucursales no requiere rediseño |
-| 5 | Cada máquina tiene su propio par de llaves; la base guarda solo la **pública** | Ver `ARQUITECTURA.md` 4.2. Revocar una máquina no afecta a las demás |
+| 5 | La máquina usa una llave pública propia (`DEVICE_KEY`) o una sesión revocable (`WEB_SESSION`) | La firma local protege equipos sin red; la sesión permite vinculación en línea sin copiar claves |
 | 6 | Los QR usados se guardan por `jti` único en `qr_claims` | La restricción `UNIQUE` hace imposible acreditar el mismo QR dos veces, incluso con peticiones simultáneas |
 | 7 | Cupón y premio guardan **copia** del título y costo al momento del canje | Si el tenant edita o borra el premio, el historial no cambia |
 | 8 | Claves primarias `uuid` (v7 si es posible) | No revelan volumen ni son adivinables en URLs |
@@ -98,9 +98,12 @@ Los tres últimos parámetros de puntos viven aquí porque cada negocio define s
 | `label` | text | Ej. "Arcade mostrador" |
 | `public_key` | text | PEM o JWK. Solo la pública |
 | `key_algorithm` | enum | `ES256`, `EDDSA` |
+| `auth_mode` | enum | `DEVICE_KEY` (firma local) o `WEB_SESSION` (terminal en línea) |
 | `status` | enum `MachineStatus` | `ACTIVE`, `REVOKED` |
 | `last_seen_at` | timestamptz null | Diagnóstico |
 | `revoked_at` | timestamptz null | |
+
+Las máquinas `WEB_SESSION` no guardan llave pública: una vinculación temporal crea una sesión revocable y la API firma sus QR.
 
 ### 3.2 Usuarios y sesiones
 
@@ -256,7 +259,7 @@ Estas reglas no dependen del código de la API. Las impone PostgreSQL.
 
 Una sola transacción:
 
-1. Verificar firma con la llave pública de `machine_id`; comprobar `exp`, máquina `ACTIVE`, tenant `ACTIVE`.
+1. Según `auth_mode`, verificar firma con la llave pública de `machine_id` (`DEVICE_KEY`) o con la credencial de servidor (`WEB_SESSION`); comprobar `exp`, máquina `ACTIVE`, tenant `ACTIVE`.
 2. `INSERT qr_claims` → si viola `UNIQUE (jti)`, responder "QR ya usado".
 3. Calcular `points_awarded = min(score / score_per_point, max_points_per_game)`; comprobar `max_games_per_day`.
 4. `INSERT wallets ... ON CONFLICT DO NOTHING`, luego `SELECT ... FOR UPDATE` sobre la billetera.
