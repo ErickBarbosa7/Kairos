@@ -19,6 +19,7 @@ export function TenantEconomyPage() {
   const [scorePerPoint, setScorePerPoint] = useState("10");
   const [maxPointsPerGame, setMaxPointsPerGame] = useState("50");
   const [maxGamesPerDay, setMaxGamesPerDay] = useState("10");
+  const [avgTicket, setAvgTicket] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export function TenantEconomyPage() {
     setScorePerPoint(String(data.scorePerPoint));
     setMaxPointsPerGame(String(data.maxPointsPerGame));
     setMaxGamesPerDay(String(data.maxGamesPerDay));
+    setAvgTicket(data.avgTicket === null ? "" : String(data.avgTicket));
   }, [data]);
 
   if (isPending) return <Spinner />;
@@ -46,9 +48,11 @@ export function TenantEconomyPage() {
     const errs: Record<string, string> = {};
     for (const [key, value] of Object.entries(values)) if (!isPositiveInt(value)) errs[key] = t.economy.invalid;
     setErrors(errs);
+    if (avgTicket !== "" && (!Number.isInteger(Number(avgTicket)) || Number(avgTicket) < 0)) errs.avgTicket = t.economy.invalidTicket;
+    setErrors(errs);
     if (Object.keys(errs).length) return;
     try {
-      await save.mutateAsync(values);
+      await save.mutateAsync({ ...values, avgTicket: avgTicket === "" ? null : Number(avgTicket) });
       toast(t.economy.saved);
     } catch (err) {
       if (err instanceof ApiError && err.issues.length) setErrors(Object.fromEntries(err.issues.map((i) => [i.path, i.message])));
@@ -76,6 +80,11 @@ export function TenantEconomyPage() {
             </Field>
             <Field floating label={t.form.maxGamesPerDay} htmlFor="e-mgd" hint={t.economy.maxGamesPerDayHint} error={errors.maxGamesPerDay}>
               <Input id="e-mgd" inputMode="numeric" value={maxGamesPerDay} aria-invalid={!!errors.maxGamesPerDay} onChange={(e) => setMaxGamesPerDay(e.target.value)} />
+            </Field>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <Field floating label={t.economy.avgTicket} htmlFor="e-ticket" hint={t.economy.avgTicketHint} error={errors.avgTicket}>
+              <Input id="e-ticket" inputMode="numeric" value={avgTicket} aria-invalid={!!errors.avgTicket} onChange={(e) => setAvgTicket(e.target.value)} />
             </Field>
           </div>
           <p className="text-sm text-ink-2">{t.economy.note}</p>

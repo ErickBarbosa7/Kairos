@@ -1,4 +1,4 @@
-import { Building2, Coins, CreditCard, Gift, LogOut, Palette, PanelLeftClose, PanelLeftOpen, ScanLine, Store, Users } from "lucide-react";
+import { Building2, ChartNoAxesColumn, Coins, CreditCard, Gift, LogOut, Palette, PanelLeftClose, PanelLeftOpen, ScanLine, Store, Users } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../api/auth";
@@ -13,6 +13,7 @@ export function Wordmark({ className }: { className?: string }) {
 const NAV = {
   super_admin: [{ to: "/tenants", label: t.nav.tenants, Icon: Building2 }],
   tenant_admin: [
+    { to: "/results", label: t.nav.results, Icon: ChartNoAxesColumn },
     { to: "/caja", label: t.nav.caja, Icon: ScanLine },
     { to: "/rewards", label: t.nav.rewards, Icon: Gift },
     { to: "/economy", label: t.nav.economy, Icon: Coins },

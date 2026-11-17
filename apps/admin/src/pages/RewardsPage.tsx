@@ -19,10 +19,11 @@ interface Draft {
   imageUrl: string | null;
   pointsCost: string;
   stock: string;
+  unitCost: string;
   isActive: boolean;
 }
 
-const blank: Draft = { title: "", description: "", imageUrl: null, pointsCost: "", stock: "", isActive: true };
+const blank: Draft = { title: "", description: "", imageUrl: null, pointsCost: "", stock: "", unitCost: "", isActive: true };
 const toDraft = (r: Reward): Draft => ({
   id: r.id,
   title: r.title,
@@ -30,6 +31,7 @@ const toDraft = (r: Reward): Draft => ({
   imageUrl: r.imageUrl,
   pointsCost: String(r.pointsCost),
   stock: r.stock === null ? "" : String(r.stock),
+  unitCost: r.unitCost === null ? "" : String(r.unitCost),
   isActive: r.isActive,
 });
 
@@ -57,6 +59,7 @@ function RewardDialog({ draft, onClose }: { draft: Draft | null; onClose(): void
     const cost = Number(f.pointsCost);
     if (!Number.isInteger(cost) || cost < 1) errs.pointsCost = t.rewards.invalidCost;
     if (f.stock !== "" && (!Number.isInteger(Number(f.stock)) || Number(f.stock) < 0)) errs.stock = t.rewards.invalidStock;
+    if (f.unitCost !== "" && (!Number.isInteger(Number(f.unitCost)) || Number(f.unitCost) < 0)) errs.unitCost = t.rewards.invalidUnitCost;
     setErrors(errs);
     if (Object.keys(errs).length) return;
     try {
@@ -67,6 +70,7 @@ function RewardDialog({ draft, onClose }: { draft: Draft | null; onClose(): void
         imageUrl: f.imageUrl,
         pointsCost: cost,
         stock: f.stock === "" ? null : Number(f.stock),
+        unitCost: f.unitCost === "" ? null : Number(f.unitCost),
         isActive: f.isActive,
       });
       toast(t.rewards.saved);
@@ -105,6 +109,9 @@ function RewardDialog({ draft, onClose }: { draft: Draft | null; onClose(): void
             <Input id="r-stock" inputMode="numeric" value={f.stock} onChange={(e) => setF({ ...f, stock: e.target.value })} />
           </Field>
         </div>
+        <Field floating label={t.rewards.unitCost} htmlFor="r-unit" hint={t.rewards.unitCostHint} error={errors.unitCost}>
+          <Input id="r-unit" inputMode="numeric" value={f.unitCost} aria-invalid={!!errors.unitCost} onChange={(e) => setF({ ...f, unitCost: e.target.value })} />
+        </Field>
         <ImageUpload label={t.rewards.image} value={f.imageUrl} onChange={(u) => setF({ ...f, imageUrl: u })} />
         <label className="flex min-h-11 items-center gap-3 text-sm font-medium">
           <input type="checkbox" checked={f.isActive} onChange={(e) => setF({ ...f, isActive: e.target.checked })} className="size-5 accent-primary" />

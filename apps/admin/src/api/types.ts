@@ -52,6 +52,7 @@ export interface TenantEconomy {
   scorePerPoint: number;
   maxPointsPerGame: number;
   maxGamesPerDay: number;
+  avgTicket: number | null;
 }
 
 /** Precios y límites de los planes, tal como los publica la API (`/public/plans`). */
@@ -99,6 +100,7 @@ export interface Reward {
   pointsCost: number;
   stock: number | null;
   isActive: boolean;
+  unitCost: number | null;
 }
 
 export type CouponStatus = "PENDING" | "REDEEMED" | "EXPIRED" | "CANCELLED";
@@ -139,4 +141,25 @@ export interface Staff {
   role: "TENANT_ADMIN" | "TENANT_STAFF";
   storeId: string | null;
   isActive: boolean;
+}
+
+export interface Retention {
+  from: string;
+  to: string;
+  newCustomers: number;
+  returningCustomers: number;
+  return7: number | null;
+  return30: number | null;
+  visitsByDay: { date: string; visits: number }[];
+  visitsByHour: { hour: number; visits: number }[];
+}
+
+export interface Roi {
+  from: string;
+  to: string;
+  programCost: number;
+  attributedRevenue: number;
+  roi: number | null;
+  missing: ("avgTicket" | "unitCost")[];
+  estimated: true;
 }

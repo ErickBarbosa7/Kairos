@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
-import type { Coupon, Machine, Reward, Staff, Store, TenantBrand, TenantEconomy, ThemeMode } from "./types";
+import type { Coupon, Machine, Retention, Reward, Roi, Staff, Store, TenantBrand, TenantEconomy, ThemeMode } from "./types";
 
 export const useBrand = () => useQuery({ queryKey: ["brand"], queryFn: () => api<TenantBrand>("/tenant/brand") });
 
@@ -129,3 +129,7 @@ export function useSaveStaff() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["staff"] }),
   });
 }
+
+export const useRetention = () => useQuery({ queryKey: ["retention"], queryFn: () => api<Retention>("/tenant/analytics/retention") });
+/** El ROI no está en todos los planes: un 403 se muestra como invitación a subir de plan, no como error. */
+export const useRoi = () => useQuery({ queryKey: ["roi"], queryFn: () => api<Roi>("/tenant/analytics/roi"), retry: false });
