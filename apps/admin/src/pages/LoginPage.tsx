@@ -51,6 +51,7 @@ export function LoginPage() {
   const [slug, setSlug] = useState(readSlug);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -76,6 +77,7 @@ export function LoginPage() {
     if (!cleanEmail) fields.email = t.login.required;
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) fields.email = t.login.invalidEmail;
     if (password.length < 10) fields.password = t.login.passwordShort;
+    if (!acceptTerms) fields.acceptTerms = t.login.acceptTermsRequired;
     setErrors(fields);
     setError(null);
     const first = Object.keys(fields)[0];
@@ -85,7 +87,7 @@ export function LoginPage() {
     }
     setBusy(true);
     try {
-      const { slug: assigned } = await register({ businessName: businessName.trim(), adminName: adminName.trim(), email: cleanEmail, password });
+      const { slug: assigned } = await register({ businessName: businessName.trim(), adminName: adminName.trim(), email: cleanEmail, password, acceptTerms });
       try {
         localStorage.setItem(SLUG_KEY, assigned);
       } catch {
@@ -294,6 +296,19 @@ export function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 error={errors.password}
               />
+
+              {mode === "register" && (
+                <div>
+                  <label className="flex min-h-11 items-center gap-3 text-sm font-medium">
+                    <input id="acceptTerms" type="checkbox" checked={acceptTerms} disabled={busy} onChange={(e) => setAcceptTerms(e.target.checked)} className="size-5 accent-primary" />
+                    <span>
+                      {t.login.acceptTermsPrefix}
+                      <a href="https://github.com/ErickBarbosa7/Kairos/blob/main/docs/TERMINOS.md" target="_blank" rel="noreferrer" className="font-semibold underline">{t.login.acceptTermsLink}</a>
+                    </span>
+                  </label>
+                  {errors.acceptTerms && <p role="alert" className="text-sm text-danger">{errors.acceptTerms}</p>}
+                </div>
+              )}
 
               {error && (
                 <p role="alert" className="flex items-start gap-2 border-l-2 border-danger bg-danger/10 p-3 text-sm text-danger">

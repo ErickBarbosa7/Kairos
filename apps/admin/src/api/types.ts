@@ -163,3 +163,27 @@ export interface Roi {
   missing: ("avgTicket" | "unitCost")[];
   estimated: true;
 }
+
+export type CampaignType = "MULTIPLIER" | "FIRST_VISIT_BONUS" | "COMEBACK_UNLOCK";
+
+export interface Campaign {
+  id: string;
+  name: string;
+  type: CampaignType;
+  isActive: boolean;
+  multiplierPct: number | null;
+  bonusPoints: number | null;
+  unlockHours: number | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  weekdays: number[];
+  startHour: number | null;
+  endHour: number | null;
+}
+
+export interface WeeklyReport {
+  weekStart: string;
+  headline: string;
+  recommendation: string;
+  metrics: { weekVisits: number; newCustomers: number; returningCustomers: number; return7: number | null; roi: number | null };
+}

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
-import type { Coupon, Machine, Retention, Reward, Roi, Staff, Store, TenantBrand, TenantEconomy, ThemeMode } from "./types";
+import type { Campaign, Coupon, Machine, Retention, Reward, Roi, Staff, WeeklyReport, Store, TenantBrand, TenantEconomy, ThemeMode } from "./types";
 
 export const useBrand = () => useQuery({ queryKey: ["brand"], queryFn: () => api<TenantBrand>("/tenant/brand") });
 
@@ -133,3 +133,36 @@ export function useSaveStaff() {
 export const useRetention = () => useQuery({ queryKey: ["retention"], queryFn: () => api<Retention>("/tenant/analytics/retention") });
 /** El ROI no está en todos los planes: un 403 se muestra como invitación a subir de plan, no como error. */
 export const useRoi = () => useQuery({ queryKey: ["roi"], queryFn: () => api<Roi>("/tenant/analytics/roi"), retry: false });
+
+export const useWeekly = () =>
+  useQuery({ queryKey: ["weekly"], queryFn: () => api<WeeklyReport | null>("/tenant/analytics/weekly"), retry: false });
+
+export function useRefreshWeekly() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api<WeeklyReport>("/tenant/analytics/weekly/refresh", { method: "POST" }),
+    onSuccess: (data) => qc.setQueryData(["weekly"], data),
+  });
+}
+
+export const useCampaigns = () =>
+  useQuery({ queryKey: ["campaigns"], queryFn: () => api<{ data: Campaign[]; plan: "TRIAL" | "BASIC" | "PRO" }>("/tenant/campaigns") });
+
+export type CampaignInput = Omit<Campaign, "id">;
+
+export function useSaveCampaign() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...body }: Partial<CampaignInput> & { id?: string }) =>
+      api<Campaign>(id ? `/tenant/campaigns/${id}` : "/tenant/campaigns", { method: id ? "PATCH" : "POST", body }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["campaigns"] }),
+  });
+}
+
+export function useDeleteCampaign() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api(`/tenant/campaigns/${id}`, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["campaigns"] }),
+  });
+}

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ApiError } from "../api/client";
-import { useRetention, useRoi } from "../api/tenantPanel";
-import { Card, Spinner } from "../components/ui";
+import { useRefreshWeekly, useRetention, useRoi, useWeekly } from "../api/tenantPanel";
+import { Button, Card, Spinner } from "../components/ui";
 import { t } from "../strings";
 
 const pct = (n: number | null) => (n === null ? t.results.noData : `${n}%`);
@@ -73,6 +73,38 @@ function RoiCard() {
   );
 }
 
+function WeeklyCard() {
+  const { data, isPending, error } = useWeekly();
+  const refresh = useRefreshWeekly();
+  if (isPending) return <Spinner />;
+  if (error instanceof ApiError && error.code === "plan_limit") {
+    return (
+      <Card className="flex flex-col gap-2 p-4">
+        <h2 className="font-display text-xl font-bold">{t.results.weeklyTitle}</h2>
+        <p className="text-sm text-ink-2">{t.results.weeklyUpgrade}</p>
+        <Link to="/plan" className="text-sm font-semibold underline">{t.results.upgradeCta}</Link>
+      </Card>
+    );
+  }
+  return (
+    <Card className="flex flex-col gap-2 p-4">
+      <h2 className="font-display text-xl font-bold">{t.results.weeklyTitle}</h2>
+      {data ? (
+        <>
+          <p className="text-xs text-ink-2">{t.results.weeklyWeek(data.weekStart.slice(0, 10))}</p>
+          <p className="font-semibold">{data.headline}</p>
+          <p className="text-sm text-ink-2">{data.recommendation}</p>
+        </>
+      ) : (
+        <p className="text-sm text-ink-2">{t.results.weeklyEmpty}</p>
+      )}
+      <div>
+        <Button onClick={() => refresh.mutate()} disabled={refresh.isPending}>{t.results.weeklyRefresh}</Button>
+      </div>
+    </Card>
+  );
+}
+
 export function ResultsPage() {
   const { data, isPending, isError } = useRetention();
   if (isPending) return <Spinner />;
@@ -92,6 +124,7 @@ export function ResultsPage() {
         <Stat label={t.results.return30} value={pct(data.return30)} hint={t.results.return30Hint} />
       </div>
       <RoiCard />
+      <WeeklyCard />
       <div className="grid gap-4 xl:grid-cols-2">
         <Bars title={t.results.visitsByDay} items={data.visitsByDay.map((d) => ({ key: d.date, label: d.date.slice(5), value: d.visits }))} />
         <Bars title={t.results.visitsByHour} items={data.visitsByHour.map((h) => ({ key: String(h.hour), label: `${String(h.hour).padStart(2, "0")}:00`, value: h.visits }))} />

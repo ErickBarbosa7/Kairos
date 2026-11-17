@@ -6,6 +6,7 @@ import { Spinner } from "./components/ui";
 import { CajaPage } from "./pages/CajaPage";
 import { LoginPage } from "./pages/LoginPage";
 import { PlanPage } from "./pages/PlanPage";
+import { CampaignsPage } from "./pages/CampaignsPage";
 import { ResultsPage } from "./pages/ResultsPage";
 import { StaffPage } from "./pages/StaffPage";
 import { StoresPage } from "./pages/StoresPage";
@@ -66,6 +67,7 @@ export function App() {
           </Route>
           <Route element={<Protected roles={["tenant_admin"]} />}>
             <Route element={<RequireSubscription />}>
+              <Route path="/campaigns" element={<CampaignsPage />} />
               <Route path="/results" element={<ResultsPage />} />
               <Route path="/brand" element={<TenantBrandPage />} />
               <Route path="/economy" element={<TenantEconomyPage />} />

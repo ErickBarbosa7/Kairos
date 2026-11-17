@@ -29,7 +29,9 @@ Specs relacionadas:
 - Acreditación de QR firmado, canje de premios, cupones con desbloqueo diferido.
 - Rutas de cuenta del cliente: `POST /wallet/register` y `POST /wallet/login`, con fusión de invitado en `account.service.ts` (migración `20261117120000_consumer_password`).
 
-**Por hacer (spec `retencion-roi.md`)**
+**Hecho (spec `retencion-roi.md`, 2026-11-17)**: todo lo de esta lista está implementado y con tests; falta probarlo en el navegador.
+
+**Alcance de la spec**
 - Esquema: `Tenant.avgTicket`, `Reward.unitCost`, y tablas `Campaign`, `TermsAcceptance` y `WeeklyReport`.
 - Analítica: `GET /tenant/analytics/retention`, `/roi` y `/weekly`, con SQL agregado y control por plan.
 - Campañas: CRUD en `/tenant/campaigns` y aplicación dentro de `qr-claim.service.ts`, en la misma transacción. Tipos: `MULTIPLIER`, `FIRST_VISIT_BONUS`, `COMEBACK_UNLOCK`.
@@ -51,7 +53,7 @@ Specs relacionadas:
 - Cuenta opcional con correo y contraseña: banner «Guarda tus puntos» en Inicio y pantalla de cuenta con «Crear cuenta», «Entrar» y «Seguir sin cuenta» (`screens/account.dart`, `Api.register/login/logout`).
 
 **Por hacer**
-- Mostrar al cliente la campaña activa del negocio (por ejemplo «doble puntos hasta las 5 pm»). Requiere un dato público o de cliente en `GET /wallet/balances`; la spec no lo cubre todavía y habría que añadirlo.
+- (Pendiente) Mostrar al cliente la campaña activa del negocio (por ejemplo «doble puntos hasta las 5 pm»). Requiere un dato público o de cliente en `GET /wallet/balances`; la spec no lo cubre todavía y habría que añadirlo.
 - Mostrar el desbloqueo por campaña `COMEBACK_UNLOCK` en el cupón (hoy ya muestra `validFrom`).
 - Pendientes de cuenta: verificación de correo y recuperación de contraseña, que requieren proveedor de correo. OTP por teléfono, Google y Apple siguen fuera de alcance.
 

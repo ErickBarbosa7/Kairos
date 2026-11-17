@@ -20,6 +20,7 @@ export interface RegisterInput {
   adminName: string;
   email: string;
   password: string;
+  acceptTerms: boolean;
 }
 
 const Ctx = createContext<AuthState | null>(null);
