@@ -241,6 +241,13 @@ Solo se insertan QR válidos y acreditados. Limpieza: las filas con más de la v
 | `metadata` | jsonb | Antes y después |
 | `ip` | inet null | |
 
+### 3.5 Retención y términos
+
+- **`campaigns`** — regla que modifica la acreditación: `MULTIPLIER` (`multiplier_pct` 101–500), `FIRST_VISIT_BONUS` (`bonus_points`) o `COMEBACK_UNLOCK` (`unlock_hours`). Horario en hora local de México (`weekdays` 0 = domingo, `start_hour` 0–23, `end_hour` 1–24). CHECK en la migración: cada tipo exige su campo, `start_hour < end_hour`, `starts_at < ends_at`.
+- **`terms_acceptances`** — `tenant_id`, `user_id`, `version`, `accepted_at`, `ip`. Se crea al registrar un negocio.
+- **`weekly_reports`** — un resumen por negocio y semana (`UNIQUE (tenant_id, week_start)`), con `headline`, `recommendation` y `metrics` (JSON).
+- `tenants.avg_ticket` y `rewards.unit_cost` (pesos enteros, opcionales): entradas del cálculo de ROI.
+
 ## 4. Reglas de integridad que la base debe garantizar
 
 Estas reglas no dependen del código de la API. Las impone PostgreSQL.

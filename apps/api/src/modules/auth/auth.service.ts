@@ -101,6 +101,7 @@ export async function registerTenant(input: { businessName: string; adminName: s
     const user = await tx.tenantUser.create({
       data: { tenantId: tenant.id, email: input.email.toLowerCase(), name: input.adminName, passwordHash, role: "TENANT_ADMIN" },
     });
+    await tx.termsAcceptance.create({ data: { tenantId: tenant.id, userId: user.id, version: env.TERMS_VERSION, ip } });
     await tx.auditLog.create({
       data: { tenantId: tenant.id, actorType: "TENANT_USER", actorId: user.id, action: "tenant.self_register", targetType: "tenant", targetId: tenant.id, ip },
     });

@@ -20,6 +20,7 @@ const schema = z.object({
   PRIZE_UNLOCK_HOURS: z.coerce.number().int().min(0).max(168).default(12),
   // Vigencia del token de un cliente invitado (vive en su teléfono).
   GUEST_TOKEN_DAYS: z.coerce.number().int().min(1).max(730).default(365),
+  TERMS_VERSION: z.string().min(1).default("2026-11-17"),
   TRIAL_DAYS: z.coerce.number().int().min(1).max(90).default(14),
 });
 

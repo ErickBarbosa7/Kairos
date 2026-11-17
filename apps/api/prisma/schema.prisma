@@ -52,6 +52,11 @@ enum CouponStatus {
   EXPIRED
   CANCELLED
 }
+enum CampaignType {
+  MULTIPLIER
+  FIRST_VISIT_BONUS
+  COMEBACK_UNLOCK
+}
 enum SubjectType {
   SUPER_ADMIN
   TENANT_USER
@@ -108,6 +113,9 @@ model Tenant {
   coupons     Coupon[]
   transactions PointTransaction[]
   qrClaims    QrClaim[]
+  campaigns   Campaign[]
+  termsAcceptances TermsAcceptance[]
+  weeklyReports    WeeklyReport[]
 
   @@map("tenants")
 }
@@ -392,4 +400,65 @@ model AuditLog {
 
   @@index([tenantId, createdAt(sort: Desc)])
   @@map("audit_logs")
+}
+
+// ───────── Retención (spec retencion-roi) ─────────
+
+/** Regla que modifica la acreditación mientras está vigente. Los CHECK de rangos van en la migración. */
+model Campaign {
+  id            String       @id @default(uuid()) @db.Uuid
+  tenantId      String       @map("tenant_id") @db.Uuid
+  name          String
+  type          CampaignType
+  isActive      Boolean      @default(true) @map("is_active")
+  // MULTIPLIER: porcentaje de los puntos (150 = ×1.5).
+  multiplierPct Int?         @map("multiplier_pct")
+  // FIRST_VISIT_BONUS: puntos extra en la primera visita del cliente al negocio.
+  bonusPoints   Int?         @map("bonus_points")
+  // COMEBACK_UNLOCK: horas de espera del premio de la ruleta, en vez de PRIZE_UNLOCK_HOURS.
+  unlockHours   Int?         @map("unlock_hours")
+  startsAt      DateTime?    @map("starts_at")
+  endsAt        DateTime?    @map("ends_at")
+  // Días de la semana en que aplica (0 = domingo), hora local del negocio. Vacío = todos.
+  weekdays      Int[]
+  // Horario [startHour, endHour) en hora local. Nulos = todo el día.
+  startHour     Int?         @map("start_hour")
+  endHour       Int?         @map("end_hour")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, isActive])
+  @@map("campaigns")
+}
+
+model TermsAcceptance {
+  id         String   @id @default(uuid()) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  version    String
+  acceptedAt DateTime @default(now()) @map("accepted_at")
+  ip         String?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("terms_acceptances")
+}
+
+model WeeklyReport {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  // Lunes (hora local) de la semana que resume.
+  weekStart      DateTime @map("week_start") @db.Date
+  headline       String
+  recommendation String
+  metrics        Json
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, weekStart])
+  @@map("weekly_reports")
 }

@@ -19,7 +19,7 @@ Antes de tocar el modelo de datos, la seguridad o la UI, lee:
 | Tarea | Comando |
 |---|---|
 | Tipos (gate real de calidad) | `pnpm typecheck` — corre api, admin y design |
-| Tests | `pnpm test` — Vitest en `apps/api` (138) y `packages/design` (14). `apps/admin` no tiene tests |
+| Tests | `pnpm test` — Vitest en `apps/api` (197) y `packages/design` (14). `apps/admin` no tiene tests |
 | Un solo archivo de test | `pnpm --filter @kairos/api exec vitest run test/isolation.test.ts` |
 | Base de datos | `pnpm db:up` / `pnpm db:down` — Postgres 17 en **localhost:5433** (no 5432) |
 | API (dev) | `pnpm --filter @kairos/api dev` — tsx watch, puerto 3000 |
@@ -31,6 +31,7 @@ Antes de tocar el modelo de datos, la seguridad o la UI, lee:
 Scripts de apoyo: `seed:admin` (`ADMIN_EMAIL`, `ADMIN_NAME`, `ADMIN_PASSWORD`),
 `seed:coupon` (`TENANT_SLUG`, se niega a correr en producción),
 `seed:consumer` (cliente demo y su token de Wallet; solo desarrollo),
+`seed:analytics` (200 clientes y ~300 visitas de demo para el panel Resultados; corre después de `seed:arcade`; solo desarrollo),
 `gen:machine-key <nombre>` (ES256; escribe el par en `apps/api/secrets/`).
 
 ### Scripts raíz que NO funcionan (verificado, no es bug tuyo)
@@ -76,7 +77,8 @@ Scripts de apoyo: `seed:admin` (`ADMIN_EMAIL`, `ADMIN_NAME`, `ADMIN_PASSWORD`),
   bloqueada. Un QR con `reward_id` (ruleta de la terminal) crea un cupón de premio y descuenta stock;
   sin `reward_id` es de puntos. Es ruta de **cliente**, no de tenant: usa el `prisma` global y escribe `tenantId` a mano
   (sale de la máquina verificada). Su token tiene audiencia `kairos-wallet`, separada de la del panel.
-  El inicio de sesión del cliente (OTP) aún no existe; los tokens salen de `seed:consumer` y de las pruebas.
+  El cliente puede seguir como invitado o crear cuenta con correo y contraseña (`/wallet/register`, `/wallet/login`; sin verificar correo ni recuperar clave). El OTP sigue pendiente.
+- **Retención y campañas** (`docs/specs/retencion-roi.md`): `/tenant/analytics/*` usa SQL crudo, que `forTenant()` no filtra, así que cada consulta lleva `tenant_id` explícito; las columnas `timestamp` guardan UTC, hay que pasar por `AT TIME ZONE 'UTC'` antes de la hora local. Las campañas se aplican dentro de `qr-claim.service.ts`. El registro de un negocio exige `acceptTerms` (`TERMS_VERSION`).
 - **Prueba gratis y planes** (`docs/SUSCRIPCIONES.md`): `POST /auth/register` crea un negocio en `TRIAL`
   (`TRIAL_DAYS`). Si `subscription_ends_at` ya pasó, `requireActiveSubscription` responde 402 en el panel
   (salvo `/tenant/subscription*`) y las máquinas no acreditan (`subscription_expired`). Sin fecha = no vence.

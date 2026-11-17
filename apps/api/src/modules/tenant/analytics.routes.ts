@@ -2,7 +2,9 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../db/prisma.js";
 import { HttpError } from "../../lib/errors.js";
+import { tenantAdminOnly } from "../../middleware/tenant.js";
 import { assertFeature } from "../../lib/plans.js";
+import { buildWeeklyReport } from "./weekly.service.js";
 import { daysBetween, localDate, retention, roi, shift } from "./analytics.service.js";
 
 const iso = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((s) => !Number.isNaN(Date.parse(s)), "Fecha inválida");
@@ -35,4 +37,19 @@ analyticsRouter.get("/analytics/roi", async (req, res) => {
   assertFeature(t.plan, "roi");
   const { from, to } = resolveRange(req.query, t.plan);
   res.json(await roi(prisma, tid, t.avgTicket, from, to));
+});
+
+// Resumen semanal: lo genera el trabajo programado; el administrador también puede pedirlo (útil en demos).
+analyticsRouter.get("/analytics/weekly", async (req, res) => {
+  const tid = req.auth!.tid!;
+  const { plan } = await prisma.tenant.findUniqueOrThrow({ where: { id: tid }, select: { plan: true } });
+  assertFeature(plan, "weekly");
+  res.json((await prisma.weeklyReport.findFirst({ where: { tenantId: tid }, orderBy: { weekStart: "desc" } })) ?? null);
+});
+
+analyticsRouter.post("/analytics/weekly/refresh", tenantAdminOnly, async (req, res) => {
+  const tid = req.auth!.tid!;
+  const { plan } = await prisma.tenant.findUniqueOrThrow({ where: { id: tid }, select: { plan: true } });
+  assertFeature(plan, "weekly");
+  res.json(await buildWeeklyReport(prisma, tid));
 });

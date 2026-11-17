@@ -41,10 +41,11 @@ export function assertWithinPlan(plan: Plan, resource: LimitedResource, current:
 }
 
 /** Funciones de pago por plan (spec retencion-roi §7). La retención de 30 días está en todos. */
-export type Feature = "roi" | "long_range";
+export type Feature = "roi" | "long_range" | "weekly";
 const FEATURES: Record<Feature, { plans: Plan[]; label: string }> = {
   roi: { plans: ["BASIC", "PRO"], label: "El cálculo de ROI" },
   long_range: { plans: ["PRO"], label: "Consultar más de 30 días" },
+  weekly: { plans: ["PRO"], label: "El resumen semanal" },
 };
 
 /** Lanza 403 `plan_limit` si el plan no incluye la función. */
@@ -52,5 +53,21 @@ export function assertFeature(plan: Plan, feature: Feature) {
   const f = FEATURES[feature];
   if (!f.plans.includes(plan)) {
     throw new HttpError(403, `${f.label} no está incluido en tu plan. Sube de plan en la sección Plan`, "plan_limit");
+  }
+}
+
+/** Campañas activas a la vez por plan (spec retencion-roi §7). */
+export const CAMPAIGN_LIMIT: Record<Plan, number> = { TRIAL: 0, BASIC: 1, PRO: 5 };
+
+export function assertCampaignSlot(plan: Plan, activeNow: number) {
+  const max = CAMPAIGN_LIMIT[plan];
+  if (activeNow >= max) {
+    throw new HttpError(
+      403,
+      max === 0
+        ? "Tu plan no incluye campañas. Sube de plan en la sección Plan"
+        : `Tu plan permite ${max} ${max === 1 ? "campaña activa" : "campañas activas"} a la vez. Desactiva una o sube de plan`,
+      "plan_limit",
+    );
   }
 }

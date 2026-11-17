@@ -5,6 +5,7 @@ import { env } from "../../config/env.js";
 import { z } from "zod";
 import { prisma } from "../../db/prisma.js";
 import { conflict, HttpError } from "../../lib/errors.js";
+import { applyCampaigns } from "../tenant/campaigns.service.js";
 
 /** El QR de la máquina vive 60 s como máximo (ARQUITECTURA.md 4.2). */
 const QR_MAX_LIFETIME_SECONDS = 60;
@@ -149,16 +150,23 @@ const placeOf = ({ tenant, machine }: Ctx) => ({
   store: { id: machine.store.id, name: machine.store.name },
 });
 
-const pointsFor = ({ tenant, claims }: Ctx) => Math.min(Math.floor(claims.score / tenant.scorePerPoint), tenant.maxPointsPerGame);
+const basePointsFor = ({ tenant, claims }: Ctx) => Math.floor(claims.score / tenant.scorePerPoint);
+
+/** Puntos finales con campañas vigentes. Va dentro de la transacción, con la billetera ya bloqueada. */
+async function boostedPoints(tx: Prisma.TransactionClient, ctx: Ctx) {
+  const first = (await tx.qrClaim.count({ where: { consumerId: ctx.consumerId, tenantId: ctx.tenant.id } })) === 0;
+  return applyCampaigns(tx, ctx.tenant.id, basePointsFor(ctx), ctx.tenant.maxPointsPerGame, first);
+}
+const noteOf = (names: string[]) => (names.length ? `Campaña: ${names.join(", ")}` : undefined);
 
 /** QR de puntos (ESQUEMA.md 5.1): suma `min(score / score_per_point, max_points_per_game)` al saldo. */
 async function claimPoints(ctx: Ctx) {
   const { consumerId, tenant, machine, claims: c } = ctx;
-  const points = pointsFor(ctx);
-  if (points <= 0) throw new HttpError(422, "El puntaje no alcanza para ganar puntos", "score_too_low");
+  if (basePointsFor(ctx) <= 0) throw new HttpError(422, "El puntaje no alcanza para ganar puntos", "score_too_low");
 
   return prisma.$transaction(async (tx) => {
     const walletId = await lockWalletAndCheckLimit(tx, ctx);
+    const { points, names } = await boostedPoints(tx, ctx);
     // UNIQUE (jti): la defensa real contra repetir un QR, incluso con peticiones simultáneas.
     const claim = await tx.qrClaim.create({
       data: {
@@ -176,7 +184,7 @@ async function claimPoints(ctx: Ctx) {
       data: { balance: { increment: points }, lifetimeEarned: { increment: points } },
     });
     await tx.pointTransaction.create({
-      data: { tenantId: tenant.id, walletId, type: "EARN", points, balanceAfter: wallet.balance, qrClaimId: claim.id },
+      data: { tenantId: tenant.id, walletId, type: "EARN", points, balanceAfter: wallet.balance, qrClaimId: claim.id, note: noteOf(names) },
     });
     return {
       claimId: claim.id,
@@ -196,7 +204,6 @@ async function claimPoints(ctx: Ctx) {
  */
 async function claimPrize(ctx: Ctx, rewardId: string) {
   const { consumerId, tenant, machine, claims: c } = ctx;
-  const points = pointsFor(ctx);
   // La recompensa debe ser de ESTE negocio: el tenant sale de la máquina, no del QR.
   const reward = await prisma.reward.findFirst({ where: { id: rewardId, tenantId: tenant.id, deletedAt: null } });
   if (!reward) throw invalid();
@@ -204,6 +211,7 @@ async function claimPrize(ctx: Ctx, rewardId: string) {
 
   return prisma.$transaction(async (tx) => {
     const walletId = await lockWalletAndCheckLimit(tx, ctx);
+    const { points, names, unlockHours } = await boostedPoints(tx, ctx);
     const claim = await tx.qrClaim.create({
       data: {
         jti: c.jti,
@@ -223,7 +231,7 @@ async function claimPrize(ctx: Ctx, rewardId: string) {
     }
 
     // El premio se desbloquea después: da motivo para volver al local (PRIZE_UNLOCK_HOURS).
-    const validFrom = new Date(Date.now() + env.PRIZE_UNLOCK_HOURS * 60 * 60 * 1000);
+    const validFrom = new Date(Date.now() + (unlockHours ?? env.PRIZE_UNLOCK_HOURS) * 60 * 60 * 1000);
     let code = newCouponCode();
     for (let i = 0; i < 5 && (await tx.coupon.findFirst({ where: { tenantId: tenant.id, code, status: "PENDING" }, select: { id: true } })); i++) {
       code = newCouponCode();
@@ -248,7 +256,7 @@ async function claimPrize(ctx: Ctx, rewardId: string) {
         data: { balance: { increment: points }, lifetimeEarned: { increment: points } },
       });
       await tx.pointTransaction.create({
-        data: { tenantId: tenant.id, walletId, type: "EARN", points, balanceAfter: wallet.balance, qrClaimId: claim.id },
+        data: { tenantId: tenant.id, walletId, type: "EARN", points, balanceAfter: wallet.balance, qrClaimId: claim.id, note: noteOf(names) },
       });
     }
 

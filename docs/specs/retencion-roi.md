@@ -1,6 +1,6 @@
 # Spec: Panel de retención y ROI
 
-Estado: **aprobada** (2026-11-17). Implementación por fases: fase A = tareas 1–3 (esquema de economía, analítica y rutas).
+Estado: **implementada** en API y Admin (2026-11-17). Pendiente: probarla en el navegador y la revisión legal de `docs/TERMINOS.md`.
 
 ## 1. Problema
 
@@ -98,7 +98,7 @@ Trabajo programado (junto a `expireCoupons()` en `src/index.ts`) que corre los l
 
 ## 11. Datos de demostración
 
-`seed:demo-analytics` (solo desarrollo): crea ~200 clientes y ~1 500 visitas con patrón realista (más tráfico en horas pico, abandono tras la 2.ª visita) para que el panel muestre números creíbles en una presentación.
+`seed:analytics` (solo desarrollo): crea 200 clientes y unas 300 visitas de los últimos 45 días con patrón realista (más tráfico en horas pico, abandono tras la 2.ª visita) para que el panel muestre números creíbles en una presentación.
 
 ## 12. Criterios de aceptación
 
@@ -119,5 +119,5 @@ Trabajo programado (junto a `expireCoupons()` en `src/index.ts`) que corre los l
 5. Resumen semanal programado + tests de las reglas.
 6. EULA en el registro.
 7. Páginas Resultados y Campañas en el Admin.
-8. `seed:demo-analytics`.
+8. `seed:analytics`.
 9. Documentación: `ARQUITECTURA.md`, `ESQUEMA.md`, `SUSCRIPCIONES.md`.

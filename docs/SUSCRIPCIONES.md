@@ -52,3 +52,17 @@ Todos incluyen la máquina con la marca del negocio, la ruleta de recompensas, l
 ## Negocios sin fecha de vencimiento
 
 Un negocio con `subscription_ends_at` vacío no vence nunca (así los crea el Super Admin si no pone fecha).
+
+## Funciones de analítica por plan
+
+Spec: `docs/specs/retencion-roi.md`. Se aplican con `assertFeature` y `assertCampaignSlot` (`src/lib/plans.ts`); si el plan no lo incluye, 403 `plan_limit`.
+
+| Función | TRIAL | BASIC | PRO |
+|---|---|---|---|
+| Retención (últimos 30 días) | sí | sí | sí |
+| Retención con rango de 31 a 365 días | no | no | sí |
+| ROI | no | sí | sí |
+| Campañas activas a la vez | 0 | 1 | 5 |
+| Resumen semanal | no | no | sí |
+
+Una campaña pausada no ocupa lugar: el límite se revisa al crearla activa o al reactivarla.

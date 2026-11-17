@@ -15,6 +15,9 @@ const TENANT_MODELS = new Set([
   "Coupon",
   "TerminalPairing",
   "TerminalSession",
+  "Campaign",
+  "WeeklyReport",
+  "TermsAcceptance",
 ]);
 
 const WHERE_OPS = new Set([

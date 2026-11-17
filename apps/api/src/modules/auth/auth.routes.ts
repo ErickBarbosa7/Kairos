@@ -30,6 +30,7 @@ const registerBody = z
     adminName: z.string().trim().min(2).max(100),
     email: z.email().max(254),
     password: z.string().min(10, "Mínimo 10 caracteres").max(128),
+    acceptTerms: z.literal(true, { error: "Debes aceptar los términos de uso" }),
   })
   .strict();
 

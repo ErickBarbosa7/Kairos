@@ -11,6 +11,7 @@ const body = (over: Record<string, unknown> = {}) => ({
   adminName: "Ana Pérez",
   email: "ana@aurora.test",
   password: "una-clave-larga-123",
+  acceptTerms: true,
   ...over,
 });
 const register = (over: Record<string, unknown> = {}) => request(app).post("/auth/register").send(body(over));
@@ -186,5 +187,21 @@ describe("cuando termina la prueba", () => {
     expect(res.status).toBe(403);
     expect(res.body.error.code).toBe("subscription_expired");
     expect(await prisma.qrClaim.count()).toBe(0);
+  });
+});
+
+describe("Términos de uso", () => {
+  it("sin aceptar los términos no se registra el negocio", async () => {
+    expect((await register({ acceptTerms: false })).status).toBe(400);
+    expect((await register({ acceptTerms: undefined })).status).toBe(400);
+    expect(await prisma.tenant.count()).toBe(0);
+  });
+
+  it("guarda la versión aceptada, el usuario y la IP", async () => {
+    const res = await register();
+    expect(res.status).toBe(201);
+    const row = await prisma.termsAcceptance.findFirstOrThrow({ where: { tenantId: res.body.tenant.id } });
+    expect(row).toMatchObject({ userId: res.body.user.id, version: "2026-11-17" });
+    expect(row.ip).toBeTruthy();
   });
 });
