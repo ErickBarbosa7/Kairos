@@ -129,6 +129,7 @@ Las máquinas `WEB_SESSION` no guardan llave pública: una vinculación temporal
 | `phone_verified_at` | timestamptz null | |
 | `email` | text UQ null | Se guarda en minúsculas |
 | `email_verified_at` | timestamptz null | |
+| `password_hash` | text null | argon2id. Solo cuentas con correo (ver `specs/wallet-login.md`); los invitados no lo tienen |
 | `display_name` | text null | |
 | `preferred_theme` | enum null | El consumidor puede sobrescribir el tema del tenant |
 | `deleted_at` | timestamptz null | Anonimizar en lugar de borrar |

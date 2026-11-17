@@ -65,9 +65,18 @@ Las dos exigen un **token de cliente** (`Authorization: Bearer ...`), distinto a
 - `GET /wallet/balances` incluye `nextReward` (premio más barato que aún no alcanza, con `missing`), `affordableRewards` y `readyCoupons`: es el progreso que dibuja la Wallet.
 - Toda partida con puntaje > 0 genera un QR: de puntos si no llegó a la meta, de premio si sí. Cuenta para `max_games_per_day`.
 
-## Inicio de sesión del cliente con teléfono o correo (pendiente)
+## Cuenta opcional con correo y contraseña
 
-Recuperar la cuenta en otro teléfono (OTP) sigue pendiente. Mientras, el invitado pierde sus puntos si borra los datos del navegador.
+Spec: `docs/specs/wallet-login.md`. La Wallet sigue funcionando sin cuenta (invitado); la cuenta es opcional.
+
+| Ruta | Qué hace |
+|---|---|
+| `POST /wallet/register` | Requiere token de invitado. `{ email, password, displayName? }`. Convierte al invitado en cuenta (mismo `consumer.id`, conserva puntos y cupones). 409 `email_taken` / `already_registered` |
+| `POST /wallet/login` | `{ email, password }`. Si llega un token de invitado, **fusiona** sus puntos en la cuenta (`account.service.ts`). 401 `invalid_credentials` igual con correo inexistente |
+
+Ambas con límite de 10 por hora y por IP. El correo no se verifica y no hay recuperación de contraseña (pendiente: requiere proveedor de correo). OTP por teléfono, Google y Apple siguen pendientes.
+
+Fusión: si la cuenta no tiene billetera en un negocio, la del invitado pasa a la cuenta con su historial. Si la tiene, se suma el saldo con un `EARN` nuevo (el libro es inmutable), se reasignan cupones y QR, y el invitado queda con `deletedAt`.
 
 El cliente (`consumers`) todavía no tiene cómo iniciar sesión: el esquema prevé verificación por teléfono o correo (OTP), que es parte de la Wallet. Mientras tanto, los tokens salen de:
 

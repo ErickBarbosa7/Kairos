@@ -81,6 +81,34 @@ class Api {
     }
   }
 
+  Future<Me> me() async => Me.fromJson(await _call('GET', '/wallet/me'));
+
+  /// Convierte al invitado actual en cuenta. Conserva sus puntos.
+  Future<Me> register(String email, String password, {String? name}) async {
+    final d = await _call('POST', '/wallet/register', body: {'email': email, 'password': password, if (name != null && name.isNotEmpty) 'displayName': name});
+    return _adopt(d);
+  }
+
+  /// Inicia sesión. Si hay un invitado con puntos en este dispositivo, la API los suma a la cuenta.
+  Future<Me> login(String email, String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    _token ??= prefs.getString(_tokenKey);
+    final d = await _raw('POST', '/wallet/login', body: {'email': email, 'password': password}, token: _token);
+    return _adopt(d);
+  }
+
+  /// Cierra la sesión de este dispositivo. La próxima vez se crea un invitado nuevo.
+  Future<void> logout() async {
+    _token = null;
+    await (await SharedPreferences.getInstance()).remove(_tokenKey);
+  }
+
+  Future<Me> _adopt(dynamic d) async {
+    _token = d['token'] as String;
+    await (await SharedPreferences.getInstance()).setString(_tokenKey, _token!);
+    return Me.fromJson(d['me']);
+  }
+
   Future<List<Balance>> balances() async =>
       ((await _call('GET', '/wallet/balances'))['data'] as List).map((e) => Balance.fromJson(e)).toList();
 

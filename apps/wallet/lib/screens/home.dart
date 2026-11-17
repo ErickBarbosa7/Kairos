@@ -5,6 +5,7 @@ import '../models.dart';
 import '../strings.dart';
 import '../theme.dart';
 import '../widgets.dart';
+import 'account.dart';
 import 'rewards.dart';
 
 /// Cabecera común: marca Kairos arriba y título en dos voces.
@@ -32,8 +33,8 @@ class PageHeader extends StatelessWidget {
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.onScan, required this.onPrizes, required this.refresh});
-  final VoidCallback onScan, onPrizes;
+  const HomeScreen({super.key, required this.onScan, required this.onPrizes, required this.onAccountChanged, required this.refresh});
+  final VoidCallback onScan, onPrizes, onAccountChanged;
   /// Cambia cada vez que hay datos nuevos (por ejemplo tras acreditar un QR).
   final int refresh;
 
@@ -47,6 +48,7 @@ class HomeScreen extends StatelessWidget {
             child: ListView(padding: const EdgeInsets.fromLTRB(22, 18, 22, 32), children: [
               const PageHeader(S.homeTitle, S.homeTitleItalic, kicker: S.homeKicker),
               const SizedBox(height: 22),
+              AccountBanner(key: ValueKey(refresh), onChanged: onAccountChanged),
               if (list.isEmpty) _Empty(onScan: onScan),
               for (final b in list) ...[
                 _BalanceCard(b: b, onPrizes: onPrizes),

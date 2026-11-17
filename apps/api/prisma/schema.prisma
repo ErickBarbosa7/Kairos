@@ -216,6 +216,7 @@ model Consumer {
   phoneVerifiedAt DateTime? @map("phone_verified_at")
   email           String?   @unique
   emailVerifiedAt DateTime? @map("email_verified_at")
+  passwordHash    String?   @map("password_hash")
   displayName    String?    @map("display_name")
   // Invitado: se creó solo al escanear su primer QR, sin teléfono ni correo.
   isGuest        Boolean    @default(false) @map("is_guest")

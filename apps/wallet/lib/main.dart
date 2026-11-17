@@ -61,7 +61,7 @@ class _ShellState extends State<Shell> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      HomeScreen(refresh: _refresh, onScan: () => setState(() => _tab = 1), onPrizes: () => setState(() => _tab = 2)),
+      HomeScreen(refresh: _refresh, onScan: () => setState(() => _tab = 1), onPrizes: () => setState(() => _tab = 2), onAccountChanged: () => setState(() => _refresh++)),
       // Se crea solo con la pestaña abierta: así la cámara no se queda encendida.
       _tab == 1 ? ScanScreen(onToken: _claim) : const SizedBox.shrink(),
       PrizesScreen(refresh: _refresh),

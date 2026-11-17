@@ -41,6 +41,33 @@ class S {
   static const seeAll = 'Ver mis puntos';
   static const keepSafe = 'Tus puntos se guardan en este teléfono.';
 
+  static const saveTitle = 'Guarda tus puntos';
+  static const saveBody = 'Crea una cuenta para recuperarlos si cambias de teléfono. Es opcional.';
+  static const saveCta = 'Crear cuenta o entrar';
+  static const accountTitle = 'Tu';
+  static const accountItalic = 'cuenta';
+  static const tabRegister = 'Crear cuenta';
+  static const tabLogin = 'Entrar';
+  static const fieldEmail = 'Correo';
+  static const fieldPassword = 'Contraseña (mínimo 8)';
+  static const fieldName = 'Nombre (opcional)';
+  static const doRegister = 'Crear cuenta';
+  static const doLogin = 'Entrar';
+  static const registerHint = 'Tus puntos y premios actuales se quedan contigo.';
+  static const loginHint = 'Si tienes puntos como invitado, se suman a tu cuenta.';
+  static const continueGuest = 'Seguir sin cuenta';
+  static const signedInAs = 'Sesión iniciada como';
+  static const logout = 'Cerrar sesión';
+  static const logoutConfirm = 'Tus puntos quedan guardados en tu cuenta. Vuelve a entrar cuando quieras.';
+  static const invalidEmail = 'Escribe un correo válido.';
+  static const shortPassword = 'La contraseña debe tener al menos 8 caracteres.';
+  static const accountErrors = {
+    'email_taken': 'Ese correo ya tiene una cuenta. Prueba en «Entrar».',
+    'invalid_credentials': 'Correo o contraseña incorrectos.',
+    'already_registered': 'Ya tienes una cuenta.',
+    'offline': 'No hay conexión. Revisa tu internet e inténtalo de nuevo.',
+  };
+
   static const rewardsTitle = 'Premios';
   static String cost(int n) => '$n pts';
   static const redeem = 'Canjear';

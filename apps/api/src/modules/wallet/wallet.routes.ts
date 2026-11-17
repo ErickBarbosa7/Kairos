@@ -3,8 +3,11 @@ import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
 import { prisma } from "../../db/prisma.js";
 import { env } from "../../config/env.js";
-import { signConsumerToken } from "../../lib/consumer-tokens.js";
+import { hashPassword, verifyPassword } from "../../lib/password.js";
+import { HttpError } from "../../lib/errors.js";
+import { signConsumerToken, verifyConsumerToken } from "../../lib/consumer-tokens.js";
 import { requireConsumer } from "../../middleware/consumer.js";
+import { emailTaken, invalidCredentials, isUniqueViolation, mergeGuestIntoAccount } from "./account.service.js";
 import { claimQr } from "./qr-claim.service.js";
 import { redeemReward } from "./redeem.service.js";
 
@@ -14,6 +17,7 @@ export function walletRouter(opts: { rateLimit: boolean }) {
 
   if (opts.rateLimit) {
     r.use("/claims", rateLimit({ windowMs: 60_000, limit: 20, standardHeaders: "draft-8", legacyHeaders: false }));
+    r.use(["/register", "/login"], rateLimit({ windowMs: 60 * 60_000, limit: 10, standardHeaders: "draft-8", legacyHeaders: false }));
     r.use("/guest", rateLimit({ windowMs: 60 * 60_000, limit: 20, standardHeaders: "draft-8", legacyHeaders: false }));
   }
 
@@ -25,16 +29,56 @@ export function walletRouter(opts: { rateLimit: boolean }) {
     res.status(201).json({ token, consumerId: consumer.id });
   });
 
+  const credentials = z.object({ email: z.string().trim().toLowerCase().email().max(254), password: z.string().min(8).max(200) });
+  const meSelect = { id: true, displayName: true, isGuest: true, email: true } as const;
+  const sessionTtl = env.GUEST_TOKEN_DAYS * 24 * 60 * 60;
+
+  // Inicio de sesión. Si llega el token de un invitado, sus puntos se fusionan en la cuenta.
+  r.post("/login", async (req, res) => {
+    const { email, password } = credentials.strict().parse(req.body);
+    const account = await prisma.consumer.findFirst({ where: { email, deletedAt: null, isGuest: false } });
+    if (!(await verifyPassword(account?.passwordHash, password)) || !account) throw invalidCredentials();
+    const header = req.headers.authorization;
+    if (header?.startsWith("Bearer ")) {
+      try {
+        const { consumerId } = await verifyConsumerToken(header.slice(7));
+        await mergeGuestIntoAccount(consumerId, account.id);
+      } catch {
+        // Token ausente o inválido: se inicia sesión sin fusionar.
+      }
+    }
+    const me = await prisma.consumer.findUniqueOrThrow({ where: { id: account.id }, select: meSelect });
+    res.json({ token: await signConsumerToken(account.id, sessionTtl), me });
+  });
+
   r.use(requireConsumer);
 
+  // Convierte al invitado actual en cuenta: conserva su id, y con él puntos, cupones y movimientos.
+  r.post("/register", async (req, res) => {
+    const { email, password, displayName } = credentials.extend({ displayName: z.string().trim().min(1).max(40).optional() }).strict().parse(req.body);
+    const current = await prisma.consumer.findUniqueOrThrow({ where: { id: req.consumerId! } });
+    if (!current.isGuest) throw new HttpError(409, "Ya tienes una cuenta", "already_registered");
+    try {
+      const me = await prisma.consumer.update({
+        where: { id: current.id },
+        data: { email, passwordHash: await hashPassword(password), isGuest: false, ...(displayName ? { displayName } : {}) },
+        select: meSelect,
+      });
+      res.json({ token: await signConsumerToken(current.id, sessionTtl), me });
+    } catch (e) {
+      if (isUniqueViolation(e)) throw emailTaken();
+      throw e;
+    }
+  });
+
   r.get("/me", async (req, res) => {
-    const me = await prisma.consumer.findUniqueOrThrow({ where: { id: req.consumerId! }, select: { id: true, displayName: true, isGuest: true } });
+    const me = await prisma.consumer.findUniqueOrThrow({ where: { id: req.consumerId! }, select: meSelect });
     res.json(me);
   });
 
   r.patch("/me", async (req, res) => {
     const { displayName } = z.object({ displayName: z.string().trim().min(1).max(40) }).strict().parse(req.body);
-    const me = await prisma.consumer.update({ where: { id: req.consumerId! }, data: { displayName }, select: { id: true, displayName: true, isGuest: true } });
+    const me = await prisma.consumer.update({ where: { id: req.consumerId! }, data: { displayName }, select: meSelect });
     res.json(me);
   });
 

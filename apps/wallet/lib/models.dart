@@ -76,3 +76,12 @@ class ClaimResult {
     );
   }
 }
+
+/// Quien usa la Wallet: invitado (sin correo) o cuenta.
+class Me {
+  Me({required this.isGuest, this.email, this.displayName});
+  final bool isGuest;
+  final String? email, displayName;
+  factory Me.fromJson(Map<String, dynamic> j) =>
+      Me(isGuest: j['isGuest'] as bool, email: j['email'] as String?, displayName: j['displayName'] as String?);
+}
