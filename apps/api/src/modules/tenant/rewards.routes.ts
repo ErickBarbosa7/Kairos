@@ -13,6 +13,7 @@ const fields = (tid: string) => ({
   pointsCost: z.number().int().min(1).max(1_000_000),
   stock: z.number().int().min(0).max(1_000_000).nullable(),
   isActive: z.boolean(),
+  unitCost: z.number().int().min(0).max(1_000_000).nullable(),
 });
 
 export const rewardsRouter = Router();
@@ -34,6 +35,7 @@ rewardsRouter.post("/rewards", tenantAdminOnly, async (req, res) => {
       imageUrl: f.imageUrl.optional(),
       stock: f.stock.optional(),
       isActive: f.isActive.optional(),
+      unitCost: f.unitCost.optional(),
     })
     .strict()
     .parse(req.body);

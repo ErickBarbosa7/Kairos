@@ -39,3 +39,18 @@ export function assertWithinPlan(plan: Plan, resource: LimitedResource, current:
     );
   }
 }
+
+/** Funciones de pago por plan (spec retencion-roi §7). La retención de 30 días está en todos. */
+export type Feature = "roi" | "long_range";
+const FEATURES: Record<Feature, { plans: Plan[]; label: string }> = {
+  roi: { plans: ["BASIC", "PRO"], label: "El cálculo de ROI" },
+  long_range: { plans: ["PRO"], label: "Consultar más de 30 días" },
+};
+
+/** Lanza 403 `plan_limit` si el plan no incluye la función. */
+export function assertFeature(plan: Plan, feature: Feature) {
+  const f = FEATURES[feature];
+  if (!f.plans.includes(plan)) {
+    throw new HttpError(403, `${f.label} no está incluido en tu plan. Sube de plan en la sección Plan`, "plan_limit");
+  }
+}

@@ -90,8 +90,8 @@ describe("economía", () => {
   it("el administrador ajusta su economía y queda registrada en auditoría", async () => {
     const res = await request(app).patch("/tenant/economy").set(a.h).send({ scorePerPoint: 25, maxPointsPerGame: 80, maxGamesPerDay: 3 });
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ scorePerPoint: 25, maxPointsPerGame: 80, maxGamesPerDay: 3 });
-    expect((await request(app).get("/tenant/economy").set(a.h)).body).toEqual({ scorePerPoint: 25, maxPointsPerGame: 80, maxGamesPerDay: 3 });
+    expect(res.body).toEqual({ scorePerPoint: 25, maxPointsPerGame: 80, maxGamesPerDay: 3, avgTicket: null });
+    expect((await request(app).get("/tenant/economy").set(a.h)).body).toEqual({ scorePerPoint: 25, maxPointsPerGame: 80, maxGamesPerDay: 3, avgTicket: null });
     expect(await prisma.auditLog.count({ where: { action: "tenant.economy_update", tenantId: A.tenant.id } })).toBe(1);
   });
 

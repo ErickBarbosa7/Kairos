@@ -91,6 +91,8 @@ model Tenant {
   scorePerPoint    Int @default(10) @map("score_per_point")
   maxPointsPerGame Int @default(50) @map("max_points_per_game")
   maxGamesPerDay   Int @default(10) @map("max_games_per_day")
+  // Ticket promedio por visita, en pesos. Lo escribe el negocio; alimenta la estimación de ROI.
+  avgTicket        Int? @map("avg_ticket")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -277,6 +279,8 @@ model Reward {
   imageUrl    String?   @map("image_url")
   pointsCost  Int       @map("points_cost") // CHECK (points_cost > 0) → SQL manual
   stock       Int? // null = ilimitado; CHECK (stock >= 0) → SQL manual
+  // Lo que le cuesta al negocio entregarlo, en pesos. Opcional; sin él no se calcula el ROI.
+  unitCost    Int?      @map("unit_cost")
   isActive    Boolean   @default(true) @map("is_active")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")

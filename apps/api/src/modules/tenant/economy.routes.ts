@@ -3,7 +3,7 @@ import { z } from "zod";
 import { economyFields } from "../../lib/economy.js";
 import { tenantAdminOnly } from "../../middleware/tenant.js";
 
-const select = { scorePerPoint: true, maxPointsPerGame: true, maxGamesPerDay: true } as const;
+const select = { scorePerPoint: true, maxPointsPerGame: true, maxGamesPerDay: true, avgTicket: true } as const;
 
 export const economyRouter = Router();
 
@@ -14,7 +14,7 @@ economyRouter.get("/economy", async (req, res) => {
 
 economyRouter.patch("/economy", tenantAdminOnly, async (req, res) => {
   const tid = req.auth!.tid!;
-  const data = z.object(economyFields).partial().strict().parse(req.body);
+  const data = z.object({ ...economyFields, avgTicket: z.number().int().min(0).max(1_000_000).nullable() }).partial().strict().parse(req.body);
   const economy = await req.db!.$transaction(async (tx) => {
     const tenant = await tx.tenant.update({ where: { id: tid }, data, select });
     await tx.auditLog.create({
