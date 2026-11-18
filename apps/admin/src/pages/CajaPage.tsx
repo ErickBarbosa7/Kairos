@@ -111,8 +111,8 @@ export function CajaPage() {
       </Card>
 
       {coupon && ui && (
-        <section aria-live="polite" className={cx("rounded-lg border-2 p-4 sm:p-6", delivered ? "border-success/50 bg-success/10" : ui.tone)}>
-          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+        <section aria-live="polite" className={cx("rounded-lg border p-4 sm:p-6", delivered ? "border-success/50 bg-success/10" : ui.tone)}>
+          <div className="flex items-center gap-2 text-sm font-bold tracking-wider">
             {delivered ? <PartyPopper size={18} aria-hidden /> : <ui.Icon size={18} aria-hidden />}
             {delivered ? t.caja.delivered : t.caja.status[coupon.status]}
           </div>

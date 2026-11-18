@@ -1,3 +1,12 @@
+# Kairos — design.md (vigente: "cálido y neutro")
+
+> **Reemplaza el rediseño "Berserker" descrito más abajo (2026-11-17).** Objetivo: que se vea bien igual en un spa, una barbería o un café.
+> - Paleta: fondo crema (`#FAF7F2`), superficies blancas, primario verde azulado (`#0F766E`), dorado para puntos. Oscuro: verde casi negro (`#121614`).
+> - Forma: radios 8/12/20 px, bordes de 1 px, sombras suaves (sin sombra dura).
+> - Tipografía: Figtree para títulos y cuerpo, sin mayúsculas forzadas; Instrument Serif cursiva para una palabra por título.
+> - Fuente de verdad: `packages/design/tokens.json`. Regenerar CSS con `pnpm --filter @kairos/design build:css`.
+> - Las secciones 2 a 5 de abajo son históricas.
+
 # Kairos — design.md (rediseño "Berserker")
 
 Estado: propuesta para implementar · Reemplaza paleta y forma de `docs/DISENO.md` v0.3 en los paneles Admin.

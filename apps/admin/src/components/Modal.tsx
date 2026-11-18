@@ -39,7 +39,7 @@ export function Modal({ open, title, onClose, children, className, dismissible }
               if (outside) onClose();
             } : undefined}
       className={cx(
-        "m-auto max-h-[calc(100dvh-2rem)] w-[min(calc(100%-2rem),34rem)] overflow-y-auto rounded-lg border-2 border-line bg-surface p-4 text-ink shadow-hard-lg sm:p-6",
+        "m-auto max-h-[calc(100dvh-2rem)] w-[min(calc(100%-2rem),34rem)] overflow-y-auto rounded-lg border border-line bg-surface p-4 text-ink shadow-hard-lg sm:p-6",
         className,
       )}
     >

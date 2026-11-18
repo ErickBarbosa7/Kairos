@@ -17,7 +17,7 @@ export function RewardPreview({ title, description, imageUrl, pointsCost, stock,
   return (
     <section aria-labelledby="reward-preview-title" className="flex flex-col gap-2">
       <h3 id="reward-preview-title" className="text-xs font-semibold text-ink-2">{t.rewards.previewTitle}</h3>
-      <div className={`overflow-hidden rounded-md border-2 border-line bg-canvas ${isActive ? "" : "opacity-60"}`}>
+      <div className={`overflow-hidden rounded-md border border-line bg-canvas ${isActive ? "" : "opacity-60"}`}>
         <div className={`grid aspect-[16/9] place-items-center bg-surface ${isActive ? "" : "grayscale"}`}>
           {imageUrl ? <img src={imageUrl} alt="" className="size-full object-cover" /> : <Gift size={32} className="text-ink-3" aria-hidden />}
         </div>

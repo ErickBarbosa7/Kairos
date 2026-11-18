@@ -158,7 +158,7 @@ export function LoginPage() {
             <button
               type="button"
               onClick={() => switchMode("login")}
-              className="min-h-11 rounded-md border-2 border-ink px-4 font-display text-base font-bold uppercase tracking-wide text-ink hover:bg-line/60"
+              className="min-h-11 rounded-md border border-ink px-4 font-display text-base font-bold tracking-wide text-ink hover:bg-line/60"
             >
               {t.login.title}
             </button>
@@ -198,7 +198,7 @@ export function LoginPage() {
       <Modal dismissible open={formOpen} title={mode === "register" ? t.login.registerTitle : t.login.title} onClose={() => !busy && setFormOpen(false)}>
           <form id="login" onSubmit={mode === "register" ? submitRegister : submit} noValidate aria-busy={busy} className="w-full min-w-0">
             {mode === "login" && (
-              <div role="group" aria-label={t.login.title} className="grid grid-cols-2 rounded-md border-2 border-ink overflow-hidden mb-4">
+              <div role="group" aria-label={t.login.title} className="grid grid-cols-2 rounded-md border border-ink overflow-hidden mb-4">
                 {(["tenant", "super"] as const).map((k) => (
                   <button
                     key={k}
@@ -211,7 +211,7 @@ export function LoginPage() {
                       setErrors({});
                     }}
                     className={cx(
-                      "min-h-14 px-3 py-2 font-display text-base font-bold uppercase tracking-wide transition-colors duration-100 first:border-r-2 first:border-ink disabled:opacity-60",
+                      "min-h-14 px-3 py-2 font-display text-base font-bold tracking-wide transition-colors duration-100 first:border-r-2 first:border-ink disabled:opacity-60",
                       kind === k ? "bg-ink text-canvas" : "text-ink-2 hover:bg-line/60 hover:text-ink",
                     )}
                   >

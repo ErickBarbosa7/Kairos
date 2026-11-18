@@ -31,8 +31,8 @@
   --radius-sm: var(--shape-sm);
   --radius-md: var(--shape-md);
   --radius-lg: var(--shape-lg);
-  --shadow-hard: 4px 4px 0 0 var(--line);
-  --shadow-hard-lg: 6px 6px 0 0 var(--line);
+  --shadow-hard: 0 1px 2px color-mix(in srgb, var(--text) 8%, transparent), 0 8px 24px -12px color-mix(in srgb, var(--text) 18%, transparent);
+  --shadow-hard-lg: 0 2px 4px color-mix(in srgb, var(--text) 8%, transparent), 0 20px 40px -16px color-mix(in srgb, var(--text) 28%, transparent);
 }
 
 html {
@@ -78,8 +78,7 @@ em.k {
 
 h1, h2, h3, .font-display {
   font-family: var(--type-display);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.015em;
 }
 
 main h1 {
@@ -120,7 +119,7 @@ dialog::backdrop {
   .select-kairos::picker(select) {
     margin-top: 4px;
     padding: 4px;
-    border: 2px solid var(--text);
+    border: 1px solid var(--line);
     border-radius: var(--shape-md);
     background: var(--surface);
     color: var(--text);
@@ -155,13 +154,12 @@ dialog::backdrop {
   color: var(--text);
 }
 
-/* Login: fondo con retícula sutil. */
+/* Login: fondo cálido con un resplandor suave de la marca. */
 .login-bg {
   background-color: var(--bg);
   background-image:
-    linear-gradient(color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px);
-  background-size: 40px 40px;
+    radial-gradient(60rem 30rem at 15% -10%, color-mix(in srgb, var(--kairos-primary) 14%, transparent), transparent 70%),
+    radial-gradient(50rem 28rem at 100% 0%, color-mix(in srgb, var(--kairos-reward) 16%, transparent), transparent 70%);
 }
 
 @media (prefers-reduced-motion: no-preference) {

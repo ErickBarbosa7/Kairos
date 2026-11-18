@@ -134,7 +134,7 @@ function CampaignForm({ initial, onClose }: { initial: Draft; onClose(): void })
         <legend className="text-sm font-semibold">{t.campaigns.days}</legend>
         <div className="flex flex-wrap gap-2">
           {t.campaigns.dayNames.map((n, d) => (
-            <label key={n} className={`flex min-h-11 min-w-12 cursor-pointer items-center justify-center gap-1 rounded-md border-2 border-line px-3 text-sm font-semibold ${f.weekdays.includes(d) ? "bg-primary text-white" : "bg-canvas"}`}>
+            <label key={n} className={`flex min-h-11 min-w-12 cursor-pointer items-center justify-center gap-1 rounded-md border border-line px-3 text-sm font-semibold ${f.weekdays.includes(d) ? "bg-primary text-white" : "bg-canvas"}`}>
               <input type="checkbox" className="sr-only" checked={f.weekdays.includes(d)} onChange={() => toggleDay(d)} />
               {n}
             </label>
@@ -211,7 +211,7 @@ export function CampaignsPage() {
               <Card className="flex h-full flex-col gap-3 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <h2 className="min-w-0 break-words font-display text-xl font-bold">{c.name}</h2>
-                  <span className="shrink-0 rounded-md border-2 border-line px-2 py-1 text-xs font-semibold">{c.isActive ? t.campaigns.active : t.campaigns.paused}</span>
+                  <span className="shrink-0 rounded-md border border-line px-2 py-1 text-xs font-semibold">{c.isActive ? t.campaigns.active : t.campaigns.paused}</span>
                 </div>
                 <p className="flex items-center gap-2 text-sm font-semibold"><Megaphone size={16} aria-hidden />{t.campaigns.types[c.type]}: {summary(c)}</p>
                 <p className="text-sm text-ink-2">{when(c)}</p>

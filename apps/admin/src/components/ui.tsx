@@ -9,8 +9,8 @@ type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" 
 
 export function Button({ variant = "secondary", className, ...p }: BtnProps) {
   const styles = {
-    primary: "bg-primary text-on-primary border-primary-hover shadow-hard hover:bg-primary-hover hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-none",
-    secondary: "bg-transparent text-ink border-ink hover:bg-ink hover:text-canvas",
+    primary: "bg-primary text-on-primary border-transparent shadow-hard hover:bg-primary-hover hover:-translate-y-px active:translate-y-px",
+    secondary: "bg-surface text-ink border-line hover:border-ink",
     danger: "bg-transparent text-danger border-danger hover:bg-danger/10",
     ghost: "bg-transparent text-ink-2 border-transparent hover:bg-line/50",
   }[variant];
@@ -18,7 +18,7 @@ export function Button({ variant = "secondary", className, ...p }: BtnProps) {
     <button
       {...p}
       className={cx(
-        "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border-2 px-4 font-display text-base font-bold uppercase tracking-wide transition-[transform,box-shadow,background-color] duration-100 [&>svg]:shrink-0",
+        "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-4 font-display text-base font-bold transition-[transform,box-shadow,background-color] duration-100 [&>svg]:shrink-0",
         "disabled:cursor-not-allowed disabled:opacity-50",
         styles,
         className,
@@ -31,8 +31,8 @@ const floatLabel = (multiline?: boolean) =>
   cx(
     "pointer-events-none absolute left-2 -translate-y-1/2 z-10 bg-surface px-1.5 text-base leading-none text-ink-2 transition-all duration-100",
     multiline ? "top-6" : "top-1/2",
-    "peer-focus:top-0 peer-focus:text-sm peer-focus:font-bold peer-focus:uppercase peer-focus:text-ink",
-    "peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-sm peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:text-ink",
+    "peer-focus:top-0 peer-focus:text-sm peer-focus:font-bold peer-focus:peer-focus:text-ink",
+    "peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-sm peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:peer-[:not(:placeholder-shown)]:text-ink",
   );
 
 export function Field({
@@ -118,7 +118,7 @@ export function FloatingField({
 }
 
 const inputCls =
-  "peer min-h-11 min-w-0 w-full rounded-md border-2 border-line bg-surface px-3 text-base text-ink placeholder:text-ink-2 focus:border-focus aria-[invalid=true]:border-danger";
+  "peer min-h-11 min-w-0 w-full rounded-md border border-line bg-surface px-3 text-base text-ink placeholder:text-ink-2 focus:border-focus aria-[invalid=true]:border-danger";
 
 function EyeToggle({ shown, onClick }: { shown: boolean; onClick(): void }) {
   const label = shown ? t.common.password.hide : t.common.password.show;
@@ -129,7 +129,7 @@ function EyeToggle({ shown, onClick }: { shown: boolean; onClick(): void }) {
       aria-label={label}
       aria-pressed={shown}
       title={label}
-      className="absolute right-1 top-1/2 z-20 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-md border-2 border-transparent text-ink-2 hover:border-ink hover:text-ink"
+      className="absolute right-1 top-1/2 z-20 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-md border border-transparent text-ink-2 hover:border-ink hover:text-ink"
     >
       {shown ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}
     </button>
@@ -171,7 +171,7 @@ export function StatusBadge({ status }: { status: TenantStatus }) {
     CANCELLED: { Icon: Ban, cls: "text-ink-2 bg-line/60" },
   }[status];
   return (
-    <span className={cx("inline-flex items-center gap-1.5 rounded-md border-2 border-current px-2.5 py-1 text-xs font-bold uppercase", map.cls)}>
+    <span className={cx("inline-flex items-center gap-1.5 rounded-md border border-current px-2.5 py-1 text-xs font-bold ", map.cls)}>
       <map.Icon size={14} aria-hidden />
       {t.tenants.status[status]}
     </span>
@@ -179,13 +179,13 @@ export function StatusBadge({ status }: { status: TenantStatus }) {
 }
 
 export function Card({ className, ...p }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...p} className={cx("rounded-md border-2 border-line bg-surface shadow-hard", className)} />;
+  return <div {...p} className={cx("rounded-md border border-line bg-surface shadow-hard", className)} />;
 }
 
 export function Spinner({ label = t.common.loading }: { label?: string }) {
   return (
     <div role="status" className="flex items-center gap-2 text-sm text-ink-2">
-      <span className="size-4 animate-spin border-2 border-line border-t-primary" aria-hidden />
+      <span className="size-4 animate-spin border border-line border-t-primary" aria-hidden />
       {label}
     </div>
   );

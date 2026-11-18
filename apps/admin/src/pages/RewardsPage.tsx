@@ -90,7 +90,7 @@ function RewardDialog({ draft, onClose }: { draft: Draft | null; onClose(): void
         onClose();
       }}
       aria-labelledby="reward-title"
-      className="m-auto max-h-[calc(100dvh-2rem)] w-[min(calc(100%-2rem),34rem)] overflow-y-auto rounded-lg border-2 border-line bg-surface p-4 text-ink shadow-hard-lg sm:p-6"
+      className="m-auto max-h-[calc(100dvh-2rem)] w-[min(calc(100%-2rem),34rem)] overflow-y-auto rounded-lg border border-line bg-surface p-4 text-ink shadow-hard-lg sm:p-6"
     >
       <form onSubmit={submit} noValidate className="flex flex-col gap-5">
         <h2 id="reward-title" className="font-display text-xl font-bold">
@@ -163,7 +163,7 @@ function RewardCard({ reward: r, canEdit, onEdit, onDelete }: { reward: Reward; 
           <div className={`grid size-full place-items-center ${r.isActive ? "" : "opacity-50 grayscale"}`}>
             {r.imageUrl ? <img src={r.imageUrl} alt="" className="size-full object-cover" /> : <Gift size={36} className="text-ink-3" aria-hidden />}
           </div>
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-md border-2 border-line bg-surface px-2.5 py-1.5 text-xs font-semibold text-ink">
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs font-semibold text-ink">
             {status.icon}
             {status.text}
           </span>
@@ -189,9 +189,9 @@ function RewardCard({ reward: r, canEdit, onEdit, onDelete }: { reward: Reward; 
                 aria-label={label}
                 disabled={save.isPending}
                 onClick={() => void toggleVisibility()}
-                className={`relative h-7 w-12 shrink-0 rounded-full border-2 border-line transition-colors ${r.isActive ? "bg-primary" : "bg-canvas"}`}
+                className={`relative h-7 w-12 shrink-0 rounded-full border border-line transition-colors ${r.isActive ? "bg-primary" : "bg-canvas"}`}
               >
-                <span className={`absolute top-0.5 size-5 rounded-full bg-surface border-2 border-line transition-all ${r.isActive ? "left-[1.35rem]" : "left-0.5"}`} />
+                <span className={`absolute top-0.5 size-5 rounded-full bg-surface border border-line transition-all ${r.isActive ? "left-[1.35rem]" : "left-0.5"}`} />
               </button>
             </label>
           )}
@@ -237,7 +237,7 @@ export function RewardsPage() {
           <p className="mt-2 text-ink-2">{canEdit ? t.rewards.intro : t.rewards.readOnly}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/customer-view" className="inline-flex min-h-11 items-center gap-2 border-2 border-ink px-4 text-sm font-semibold hover:bg-ink hover:text-canvas">
+          <Link to="/customer-view" className="inline-flex min-h-11 items-center gap-2 border border-ink px-4 text-sm font-semibold hover:bg-ink hover:text-canvas">
             <Smartphone size={18} aria-hidden /> {t.rewards.viewAsCustomer}
           </Link>
           {canEdit && (

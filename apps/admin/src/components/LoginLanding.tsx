@@ -24,7 +24,7 @@ function ArrowIcon({ className }: { className?: string }) {
 }
 
 const ctaButton =
-  "inline-flex min-h-12 items-center justify-center rounded-md border-2 border-on-primary bg-canvas px-8 font-display text-lg font-bold uppercase tracking-wide text-ink shadow-hard transition-[transform,box-shadow] duration-100 hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-none";
+  "inline-flex min-h-12 items-center justify-center rounded-md border border-on-primary bg-canvas px-8 font-display text-lg font-bold tracking-wide text-ink shadow-hard transition-[transform,box-shadow] duration-100 hover:-translate-y-px active:translate-y-px";
 
 const HOW_ICONS: LucideIcon[] = [Gamepad2, Wallet, LayoutDashboard];
 
@@ -35,20 +35,20 @@ const DEMO_VIDEO_URL = import.meta.env.VITE_ARCADE_DEMO_URL?.trim() || "/arcade/
 const DEMO_POSTER_URL = import.meta.env.VITE_ARCADE_DEMO_POSTER_URL?.trim() || "/arcade/kairos-arcade-demo-poster.webp";
 
 function Eyebrow({ children, className }: { children: string; className?: string }) {
-  return <p className={cx("mb-2 text-sm font-bold uppercase tracking-widest", className ?? "text-primary")}>{children}</p>;
+  return <p className={cx("mb-2 text-sm font-bold tracking-wide", className ?? "text-link")}>{children}</p>;
 }
 
 function ArcadeDownload({ href, label, pending }: { href?: string; label: string; pending: string }) {
   if (!href) {
     return (
-      <span aria-disabled="true" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border-2 border-paper/35 px-5 font-display text-base font-bold uppercase tracking-wide text-paper/60">
+      <span aria-disabled="true" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-paper/35 px-5 font-display text-base font-bold tracking-wide text-paper/60">
         <Download size={19} aria-hidden />
         {pending}
       </span>
     );
   }
   return (
-    <a href={href} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border-2 border-reward bg-reward px-5 font-display text-base font-bold uppercase tracking-wide text-night shadow-[4px_4px_0_0_var(--kairos-paper)] transition-transform duration-100 hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+    <a href={href} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-reward bg-reward px-5 font-display text-base font-bold tracking-wide text-night shadow-hard transition-transform duration-100 hover:-translate-y-px active:translate-y-px">
       <Download size={19} aria-hidden />
       {label}
     </a>
@@ -58,28 +58,28 @@ function ArcadeDownload({ href, label, pending }: { href?: string; label: string
 function ArcadePreview() {
   if (DEMO_VIDEO_URL) {
     return (
-      <video aria-label={t.landing.arcade.videoLabel} className="aspect-video w-full border-2 border-paper object-cover" controls muted playsInline preload="metadata" poster={DEMO_POSTER_URL}>
+      <video aria-label={t.landing.arcade.videoLabel} className="aspect-video w-full border border-paper object-cover" controls muted playsInline preload="metadata" poster={DEMO_POSTER_URL}>
         <source src={DEMO_VIDEO_URL} />
       </video>
     );
   }
   return (
-    <div aria-label={t.landing.arcade.previewLabel} className="relative aspect-video overflow-hidden border-2 border-paper bg-night p-4 sm:p-6">
+    <div aria-label={t.landing.arcade.previewLabel} className="relative aspect-video overflow-hidden border border-paper bg-night p-4 sm:p-6">
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(color-mix(in_srgb,var(--kairos-paper)_9%,transparent)_1px,transparent_1px),linear-gradient(90deg,color-mix(in_srgb,var(--kairos-paper)_9%,transparent)_1px,transparent_1px)] bg-[size:24px_24px]" />
       <div className="relative flex h-full flex-col">
-        <div className="flex items-center justify-between gap-3 border-b-2 border-paper/30 pb-3 font-display text-sm font-bold uppercase tracking-wide text-paper sm:text-base">
+        <div className="flex items-center justify-between gap-3 border-b-2 border-paper/30 pb-3 font-display text-sm font-bold tracking-wide text-paper sm:text-base">
           <span>{t.landing.arcade.previewTitle}</span>
           <span className="inline-flex items-center gap-1.5 text-reward"><span className="size-2 rounded-full bg-success" />{t.landing.arcade.previewStatus}</span>
         </div>
         <div className="grid flex-1 grid-cols-2 gap-2 py-4 sm:grid-cols-3 sm:gap-3">
           {t.landing.arcade.games.map((game, index) => (
-            <div key={game} className="flex min-h-0 flex-col justify-end border-2 border-paper/35 bg-paper/8 p-2 shadow-[3px_3px_0_0_var(--kairos-primary)] sm:p-3">
-              <span className={cx("mb-auto size-7 border-2 border-paper/80 sm:size-9", index % 3 === 0 ? "bg-primary" : index % 3 === 1 ? "bg-reward" : "bg-success")} aria-hidden />
-              <span className="font-display text-sm font-bold uppercase leading-none text-paper sm:text-base">{game}</span>
+            <div key={game} className="flex min-h-0 flex-col justify-end border border-paper/35 bg-paper/8 p-2 shadow-hard sm:p-3">
+              <span className={cx("mb-auto size-7 border border-paper/80 sm:size-9", index % 3 === 0 ? "bg-primary" : index % 3 === 1 ? "bg-reward" : "bg-success")} aria-hidden />
+              <span className="font-display text-sm font-bold leading-none text-paper sm:text-base">{game}</span>
             </div>
           ))}
         </div>
-        <div className="flex items-center justify-center gap-2 border-t-2 border-paper/30 pt-3 font-display text-sm font-bold uppercase tracking-wide text-reward">
+        <div className="flex items-center justify-center gap-2 border-t-2 border-paper/30 pt-3 font-display text-sm font-bold tracking-wide text-reward">
           <Play size={18} fill="currentColor" aria-hidden />
           <span>{t.landing.arcade.videoUnavailable}</span>
         </div>
@@ -101,7 +101,7 @@ export default function LoginLanding({ onStartTrial, onLogin }: { onStartTrial?:
       <section id="como-funciona" aria-labelledby="how-title" className="scroll-mt-4 px-4 py-16 sm:px-8 lg:px-12">
         <div className="mx-auto w-full max-w-6xl">
           <div className="mb-3 flex items-center gap-3">
-            <h2 id="how-title" className="font-display text-4xl font-black uppercase tracking-wide sm:text-5xl">
+            <h2 id="how-title" className="font-display text-4xl font-black tracking-wide sm:text-5xl">
               {t.landing.howTitle}
             </h2>
             <ArrowIcon className="mt-2 size-9" />
@@ -111,7 +111,7 @@ export default function LoginLanding({ onStartTrial, onLogin }: { onStartTrial?:
             {t.landing.how.map((item, i) => {
               const Icon = HOW_ICONS[i] ?? Gamepad2;
               return (
-                <article key={item.title} className="flex flex-col gap-4 rounded-md border-2 border-ink bg-surface p-6 shadow-hard">
+                <article key={item.title} className="flex flex-col gap-4 rounded-md border border-ink bg-surface p-6 shadow-hard">
                   <span className="inline-flex size-14 items-center justify-center rounded-md bg-primary text-on-primary">
                     <Icon size={28} aria-hidden />
                   </span>
@@ -129,7 +129,7 @@ export default function LoginLanding({ onStartTrial, onLogin }: { onStartTrial?:
         <div className="mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
           <div>
             <Eyebrow className="text-reward">{t.landing.arcade.label}</Eyebrow>
-            <h2 id="arcade-title" className="max-w-xl font-display text-4xl font-black uppercase tracking-wide sm:text-5xl">
+            <h2 id="arcade-title" className="max-w-xl font-display text-4xl font-black tracking-wide sm:text-5xl">
               {t.landing.arcade.title}
             </h2>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-paper/80">{t.landing.arcade.body}</p>
@@ -155,7 +155,7 @@ export default function LoginLanding({ onStartTrial, onLogin }: { onStartTrial?:
       {/* 3. {t.landing.stepsTitle}: recorrido numerado, sin cajas. */}
       <section aria-labelledby="steps-title" className="border-t-2 border-line px-4 py-16 sm:px-8 lg:px-12">
         <div className="mx-auto w-full max-w-6xl">
-          <h2 id="steps-title" className="mb-10 font-display text-4xl font-black uppercase tracking-wide sm:text-5xl">
+          <h2 id="steps-title" className="mb-10 font-display text-4xl font-black tracking-wide sm:text-5xl">
             {t.landing.stepsTitle}
           </h2>
           <ol className="grid gap-x-12 gap-y-8 lg:grid-cols-2">
@@ -174,7 +174,7 @@ export default function LoginLanding({ onStartTrial, onLogin }: { onStartTrial?:
       {/* 4. {t.landing.subs.title} {t.landing.subs.titleWord}: banda oscura fija (no se invierte con el tema) con los {t.landing.subs.titleWord} y qué pasa si se suspende. */}
       <section aria-labelledby="subs-title" className="bg-night px-4 py-16 text-paper sm:px-8 lg:px-12">
         <div className="mx-auto w-full max-w-6xl">
-          <h2 id="subs-title" className="font-display text-4xl font-black uppercase tracking-wide sm:text-5xl">
+          <h2 id="subs-title" className="font-display text-4xl font-black tracking-wide sm:text-5xl">
             {t.landing.subs.title} <em className="k text-reward">{t.landing.subs.titleWord}</em>
           </h2>
           <p className="mt-3 max-w-2xl text-lg text-paper/80">{t.landing.subs.intro}</p>
@@ -189,7 +189,7 @@ export default function LoginLanding({ onStartTrial, onLogin }: { onStartTrial?:
                   <button
                     type="button"
                     onClick={onStartTrial}
-                    className="inline-flex min-h-12 w-full items-center justify-center rounded-md border-2 border-reward bg-reward px-4 font-display text-lg font-bold uppercase tracking-wide text-night hover:brightness-110"
+                    className="inline-flex min-h-12 w-full items-center justify-center rounded-md border border-reward bg-reward px-4 font-display text-lg font-bold tracking-wide text-night hover:brightness-110"
                   >
                     {t.landing.trialAction}
                   </button>
@@ -207,7 +207,7 @@ export default function LoginLanding({ onStartTrial, onLogin }: { onStartTrial?:
 
       {/* 5. Cierre: lleva de vuelta al formulario. */}
       <section aria-label={t.landing.cta} className="bg-primary px-4 py-16 text-center text-on-primary sm:px-8 lg:px-12">
-        <h2 className="font-display text-4xl font-black uppercase tracking-wide sm:text-5xl">{t.landing.cta}</h2>
+        <h2 className="font-display text-4xl font-black tracking-wide sm:text-5xl">{t.landing.cta}</h2>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           {onStartTrial && (
             <button type="button" onClick={onStartTrial} className={ctaButton}>

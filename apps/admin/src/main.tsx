@@ -1,4 +1,3 @@
-import "@fontsource-variable/big-shoulders-display/wght";
 import "@fontsource-variable/figtree/wght.css";
 import "@fontsource/instrument-serif/400-italic.css";
 import "@fontsource/jetbrains-mono/500.css";

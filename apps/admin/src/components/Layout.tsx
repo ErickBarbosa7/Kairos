@@ -45,7 +45,7 @@ function Tip({ children }: { children: string }) {
   return (
     <span
       role="presentation"
-      className="pointer-events-none absolute left-full top-1/2 z-30 ml-3 hidden -translate-y-1/2 whitespace-nowrap rounded-md border-2 border-ink bg-surface px-2.5 py-1 text-xs font-bold uppercase text-ink opacity-0 shadow-hard transition-opacity duration-100 group-hover/tip:opacity-100 group-focus-visible/tip:opacity-100 group-data-[collapsed=true]:lg:block"
+      className="pointer-events-none absolute left-full top-1/2 z-30 ml-3 hidden -translate-y-1/2 whitespace-nowrap rounded-md border border-ink bg-surface px-2.5 py-1 text-xs font-bold text-ink opacity-0 shadow-hard transition-opacity duration-100 group-hover/tip:opacity-100 group-focus-visible/tip:opacity-100 group-data-[collapsed=true]:lg:block"
     >
       {children}
     </span>
@@ -53,7 +53,7 @@ function Tip({ children }: { children: string }) {
 }
 
 const iconBtn =
-  "group/tip relative size-11 shrink-0 items-center justify-center rounded-md border-2 border-transparent text-ink-2 transition-colors duration-100 hover:border-ink hover:text-ink";
+  "group/tip relative size-11 shrink-0 items-center justify-center rounded-md border border-transparent text-ink-2 transition-colors duration-100 hover:border-ink hover:text-ink";
 
 export function Layout() {
   const { user, logout } = useAuth();
@@ -99,7 +99,7 @@ export function Layout() {
         <div className={cx("flex items-center gap-2", !expanded ? "lg:flex-col lg:gap-3" : "lg:justify-between lg:pl-2")}>
           <div className={cx("flex items-baseline gap-2", !expanded && "lg:hidden")}>
             <Wordmark className="text-3xl text-primary" />
-            <span className="hidden text-xs font-bold uppercase tracking-wider text-ink-2 sm:inline">{t.common.admin}</span>
+            <span className="hidden text-xs font-bold tracking-wider text-ink-2 sm:inline">{t.common.admin}</span>
           </div>
           <button
             type="button"
@@ -117,7 +117,7 @@ export function Layout() {
         {tenant && (
           <div
             title={tenant.name}
-            className={cx("hidden items-center gap-3 rounded-md border-2 border-line p-2 lg:flex", !expanded && "lg:justify-center lg:border-transparent lg:p-0")}
+            className={cx("hidden items-center gap-3 rounded-md border border-line p-2 lg:flex", !expanded && "lg:justify-center lg:border-transparent lg:p-0")}
           >
             {tenant.logoUrl ? (
               <img src={tenant.logoUrl} alt="" className="size-9 shrink-0 rounded-sm object-contain" />
@@ -129,7 +129,7 @@ export function Layout() {
         )}
 
         <nav aria-label={t.common.navigation} className="hidden flex-col gap-1 lg:flex">
-          <p className={cx("mb-1 px-3 text-xs font-bold uppercase tracking-wider text-ink-3", !expanded && "lg:sr-only")}>
+          <p className={cx("mb-1 px-3 text-xs font-bold tracking-wider text-ink-3", !expanded && "lg:sr-only")}>
             {t.common.sidebar.menu}
           </p>
           {items.map(({ to, label, Icon }) => (
@@ -139,7 +139,7 @@ export function Layout() {
               aria-label={label}
               className={({ isActive }) =>
                 cx(
-                  "group/tip relative flex min-h-11 items-center gap-3 rounded-md px-3 font-display text-lg font-bold uppercase tracking-wide transition-colors duration-100",
+                  "group/tip relative flex min-h-11 items-center gap-3 rounded-md px-3 font-display text-lg font-bold tracking-wide transition-colors duration-100",
                   !expanded && "lg:justify-center lg:px-0",
                   isActive
                     ? "bg-primary/15 text-ink before:absolute before:inset-y-1 before:left-0 before:w-1 before:rounded-sm before:bg-primary"
@@ -163,7 +163,7 @@ export function Layout() {
           <div className={cx("hidden min-w-0 items-center gap-3 px-1 lg:flex", !expanded && "lg:px-0")} title={user?.name}>
             <span
               aria-hidden
-              className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border-2 border-ink font-display text-lg font-black"
+              className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-ink font-display text-lg font-black"
             >
               {initial}
             </span>
@@ -184,7 +184,7 @@ export function Layout() {
           <ThemeSwitch />
         </div>
         {trialDays !== null && (
-          <div role="status" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-md border-2 border-primary bg-primary/10 px-4 py-3 text-sm font-medium">
+          <div role="status" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-md border border-primary bg-primary/10 px-4 py-3 text-sm font-medium">
             <span>{t.trial.banner(trialDays)}</span>
             {user?.role === "tenant_admin" && (
               <NavLink to="/plan" className="inline-flex min-h-11 items-center font-bold text-link underline underline-offset-2 hover:text-ink">
@@ -201,8 +201,8 @@ export function Layout() {
                 to={to}
                 className={({ isActive }) =>
                   cx(
-                    "flex min-h-11 min-w-0 items-center gap-2 rounded-md px-3 py-2 font-display text-base font-bold uppercase tracking-wide",
-                    isActive ? "bg-primary/15 text-ink shadow-[inset_0_-3px_0_0_var(--kairos-primary)]" : "text-ink-2",
+                    "flex min-h-11 min-w-0 items-center gap-2 rounded-md px-3 py-2 font-display text-base font-bold tracking-wide",
+                    isActive ? "bg-primary/15 text-ink shadow-hard" : "text-ink-2",
                   )
                 }
               >

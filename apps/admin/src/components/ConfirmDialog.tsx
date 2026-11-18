@@ -31,7 +31,7 @@ export function ConfirmDialog({ open, title, body, confirmLabel, danger, busy, o
         onCancel();
       }}
       aria-labelledby="dlg-title"
-      className="m-auto max-h-[calc(100dvh-2rem)] w-[min(calc(100%-2rem),28rem)] overflow-y-auto rounded-lg border-2 border-line bg-surface p-4 text-ink shadow-hard-lg sm:p-6"
+      className="m-auto max-h-[calc(100dvh-2rem)] w-[min(calc(100%-2rem),28rem)] overflow-y-auto rounded-lg border border-line bg-surface p-4 text-ink shadow-hard-lg sm:p-6"
     >
       <h2 id="dlg-title" className="break-words font-display text-xl font-bold">
         {title}

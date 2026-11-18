@@ -46,22 +46,22 @@ export function PlanTiers({ tone, highlight, tag, requested, catalog, usage, act
             <li key={plan.key} className="flex">
               <article
                 className={cx(
-                  "relative flex w-full flex-col gap-4 rounded-md border-2 p-6 transition-transform duration-100 md:hover:-translate-y-1",
+                  "relative flex w-full flex-col gap-4 rounded-md border p-6 transition-transform duration-100 md:hover:-translate-y-1",
                   STAIR[i],
                   dark ? "text-paper" : "bg-surface text-ink",
                   dark
                     ? lit
-                      ? "border-reward bg-paper/15 shadow-[6px_6px_0_0_var(--kairos-reward)]"
+                      ? "border-reward bg-paper/15 shadow-hard"
                       : "border-paper/40 bg-paper/10"
                     : lit
-                      ? "border-primary shadow-[6px_6px_0_0_var(--kairos-primary)]"
+                      ? "border-primary shadow-hard"
                       : "border-line shadow-hard",
                 )}
               >
                 {lit && tag && (
                   <span
                     className={cx(
-                      "absolute -top-3.5 right-4 inline-flex items-center gap-1 rounded-md px-2.5 py-1 font-display text-xs font-black uppercase tracking-wider",
+                      "absolute -top-3.5 right-4 inline-flex items-center gap-1 rounded-md px-2.5 py-1 font-display text-xs font-black tracking-wider",
                       dark ? "bg-reward text-night" : "bg-primary text-on-primary",
                     )}
                   >
@@ -92,7 +92,7 @@ export function PlanTiers({ tone, highlight, tag, requested, catalog, usage, act
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-display text-4xl font-black uppercase tracking-wide">{plan.name}</h3>
+                  <h3 className="font-display text-4xl font-black tracking-wide">{plan.name}</h3>
                   <p className={cx("mt-2 leading-relaxed", dark ? "text-paper/80" : "text-ink-2")}>{plan.body}</p>
                 </div>
                 {info && (
@@ -136,13 +136,13 @@ export function PlanTiers({ tone, highlight, tag, requested, catalog, usage, act
       {catalog && <p className={cx("mt-4 text-sm", dark ? "text-paper/70" : "text-ink-2")}>{t.plan.pricesNote}</p>}
 
       <section aria-label={includedTitle} className="mt-8">
-        <h3 className={cx("mb-3 text-sm font-bold uppercase tracking-widest", dark ? "text-reward" : "text-primary")}>{includedTitle}</h3>
+        <h3 className={cx("mb-3 text-sm font-bold tracking-widest", dark ? "text-reward" : "text-primary")}>{includedTitle}</h3>
         <ul className="flex flex-wrap gap-2">
           {included.map((item) => (
             <li
               key={item}
               className={cx(
-                "inline-flex items-center gap-1.5 rounded-md border-2 px-3 py-1.5 text-sm font-semibold",
+                "inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-semibold",
                 dark ? "border-paper/40 text-paper" : "border-line bg-surface text-ink",
               )}
             >

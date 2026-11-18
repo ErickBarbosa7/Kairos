@@ -70,7 +70,7 @@ export function PlanPage() {
       </header>
 
       {sub.expired && (
-        <div role="status" className="flex items-start gap-3 rounded-md border-2 border-danger bg-danger/10 p-4">
+        <div role="status" className="flex items-start gap-3 rounded-md border border-danger bg-danger/10 p-4">
           <Lock size={22} aria-hidden className="mt-0.5 shrink-0 text-danger" />
           <div>
             <p className="font-display text-xl font-bold text-danger">{t.plan.expiredTitle}</p>
@@ -80,13 +80,13 @@ export function PlanPage() {
       )}
 
       {sub.requestedPlan && (
-        <p role="status" className="flex items-start gap-2 rounded-md border-2 border-success bg-success/10 p-4 text-sm font-medium">
+        <p role="status" className="flex items-start gap-2 rounded-md border border-success bg-success/10 p-4 text-sm font-medium">
           <Check size={18} aria-hidden className="mt-0.5 shrink-0 text-success" />
           {t.plan.requestedNote}
         </p>
       )}
 
-      {!isAdmin && <p className="rounded-md border-2 border-line bg-surface p-4 text-sm text-ink-2">{t.plan.staffNote}</p>}
+      {!isAdmin && <p className="rounded-md border border-line bg-surface p-4 text-sm text-ink-2">{t.plan.staffNote}</p>}
 
       <PlanTiers
         tone="light"
@@ -123,7 +123,7 @@ export function PlanPage() {
 
       {!sub.expired && (
         <div>
-          <Link to="/" className="inline-flex min-h-11 items-center rounded-md border-2 border-ink px-4 font-semibold hover:bg-ink hover:text-canvas">
+          <Link to="/" className="inline-flex min-h-11 items-center rounded-md border border-ink px-4 font-semibold hover:bg-ink hover:text-canvas">
             {t.plan.goPanel}
           </Link>
         </div>

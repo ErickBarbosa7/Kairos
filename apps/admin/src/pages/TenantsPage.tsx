@@ -32,7 +32,7 @@ function RequestedBadge({ plan }: { plan: NonNullable<Tenant["requestedPlan"]> }
 function TenantActions({ tenant, onStatus }: { tenant: Tenant; onStatus(action: "suspend" | "activate"): void }) {
   return (
     <div className="flex flex-wrap gap-2 md:justify-end">
-      <Link to={`/tenants/${tenant.id}`} aria-label={`${t.common.edit} ${tenant.name}`} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md border-2 border-ink px-3 text-sm font-semibold hover:bg-ink hover:text-canvas">
+      <Link to={`/tenants/${tenant.id}`} aria-label={`${t.common.edit} ${tenant.name}`} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md border border-ink px-3 text-sm font-semibold hover:bg-ink hover:text-canvas">
         <Pencil size={15} aria-hidden /> {t.common.edit}
       </Link>
       {tenant.status === "ACTIVE" ? (
@@ -162,7 +162,7 @@ export function TenantsPage() {
             </ul>
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full min-w-[42rem] text-left text-sm">
-                <thead className="sticky top-0 border-b border-line bg-surface text-xs uppercase tracking-wider text-ink-2">
+                <thead className="sticky top-0 border-b border-line bg-surface text-xs tracking-wider text-ink-2">
                   <tr>
                     <th scope="col" className="px-5 py-3 font-semibold">{t.tenants.cols.name}</th>
                     <th scope="col" className="px-3 py-3 font-semibold">{t.tenants.cols.plan}</th>

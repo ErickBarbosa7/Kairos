@@ -212,7 +212,7 @@ export function StoresPage() {
 
                   <div className="mt-5 border-t border-line pt-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <h3 className="text-sm font-bold uppercase tracking-wider text-ink-2">{t.stores.machines}</h3>
+                      <h3 className="text-sm font-bold tracking-wider text-ink-2">{t.stores.machines}</h3>
                       {canEdit && s.isActive && (
                         <div className="flex flex-wrap gap-2">
                           <Button onClick={() => setTabletStore(s)}><Cpu size={15} aria-hidden /> {t.stores.linkTablet}</Button>
