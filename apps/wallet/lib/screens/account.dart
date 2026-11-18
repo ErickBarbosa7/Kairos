@@ -178,3 +178,48 @@ class AccountBanner extends StatelessWidget {
         },
       );
 }
+
+
+/// Botón de la esquina superior derecha: «Iniciar sesión» para un invitado, la inicial de la cuenta si ya entró.
+class AccountButton extends StatelessWidget {
+  const AccountButton({super.key, this.onChanged});
+  final VoidCallback? onChanged;
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<Me>(
+        future: Api.instance.me(),
+        builder: (context, snap) {
+          final me = snap.data;
+          if (me == null) return const SizedBox.shrink();
+          Future<void> open() async {
+            final changed = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => AccountScreen(me: me)));
+            if (changed == true) onChanged?.call();
+          }
+
+          if (me.isGuest) {
+            return OutlinedButton.icon(
+              onPressed: open,
+              icon: const Icon(Icons.person_outline_rounded, size: 18),
+              label: const Text(S.signIn),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 40), padding: const EdgeInsets.symmetric(horizontal: 14), textStyle: body(14, weight: FontWeight.w800)),
+            );
+          }
+          final label = (me.displayName?.trim().isNotEmpty ?? false) ? me.displayName! : (me.email ?? '?');
+          return Semantics(
+            button: true,
+            label: S.myAccount,
+            child: InkWell(
+              onTap: open,
+              customBorder: const CircleBorder(),
+              child: Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(shape: BoxShape.circle, color: K.primary),
+                child: Text(label[0].toUpperCase(), style: display(20, color: Colors.white)),
+              ),
+            ),
+          );
+        },
+      );
+}

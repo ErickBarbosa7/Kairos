@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'models.dart';
 import 'strings.dart';
 import 'theme.dart';
 
@@ -333,6 +334,50 @@ class KairosSeal extends StatelessWidget {
         const SizedBox(width: 4),
         Text(S.appName, style: accent(20, color: cs.onSurface)),
       ]),
+    );
+  }
+}
+
+
+/// Puntos de cada negocio donde el cliente ha jugado. `highlightTenantId` marca el negocio actual.
+class PointsList extends StatelessWidget {
+  const PointsList({super.key, required this.balances, required this.title, this.highlightTenantId, this.onTap});
+  final List<Balance> balances;
+  final String title;
+  final String? highlightTenantId;
+  final void Function(Balance)? onTap;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final soft = cs.onSurface.withValues(alpha: 0.65);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: body(13, color: soft, weight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          for (final b in balances)
+            InkWell(
+              onTap: onTap == null ? null : () => onTap!(b),
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                child: Row(children: [
+                  BrandAvatar(name: b.tenant.name, url: b.tenant.logoUrl, color: parseHex(b.tenant.primaryColor), size: 36),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(b.tenant.name, overflow: TextOverflow.ellipsis, style: body(15, weight: b.tenant.id == highlightTenantId ? FontWeight.w800 : FontWeight.w600)),
+                  ),
+                  if (b.tenant.id == highlightTenantId)
+                    Padding(padding: const EdgeInsets.only(right: 8), child: Text(S.youAreHere, style: body(12, color: soft))),
+                  Text('${b.balance}', style: display(24)),
+                  const SizedBox(width: 4),
+                  Text(S.points, style: body(12, color: soft)),
+                ]),
+              ),
+            ),
+        ]),
+      ),
     );
   }
 }

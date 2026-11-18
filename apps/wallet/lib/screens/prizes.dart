@@ -24,7 +24,7 @@ class PrizesScreen extends StatelessWidget {
             return RefreshIndicator(
               onRefresh: reload,
               child: ListView(padding: const EdgeInsets.fromLTRB(22, 18, 22, 32), children: [
-                const PageHeader(S.prizesTitle, S.prizesItalic, kicker: S.prizesKicker),
+                PageHeader(S.prizesTitle, S.prizesItalic, kicker: S.prizesKicker),
                 const SizedBox(height: 22),
                 if (all.isEmpty) Text(S.prizesEmpty, style: body(16)),
                 _Group(S.ready, ready),

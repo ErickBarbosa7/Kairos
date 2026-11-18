@@ -16,17 +16,17 @@ class ClaimScreen extends StatefulWidget {
 }
 
 class _ClaimScreenState extends State<ClaimScreen> {
-  late final Future<(ClaimResult, Balance?)> _future = _run();
+  late final Future<(ClaimResult, List<Balance>)> _future = _run();
 
-  Future<(ClaimResult, Balance?)> _run() async {
+  Future<(ClaimResult, List<Balance>)> _run() async {
     final result = await Api.instance.claim(widget.token);
-    Balance? mine;
+    var all = <Balance>[];
     try {
-      mine = (await Api.instance.balances()).where((b) => b.tenant.id == result.tenantId).firstOrNull;
+      all = await Api.instance.balances();
     } catch (_) {
       // El avance es un extra: si falla, el resultado se muestra igual.
     }
-    return (result, mine);
+    return (result, all);
   }
 
   @override
@@ -43,8 +43,8 @@ class _ClaimScreenState extends State<ClaimScreen> {
                 ]));
               }
               if (snap.hasError) return _Failure(error: snap.error!);
-              final (result, balance) = snap.data!;
-              return _Success(result: result, balance: balance);
+              final (result, all) = snap.data!;
+              return _Success(result: result, balance: all.where((b) => b.tenant.id == result.tenantId).firstOrNull, all: all);
             },
           ),
         ),
@@ -74,9 +74,10 @@ class _Failure extends StatelessWidget {
 }
 
 class _Success extends StatelessWidget {
-  const _Success({required this.result, required this.balance});
+  const _Success({required this.result, required this.balance, required this.all});
   final ClaimResult result;
   final Balance? balance;
+  final List<Balance> all;
   @override
   Widget build(BuildContext context) {
     final color = parseHex(balance?.tenant.primaryColor ?? '#B91C1C');
@@ -139,6 +140,10 @@ class _Success extends StatelessWidget {
                 : Text(S.reachedAll, style: body(15, color: K.success, weight: FontWeight.w800)),
           ),
         ),
+        if (all.length > 1) ...[
+          const SizedBox(height: 20),
+          PointsList(balances: all, title: S.myPointsOthers, highlightTenantId: result.tenantId),
+        ],
         const SizedBox(height: 14),
         Text(S.keepSafe, style: body(13, weight: FontWeight.w500)),
         const SizedBox(height: 18),

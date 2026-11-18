@@ -57,6 +57,12 @@ class S {
   static const keepSafe = 'Tus puntos se guardan en este teléfono.';
 
   static const saveTitle = 'Guarda tus puntos';
+  static const signIn = 'Iniciar sesión';
+  static const myAccount = 'Mi cuenta';
+  static const myPointsTitle = 'Tus puntos por negocio';
+  static const myPointsOthers = 'Tus puntos en otros negocios';
+  static const myPointsTotal = 'Total';
+  static const youAreHere = 'Aquí';
   static const saveBody = 'Crea una cuenta para recuperarlos si cambias de teléfono. Es opcional.';
   static const saveCta = 'Crear cuenta o entrar';
   static const accountTitle = 'Tu';

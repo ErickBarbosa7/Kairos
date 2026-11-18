@@ -10,12 +10,13 @@ import 'rewards.dart';
 
 /// Cabecera común: marca Kairos arriba y título en dos voces.
 class PageHeader extends StatelessWidget {
-  const PageHeader(this.plain, this.italic, {super.key, this.kicker});
+  const PageHeader(this.plain, this.italic, {super.key, this.kicker, this.onAccountChanged});
   final String plain, italic;
   final String? kicker;
+  final VoidCallback? onAccountChanged;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const KairosSeal(),
+        Row(children: [const KairosSeal(), const Spacer(), AccountButton(onChanged: onAccountChanged)]),
         const SizedBox(height: 18),
         Heading(plain, italic),
         if (kicker != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(kicker!, style: body(15, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)))),
@@ -36,10 +37,14 @@ class HomeScreen extends StatelessWidget {
           builder: (context, list, reload) => RefreshIndicator(
             onRefresh: reload,
             child: ListView(padding: const EdgeInsets.fromLTRB(22, 18, 22, 32), children: [
-              const PageHeader(S.homeTitle, S.homeTitleItalic, kicker: S.homeKicker),
+              PageHeader(S.homeTitle, S.homeTitleItalic, kicker: S.homeKicker, onAccountChanged: onAccountChanged),
               const SizedBox(height: 22),
               AccountBanner(key: ValueKey(refresh), onChanged: onAccountChanged),
               if (list.isEmpty) _Empty(onScan: onScan),
+              if (list.length > 1) ...[
+                PointsList(balances: list, title: S.myPointsTitle),
+                const SizedBox(height: 18),
+              ],
               for (final b in list) ...[
                 _BalanceCard(b: b, onPrizes: onPrizes),
                 const SizedBox(height: 18),

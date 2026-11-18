@@ -45,7 +45,7 @@ class _ScanScreenState extends State<ScanScreen> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(22, 18, 22, 18),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const PageHeader(S.scanTitle, S.scanItalic),
+            PageHeader(S.scanTitle, S.scanItalic),
             const SizedBox(height: 18),
             Expanded(
               child: ClipRRect(

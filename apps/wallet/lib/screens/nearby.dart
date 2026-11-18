@@ -49,7 +49,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
   @override
   Widget build(BuildContext context) => SafeArea(
         child: ListView(padding: const EdgeInsets.fromLTRB(22, 18, 22, 32), children: [
-          const PageHeader(S.nearbyTitle, S.nearbyItalic, kicker: S.nearbyKicker),
+          PageHeader(S.nearbyTitle, S.nearbyItalic, kicker: S.nearbyKicker),
           const SizedBox(height: 22),
           ..._body(context),
           const SizedBox(height: 18),
