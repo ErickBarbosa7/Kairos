@@ -1,4 +1,4 @@
-import { Building2, ChartNoAxesColumn, Coins, Megaphone, CreditCard, Gift, LogOut, Palette, PanelLeftClose, PanelLeftOpen, ScanLine, Store, UserRound, Users } from "lucide-react";
+import { Building2, ChartNoAxesColumn, Coins, Megaphone, CreditCard, Gift, LogOut, Palette, PanelLeftClose, PanelLeftOpen, ScanLine, Smartphone, Store, UserRound, Users } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../api/auth";
@@ -18,6 +18,7 @@ const NAV = {
     { to: "/rewards", label: t.nav.rewards, Icon: Gift },
     { to: "/campaigns", label: t.nav.campaigns, Icon: Megaphone },
     { to: "/customers", label: t.nav.customers, Icon: UserRound },
+    { to: "/customer-view", label: t.nav.customerView, Icon: Smartphone },
     { to: "/economy", label: t.nav.economy, Icon: Coins },
     { to: "/stores", label: t.nav.stores, Icon: Store },
     { to: "/staff", label: t.nav.staff, Icon: Users },

@@ -5,7 +5,7 @@ import type { ThemeMode } from "../api/types";
 import { t } from "../strings";
 import { cx } from "./ui";
 
-const SURFACES = {
+export const SURFACES = {
   light: { bg: "#F8F7FC", surface: "#FFFFFF", line: "#E4E2F0", text: "#14132B", text2: "#4B4A6B" },
   dark: { bg: "#0B0B1A", surface: "#151530", line: "#2A2A4A", text: "#F4F3FF", text2: "#B8B6D6" },
 };

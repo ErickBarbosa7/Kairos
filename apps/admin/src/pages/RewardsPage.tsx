@@ -1,11 +1,11 @@
 import { AlertCircle, Eye, EyeOff, Gift, Pencil, Plus, Smartphone, Trash2 } from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../api/auth";
 import { ApiError } from "../api/client";
 import type { Reward } from "../api/types";
 import { useDeleteReward, useRewards, useSaveReward } from "../api/tenantPanel";
 import { ConfirmDialog } from "../components/ConfirmDialog";
-import { CustomerView } from "../components/CustomerView";
 import { ImageUpload } from "../components/ImageUpload";
 import { RewardPreview } from "../components/RewardPreview";
 import { useToast } from "../components/Toast";
@@ -216,7 +216,6 @@ export function RewardsPage() {
   const toast = useToast();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [toDelete, setToDelete] = useState<Reward | null>(null);
-  const [customerView, setCustomerView] = useState(false);
   const brand = user && user.role !== "super_admin" ? user.tenant : null;
   const [filter, setFilter] = useState<"all" | "visible" | "hidden">("all");
   const visibleCount = data?.filter((r) => r.isActive).length ?? 0;
@@ -238,11 +237,9 @@ export function RewardsPage() {
           <p className="mt-2 text-ink-2">{canEdit ? t.rewards.intro : t.rewards.readOnly}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {brand && data && (
-            <Button onClick={() => setCustomerView(true)}>
-              <Smartphone size={18} aria-hidden /> {t.rewards.viewAsCustomer}
-            </Button>
-          )}
+          <Link to="/customer-view" className="inline-flex min-h-11 items-center gap-2 border-2 border-ink px-4 text-sm font-semibold hover:bg-ink hover:text-canvas">
+            <Smartphone size={18} aria-hidden /> {t.rewards.viewAsCustomer}
+          </Link>
           {canEdit && (
             <Button variant="primary" onClick={() => setDraft(blank)}>
               <Plus size={18} aria-hidden /> {t.rewards.new}
@@ -290,7 +287,6 @@ export function RewardsPage() {
         </>
       )}
 
-      {brand && data && <CustomerView open={customerView} brand={brand} rewards={data} onClose={() => setCustomerView(false)} />}
       <RewardDialog draft={draft} onClose={() => setDraft(null)} />
       <ConfirmDialog
         open={!!toDelete}
