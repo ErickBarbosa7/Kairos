@@ -4,16 +4,16 @@ import 'package:google_fonts/google_fonts.dart';
 /// Tokens de Kairos (packages/design/tokens.json). La Wallet usa la marca Kairos en su estructura
 /// y el color de cada negocio en sus tarjetas.
 class K {
-  static const primary = Color(0xFFB91C1C);
+  static const primary = Color(0xFF0F766E);
   static const reward = Color(0xFFFBBF24);
-  static const night = Color(0xFF0A0708);
-  static const nightRaised = Color(0xFF161012);
-  static const nightLine = Color(0xFF3A2A2C);
-  static const paper = Color(0xFFF2EDE6);
-  static const paperRaised = Color(0xFFFBF8F4);
-  static const paperLine = Color(0xFFD6CCC2);
-  static const ink = Color(0xFF140D0E);
-  static const inkSoft = Color(0xFF4A3E3C);
+  static const night = Color(0xFF121614);
+  static const nightRaised = Color(0xFF1B211E);
+  static const nightLine = Color(0xFF2E3733);
+  static const paper = Color(0xFFFAF7F2);
+  static const paperRaised = Color(0xFFFFFFFF);
+  static const paperLine = Color(0xFFE7E0D5);
+  static const ink = Color(0xFF1C1917);
+  static const inkSoft = Color(0xFF57534E);
   static const success = Color(0xFF15803D);
   static const successDark = Color(0xFF4ADE80);
   static const warning = Color(0xFFB45309);
@@ -34,7 +34,7 @@ ThemeData buildTheme(Brightness b) {
   final bg = dark ? K.night : K.paper;
   final surface = dark ? K.nightRaised : K.paperRaised;
   final line = dark ? K.nightLine : K.paperLine;
-  final text = dark ? const Color(0xFFF2EBE4) : K.ink;
+  final text = dark ? const Color(0xFFF5F1EA) : K.ink;
   final scheme = ColorScheme.fromSeed(seedColor: K.primary, brightness: b).copyWith(
     primary: K.primary,
     onPrimary: Colors.white,
@@ -51,7 +51,7 @@ ThemeData buildTheme(Brightness b) {
       color: surface,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: line, width: 1.5)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: line, width: 1)),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: surface,
@@ -61,25 +61,25 @@ ThemeData buildTheme(Brightness b) {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: const Size.fromHeight(52),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(52),
-        side: BorderSide(color: line, width: 1.5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        side: BorderSide(color: line, width: 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     ),
   );
 }
 
 
-/// Tipografía de Kairos (DISENO.md 5): Big Shoulders para títulos y cifras, Instrument Serif cursiva
+/// Tipografía de Kairos (design.md): Figtree extra negrita para títulos y cifras, Instrument Serif cursiva
 /// para una palabra de énfasis, Figtree para texto y JetBrains Mono para códigos.
 TextStyle display(double size, {Color? color, double height = 1}) =>
-    GoogleFonts.bigShoulders(fontSize: size, fontWeight: FontWeight.w900, letterSpacing: 0.4, height: height, color: color);
+    GoogleFonts.figtree(fontSize: size, fontWeight: FontWeight.w800, letterSpacing: -0.4, height: height, color: color);
 
 TextStyle accent(double size, {Color? color}) =>
     GoogleFonts.instrumentSerif(fontSize: size, fontStyle: FontStyle.italic, height: 1, color: color);

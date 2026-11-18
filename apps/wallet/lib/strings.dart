@@ -1,6 +1,8 @@
 /// Todos los textos de la Wallet, en un solo lugar.
 class S {
   static const appName = 'Kairos';
+  static const sealWith = 'Con';
+  static const sealLabel = 'Con Kairos, la plataforma de recompensas de este negocio';
   static const navHome = 'Inicio';
   static const navScan = 'Escanear';
   static const navPrizes = 'Mis premios';

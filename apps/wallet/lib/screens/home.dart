@@ -15,17 +15,7 @@ class PageHeader extends StatelessWidget {
   final String? kicker;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Container(
-            width: 26,
-            height: 26,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: K.night, borderRadius: BorderRadius.circular(8)),
-            child: Text('K', style: accent(20, color: K.reward)),
-          ),
-          const SizedBox(width: 8),
-          Text(S.appName.toUpperCase(), style: display(18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
-        ]),
+        const KairosSeal(),
         const SizedBox(height: 18),
         Heading(plain, italic),
         if (kicker != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(kicker!, style: body(15, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)))),
@@ -54,6 +44,8 @@ class HomeScreen extends StatelessWidget {
                 _BalanceCard(b: b, onPrizes: onPrizes),
                 const SizedBox(height: 18),
               ],
+              const SizedBox(height: 8),
+              const Center(child: KairosSeal()),
             ]),
           ),
         ),
@@ -73,7 +65,7 @@ class _Empty extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Icon(Icons.sports_esports_rounded, color: Colors.white, size: 40),
           const SizedBox(height: 14),
-          Text(S.homeEmptyTitle.toUpperCase(), style: display(34, color: Colors.white)),
+          Text(S.homeEmptyTitle, style: display(34, color: Colors.white)),
           const SizedBox(height: 6),
           Text(S.homeEmptyItalic, style: accent(34, color: K.reward)),
           const SizedBox(height: 12),
@@ -117,7 +109,7 @@ class _BalanceCard extends StatelessWidget {
         Row(children: [
           BrandAvatar(name: b.tenant.name, url: b.tenant.logoUrl, color: on.withValues(alpha: 0.18)),
           const SizedBox(width: 12),
-          Expanded(child: Text(b.tenant.name.toUpperCase(), style: display(26, color: on))),
+          Expanded(child: Text(b.tenant.name, style: display(26, color: on))),
           if (b.readyCoupons > 0)
             GestureDetector(
               onTap: onPrizes,

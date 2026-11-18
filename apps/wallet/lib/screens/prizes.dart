@@ -66,7 +66,7 @@ class _CouponCard extends StatelessWidget {
         BrandAvatar(name: c.tenant.name, url: c.tenant.logoUrl, color: color, size: 42),
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(c.title.toUpperCase(), style: display(24)),
+          Text(c.title, style: display(24)),
           Text(c.tenant.name, style: body(13, color: cs.onSurface.withValues(alpha: 0.7))),
         ])),
         Container(

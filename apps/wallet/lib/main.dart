@@ -99,7 +99,7 @@ class _NavBar extends StatelessWidget {
     }
 
     return Container(
-      decoration: BoxDecoration(color: cs.surface, border: Border(top: BorderSide(color: cs.outline, width: 1.5))),
+      decoration: BoxDecoration(color: cs.surface, border: Border(top: BorderSide(color: cs.outline, width: 1))),
       child: SafeArea(
         top: false,
         child: SizedBox(height: 66, child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [

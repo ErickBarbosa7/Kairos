@@ -63,7 +63,7 @@ class _Failure extends StatelessWidget {
       child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Icon(Icons.hourglass_empty_rounded, size: 56, color: K.warning),
         const SizedBox(height: 14),
-        Text(title.toUpperCase(), style: display(44)),
+        Text(title, style: display(44)),
         const SizedBox(height: 8),
         Text(body_, style: body(17, weight: FontWeight.w500)),
         const SizedBox(height: 28),
@@ -94,7 +94,7 @@ class _Success extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 decoration: BoxDecoration(color: on.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(99)),
-                child: Text(result.tenantName.toUpperCase(), style: display(16, color: on)),
+                child: Text(result.tenantName, style: display(16, color: on)),
               ),
               const SizedBox(height: 12),
               if (result.points > 0) ...[
@@ -117,7 +117,7 @@ class _Success extends StatelessWidget {
               top: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(S.youWonItalic, style: accent(34, color: K.warning)),
                 const SizedBox(height: 2),
-                Text(result.rewardTitle!.toUpperCase(), style: display(40, height: 0.95)),
+                Text(result.rewardTitle!, style: display(40, height: 0.95)),
               ]),
               bottom: Column(children: [
                 Text(S.yourCode, style: body(13, weight: FontWeight.w800)),

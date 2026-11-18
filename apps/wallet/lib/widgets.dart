@@ -62,7 +62,7 @@ class Heading extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text.rich(
         TextSpan(children: [
-          TextSpan(text: '${plain.toUpperCase()} ', style: display(size)),
+          TextSpan(text: '$plain ', style: display(size)),
           TextSpan(text: italic, style: accent(size * 1.12, color: K.primary)),
         ]),
         style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
@@ -142,7 +142,7 @@ class BrandCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(26),
-          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color.lerp(color, Colors.white, 0.12)!, color, Color.lerp(color, Colors.black, 0.45)!]),
+          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color.lerp(color, Colors.white, 0.12)!, color, Color.lerp(color, Colors.black, 0.3)!]),
           boxShadow: [BoxShadow(color: color.withValues(alpha: 0.35), blurRadius: 24, offset: const Offset(0, 12))],
         ),
         child: ClipRRect(
@@ -308,4 +308,31 @@ class _ConfettiPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ConfettiPainter old) => old.t != t;
+}
+
+
+/// Sello discreto «Con Kairos»: indica que el negocio usa la plataforma sin competir con su marca.
+class KairosSeal extends StatelessWidget {
+  const KairosSeal({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final soft = cs.onSurface.withValues(alpha: 0.65);
+    return Semantics(
+      label: S.sealLabel,
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Container(
+          width: 22,
+          height: 22,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: K.primary, borderRadius: BorderRadius.circular(7)),
+          child: Text('K', style: accent(16, color: Colors.white)),
+        ),
+        const SizedBox(width: 8),
+        Text(S.sealWith, style: body(13, color: soft, weight: FontWeight.w600)),
+        const SizedBox(width: 4),
+        Text(S.appName, style: accent(20, color: cs.onSurface)),
+      ]),
+    );
+  }
 }

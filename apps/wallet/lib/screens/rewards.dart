@@ -59,7 +59,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
           Row(children: [
             BrandAvatar(name: widget.balance.tenant.name, url: widget.balance.tenant.logoUrl, color: color, size: 40),
             const SizedBox(width: 10),
-            Expanded(child: Text(widget.balance.tenant.name.toUpperCase(), style: display(20, color: cs.onSurface.withValues(alpha: 0.65)))),
+            Expanded(child: Text(widget.balance.tenant.name, style: display(20, color: cs.onSurface.withValues(alpha: 0.65)))),
           ]),
           const SizedBox(height: 14),
           const Heading(S.rewardsTitle, S.rewardsItalic),
@@ -74,7 +74,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
               accentColor: K.successDark,
               top: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(S.redeemed, style: accent(34, color: K.success)),
-                Text(_done!.title.toUpperCase(), style: display(28)),
+                Text(_done!.title, style: display(28)),
               ]),
               bottom: Column(children: [
                 CodeText(_done!.code),
@@ -97,7 +97,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
                       const SizedBox(width: 14),
                     ],
                     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(r.title.toUpperCase(), style: display(26)),
+                      Text(r.title, style: display(26)),
                       if (r.description != null) Text(r.description!, style: body(13, weight: FontWeight.w500)),
                     ])),
                     const SizedBox(width: 10),
