@@ -15,9 +15,10 @@ class NextReward {
 }
 
 class Balance {
-  Balance({required this.tenant, required this.balance, required this.next, required this.affordable, required this.readyCoupons});
+  Balance({required this.tenant, required this.balance, required this.next, required this.affordable, required this.readyCoupons, this.campaigns = const []});
   final TenantInfo tenant;
   final int balance, affordable, readyCoupons;
+  final List<String> campaigns;
   final NextReward? next;
   factory Balance.fromJson(Map<String, dynamic> j) => Balance(
         tenant: TenantInfo.fromJson(j['tenant']),
@@ -25,6 +26,7 @@ class Balance {
         next: j['nextReward'] == null ? null : NextReward.fromJson(j['nextReward']),
         affordable: j['affordableRewards'] ?? 0,
         readyCoupons: j['readyCoupons'] ?? 0,
+        campaigns: ((j['activeCampaigns'] ?? []) as List).map((e) => e['name'] as String).toList(),
       );
 }
 

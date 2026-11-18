@@ -53,7 +53,7 @@ Specs relacionadas:
 - Cuenta opcional con correo y contraseña: banner «Guarda tus puntos» en Inicio y pantalla de cuenta con «Crear cuenta», «Entrar» y «Seguir sin cuenta» (`screens/account.dart`, `Api.register/login/logout`).
 
 **Por hacer**
-- (Pendiente) Mostrar al cliente la campaña activa del negocio (por ejemplo «doble puntos hasta las 5 pm»). Requiere un dato público o de cliente en `GET /wallet/balances`; la spec no lo cubre todavía y habría que añadirlo.
+- **Hecho:** campaña activa visible en Inicio (`activeCampaigns` en `GET /wallet/balances`, filtradas con `isRunning`).
 - Mostrar el desbloqueo por campaña `COMEBACK_UNLOCK` en el cupón (hoy ya muestra `validFrom`).
 - Pendientes de cuenta: verificación de correo y recuperación de contraseña, que requieren proveedor de correo. OTP por teléfono, Google y Apple siguen fuera de alcance.
 

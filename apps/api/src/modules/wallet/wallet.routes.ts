@@ -8,6 +8,7 @@ import { HttpError } from "../../lib/errors.js";
 import { signConsumerToken, verifyConsumerToken } from "../../lib/consumer-tokens.js";
 import { requireConsumer } from "../../middleware/consumer.js";
 import { emailTaken, invalidCredentials, isUniqueViolation, mergeGuestIntoAccount } from "./account.service.js";
+import { isRunning } from "../tenant/campaigns.service.js";
 import { claimQr } from "./qr-claim.service.js";
 import { redeemReward } from "./redeem.service.js";
 
@@ -100,7 +101,7 @@ export function walletRouter(opts: { rateLimit: boolean }) {
       wallets.map(async (w) => {
         const redeemable = { tenantId: w.tenantId, isActive: true, deletedAt: null, OR: [{ stock: null }, { stock: { gt: 0 } }] };
         // Progreso: el premio más barato que aún no le alcanza, y cuántos ya puede canjear.
-        const [next, affordable, readyCoupons] = await Promise.all([
+        const [next, affordable, readyCoupons, campaigns] = await Promise.all([
           prisma.reward.findFirst({
             where: { ...redeemable, pointsCost: { gt: w.balance } },
             orderBy: [{ pointsCost: "asc" }, { createdAt: "asc" }],
@@ -108,6 +109,7 @@ export function walletRouter(opts: { rateLimit: boolean }) {
           }),
           prisma.reward.count({ where: { ...redeemable, pointsCost: { lte: w.balance, gt: 0 } } }),
           prisma.coupon.count({ where: { walletId: w.id, status: "PENDING", validFrom: { lte: now }, expiresAt: { gt: now } } }),
+          prisma.campaign.findMany({ where: { tenantId: w.tenantId, isActive: true }, orderBy: { createdAt: "asc" } }),
         ]);
         return {
           tenant: w.tenant,
@@ -116,6 +118,8 @@ export function walletRouter(opts: { rateLimit: boolean }) {
           nextReward: next && { ...next, missing: next.pointsCost - w.balance },
           affordableRewards: affordable,
           readyCoupons,
+          // Campañas vigentes ahora mismo, para mostrarlas como gancho.
+          activeCampaigns: campaigns.filter((c) => isRunning(c, now)).map((c) => ({ name: c.name, type: c.type })),
         };
       }),
     );

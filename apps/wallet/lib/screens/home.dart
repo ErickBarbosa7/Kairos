@@ -143,6 +143,10 @@ class _BalanceCard extends StatelessWidget {
           Progress(value: b.balance, max: next.pointsCost, label: S.missing(next.missing, next.title), color: K.reward, textColor: on)
         else
           Text(S.allReached, style: body(15, color: on, weight: FontWeight.w800)),
+        for (final c in b.campaigns) ...[
+          const SizedBox(height: 12),
+          Text('🔥 $c', style: body(15, color: on, weight: FontWeight.w800)),
+        ],
         if (b.affordable > 0) ...[
           const SizedBox(height: 12),
           Text('✨ ${S.canRedeem(b.affordable)}', style: body(15, color: on, weight: FontWeight.w800)),
