@@ -86,5 +86,59 @@ export function publicRouter(opts: { rateLimit: boolean }) {
     res.json({ data: all.filter((c) => isRunning(c, now)).map((c) => ({ name: c.name, type: c.type })) });
   });
 
+  // Negocios suscritos cerca de una ubicación. La ubicación del cliente solo se usa para esta consulta.
+  r.get("/stores/nearby", async (req, res) => {
+    const q = z
+      .object({
+        lat: z.coerce.number().min(-90).max(90),
+        lng: z.coerce.number().min(-180).max(180),
+        radius: z.coerce.number().min(0.5).max(NEARBY_MAX_KM).default(10),
+      })
+      .parse(req.query);
+    const rows = await prisma.$queryRaw<NearbyRow[]>`
+      SELECT * FROM (
+        SELECT s.id AS "storeId", s.name AS "storeName", s.address, t.id AS "tenantId", t.name,
+               t.logo_url AS "logoUrl", t.primary_color AS "primaryColor",
+               2 * 6371 * asin(sqrt(
+                 power(sin(radians(s.latitude - ${q.lat}) / 2), 2) +
+                 cos(radians(${q.lat})) * cos(radians(s.latitude)) * power(sin(radians(s.longitude - ${q.lng}) / 2), 2)
+               )) AS "distanceKm"
+        FROM stores s JOIN tenants t ON t.id = s.tenant_id
+        WHERE s.is_active AND s.listed_nearby AND s.latitude IS NOT NULL AND s.longitude IS NOT NULL
+          AND t.status = 'ACTIVE' AND t.deleted_at IS NULL
+          AND (t.subscription_ends_at IS NULL OR t.subscription_ends_at > now())
+      ) x WHERE "distanceKm" <= ${q.radius}
+      ORDER BY "distanceKm" ASC LIMIT ${NEARBY_LIMIT}`;
+    const tenantIds = [...new Set(rows.map((r) => r.tenantId))];
+    const rewards = tenantIds.length
+      ? await prisma.reward.findMany({
+          where: { tenantId: { in: tenantIds }, isActive: true, deletedAt: null, OR: [{ stock: null }, { stock: { gt: 0 } }] },
+          orderBy: [{ pointsCost: "asc" }, { createdAt: "asc" }],
+          select: { tenantId: true, title: true, pointsCost: true },
+        })
+      : [];
+    res.json({
+      data: rows.map((r) => ({
+        ...r,
+        // Redondeo a 100 m: no hace falta más precisión para decidir si ir.
+        distanceKm: Math.round(Number(r.distanceKm) * 10) / 10,
+        rewards: rewards.filter((w) => w.tenantId === r.tenantId).slice(0, 3).map((w) => ({ title: w.title, pointsCost: w.pointsCost })),
+      })),
+    });
+  });
+
   return r;
+}
+
+const NEARBY_LIMIT = 20;
+const NEARBY_MAX_KM = 25;
+interface NearbyRow {
+  storeId: string;
+  storeName: string;
+  address: string | null;
+  tenantId: string;
+  name: string;
+  logoUrl: string | null;
+  primaryColor: string;
+  distanceKm: number;
 }

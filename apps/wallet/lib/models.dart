@@ -87,3 +87,29 @@ class Me {
   factory Me.fromJson(Map<String, dynamic> j) =>
       Me(isGuest: j['isGuest'] as bool, email: j['email'] as String?, displayName: j['displayName'] as String?);
 }
+
+class NearbyReward {
+  NearbyReward({required this.title, required this.pointsCost});
+  final String title;
+  final int pointsCost;
+  factory NearbyReward.fromJson(Map<String, dynamic> j) => NearbyReward(title: j['title'], pointsCost: j['pointsCost']);
+}
+
+/// Sucursal suscrita a Kairos cerca del cliente.
+class NearbyStore {
+  NearbyStore({required this.storeId, required this.name, required this.storeName, required this.address, required this.logoUrl, required this.primaryColor, required this.distanceKm, required this.rewards});
+  final String storeId, name, storeName, primaryColor;
+  final String? address, logoUrl;
+  final double distanceKm;
+  final List<NearbyReward> rewards;
+  factory NearbyStore.fromJson(Map<String, dynamic> j) => NearbyStore(
+        storeId: j['storeId'],
+        name: j['name'],
+        storeName: j['storeName'],
+        address: j['address'],
+        logoUrl: j['logoUrl'],
+        primaryColor: j['primaryColor'] ?? '#0F766E',
+        distanceKm: (j['distanceKm'] as num).toDouble(),
+        rewards: ((j['rewards'] ?? []) as List).map((e) => NearbyReward.fromJson(e)).toList(),
+      );
+}

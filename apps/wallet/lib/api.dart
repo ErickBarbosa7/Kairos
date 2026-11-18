@@ -81,6 +81,10 @@ class Api {
     }
   }
 
+  /// Negocios cercanos. Es una ruta pública: no necesita sesión. La ubicación no se guarda en ningún lado.
+  Future<List<NearbyStore>> nearby(double lat, double lng, {double radiusKm = 10}) async =>
+      ((await _raw('GET', '/public/stores/nearby?lat=$lat&lng=$lng&radius=$radiusKm'))['data'] as List).map((e) => NearbyStore.fromJson(e)).toList();
+
   Future<Me> me() async => Me.fromJson(await _call('GET', '/wallet/me'));
 
   /// Convierte al invitado actual en cuenta. Conserva sus puntos.

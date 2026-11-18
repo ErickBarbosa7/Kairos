@@ -1,4 +1,4 @@
-import { Check, Copy, Cpu, MapPin, Pencil, Plus, ShieldOff, Store as StoreIcon } from "lucide-react";
+import { Check, Copy, Cpu, LocateFixed, MapPin, Pencil, Plus, ShieldOff, Store as StoreIcon } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { useAuth } from "../api/auth";
 import { ApiError } from "../api/client";
@@ -40,13 +40,50 @@ function StoreModal({ store, open, onClose }: { store: Partial<Store> | null; op
   const [name, setName] = useState(store?.name ?? "");
   const [address, setAddress] = useState(store?.address ?? "");
   const [active, setActive] = useState(store?.isActive ?? true);
+  const [lat, setLat] = useState(store?.latitude?.toString() ?? "");
+  const [lng, setLng] = useState(store?.longitude?.toString() ?? "");
+  const [listed, setListed] = useState(store?.listedNearby ?? true);
+  const [locating, setLocating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locError, setLocError] = useState<string | null>(null);
+
+  function fillFromDevice() {
+    setLocError(null);
+    if (!navigator.geolocation) return setLocError(t.stores.locUnsupported);
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(pos.coords.latitude.toFixed(6));
+        setLng(pos.coords.longitude.toFixed(6));
+        setLocating(false);
+      },
+      () => {
+        setLocError(t.stores.locDenied);
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10_000 },
+    );
+  }
 
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (name.trim().length < 2) return setError(t.errors.required);
+    const empty = lat.trim() === "" && lng.trim() === "";
+    const la = Number(lat);
+    const lo = Number(lng);
+    if (!empty && (lat.trim() === "" || lng.trim() === "" || !Number.isFinite(la) || !Number.isFinite(lo) || Math.abs(la) > 90 || Math.abs(lo) > 180)) {
+      return setLocError(t.stores.locInvalid);
+    }
     try {
-      await save.mutateAsync({ id: store?.id, name: name.trim(), address: address.trim() || null, ...(store?.id && { isActive: active }) });
+      await save.mutateAsync({
+        id: store?.id,
+        name: name.trim(),
+        address: address.trim() || null,
+        latitude: empty ? null : la,
+        longitude: empty ? null : lo,
+        listedNearby: listed,
+        ...(store?.id && { isActive: active }),
+      });
       toast(t.stores.saved);
       onClose();
     } catch (err) {
@@ -63,6 +100,26 @@ function StoreModal({ store, open, onClose }: { store: Partial<Store> | null; op
         <Field floating label={t.stores.address} htmlFor="s-addr">
           <Input id="s-addr" value={address} onChange={(e) => setAddress(e.target.value)} />
         </Field>
+        <fieldset className="flex flex-col gap-3 rounded-lg border border-line p-4">
+          <legend className="px-1 text-sm font-semibold">{t.stores.locTitle}</legend>
+          <p className="text-sm text-ink-2">{t.stores.locHint}</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field floating label={t.stores.lat} htmlFor="s-lat">
+              <Input id="s-lat" inputMode="decimal" value={lat} onChange={(e) => setLat(e.target.value)} />
+            </Field>
+            <Field floating label={t.stores.lng} htmlFor="s-lng">
+              <Input id="s-lng" inputMode="decimal" value={lng} onChange={(e) => setLng(e.target.value)} />
+            </Field>
+          </div>
+          <Button type="button" onClick={fillFromDevice} disabled={locating}>
+            <LocateFixed size={16} aria-hidden /> {locating ? t.stores.locating : t.stores.useMyLocation}
+          </Button>
+          {locError && <p role="alert" className="text-sm text-danger">{locError}</p>}
+          <label className="flex min-h-11 items-center gap-3 text-sm font-medium">
+            <input type="checkbox" checked={listed} onChange={(e) => setListed(e.target.checked)} className="size-5 accent-primary" />
+            {t.stores.listedNearby}
+          </label>
+        </fieldset>
         {store?.id && (
           <label className="flex min-h-11 items-center gap-3 text-sm font-medium">
             <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} className="size-5 accent-primary" />
@@ -198,6 +255,9 @@ export function StoresPage() {
                           <MapPin size={14} aria-hidden className="mt-0.5 shrink-0" /> {s.address}
                         </p>
                       )}
+                      <p className="mt-1 text-xs text-ink-2">
+                        {s.latitude === null ? t.stores.noLocation : s.listedNearby ? t.stores.visibleNearby : t.stores.hiddenNearby}
+                      </p>
                       <p className="mt-2 flex flex-wrap items-center gap-1 text-xs text-ink-2">
                         {t.stores.storeId}: <code className="break-all font-mono">{s.id}</code>
                         <CopyId value={s.id} />

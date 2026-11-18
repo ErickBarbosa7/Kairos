@@ -1,6 +1,8 @@
 # Spec: negocios cercanos en la Wallet
 
-Estado: **idea, sin implementar.** Se evaluó el 2026-11-17. Va después del rediseño de la Wallet, porque comparten pantallas.
+Estado: **MVP implementado (2026-11-17)**: lista por distancia, sin mapa. Pendiente: mapa, filtro por tipo de negocio y buscar por ciudad cuando se niega el permiso.
+
+Implementado: migración `20261117150000_stores_nearby` (`latitude`, `longitude`, `listed_nearby` con CHECK), `GET /public/stores/nearby`, campos de ubicación en Sucursales del panel y pestaña «Cerca» en la Wallet (`screens/nearby.dart`, paquete `geolocator`). La ubicación se pide solo al pulsar «Buscar cerca de mí».
 
 ## Idea
 

@@ -6,6 +6,8 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Usamos tu ubicación solo para mostrarte negocios con Kairos cerca. No la guardamos.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Kairos usa la cámara para leer el código QR de la máquina y sumar tus puntos.</string>
 	<key>CFBundleDisplayName</key>

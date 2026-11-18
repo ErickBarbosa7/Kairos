@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'api.dart';
 import 'screens/claim.dart';
 import 'screens/home.dart';
+import 'screens/nearby.dart';
 import 'screens/prizes.dart';
 import 'screens/scan.dart';
 import 'strings.dart';
@@ -65,6 +66,8 @@ class _ShellState extends State<Shell> {
       // Se crea solo con la pestaña abierta: así la cámara no se queda encendida.
       _tab == 1 ? ScanScreen(onToken: _claim) : const SizedBox.shrink(),
       PrizesScreen(refresh: _refresh),
+      // Con la pestaña abierta: el permiso de ubicación solo se pide si el cliente entra aquí.
+      _tab == 3 ? const NearbyScreen() : const SizedBox.shrink(),
     ];
     return Scaffold(
       body: IndexedStack(index: _tab, children: pages),
@@ -104,6 +107,7 @@ class _NavBar extends StatelessWidget {
         top: false,
         child: SizedBox(height: 66, child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
           item(0, Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, S.navHome),
+          item(3, Icons.explore_outlined, Icons.explore, S.navNearby),
           Expanded(
             child: Transform.translate(
               offset: const Offset(0, -14),

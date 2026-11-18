@@ -125,6 +125,10 @@ model Store {
   tenantId  String   @map("tenant_id") @db.Uuid
   name      String
   address   String?
+  // Ubicación para «Cerca de ti» en la Wallet. CHECK de rango en SQL manual; sin ella no aparece.
+  latitude     Float?  @map("latitude")
+  longitude    Float?  @map("longitude")
+  listedNearby Boolean @default(true) @map("listed_nearby")
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

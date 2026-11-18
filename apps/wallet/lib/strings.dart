@@ -6,6 +6,19 @@ class S {
   static const navHome = 'Inicio';
   static const navScan = 'Escanear';
   static const navPrizes = 'Mis premios';
+  static const navNearby = 'Cerca';
+  static const nearbyTitle = 'Cerca de';
+  static const nearbyItalic = 'ti';
+  static const nearbyKicker = 'Negocios con Kairos donde puedes jugar por premios.';
+  static const nearbyAsk = 'Usaremos tu ubicación solo para buscar negocios cercanos. No la guardamos.';
+  static const nearbyCta = 'Buscar cerca de mí';
+  static const nearbyLoading = 'Buscando negocios…';
+  static const nearbyDenied = 'No pudimos usar tu ubicación. Activa el permiso en tu dispositivo e inténtalo de nuevo.';
+  static const nearbyOff = 'La ubicación está apagada. Enciéndela e inténtalo de nuevo.';
+  static const nearbyEmpty = 'Aún no hay negocios con Kairos cerca. Si ves una máquina Arcade, escanea su QR para empezar.';
+  static const nearbyReward = 'Premios para ganar';
+  static String away(double km) => km < 1 ? 'a ${(km * 1000).round()} m' : 'a ${km.toStringAsFixed(1)} km';
+  static String pts(int n) => '$n pts';
   static const retry = 'Reintentar';
   static const back = 'Volver';
 
