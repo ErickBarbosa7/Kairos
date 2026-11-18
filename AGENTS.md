@@ -19,7 +19,7 @@ Antes de tocar el modelo de datos, la seguridad o la UI, lee:
 | Tarea | Comando |
 |---|---|
 | Tipos (gate real de calidad) | `pnpm typecheck` — corre api, admin y design |
-| Tests | `pnpm test` — Vitest en `apps/api` (197) y `packages/design` (14). `apps/admin` no tiene tests |
+| Tests | `pnpm test` — Vitest en `apps/api` (203) y `packages/design` (14). `apps/admin` no tiene tests |
 | Un solo archivo de test | `pnpm --filter @kairos/api exec vitest run test/isolation.test.ts` |
 | Base de datos | `pnpm db:up` / `pnpm db:down` — Postgres 17 en **localhost:5433** (no 5432) |
 | API (dev) | `pnpm --filter @kairos/api dev` — tsx watch, puerto 3000 |

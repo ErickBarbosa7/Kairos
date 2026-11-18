@@ -187,3 +187,37 @@ export interface WeeklyReport {
   recommendation: string;
   metrics: { weekVisits: number; newCustomers: number; returningCustomers: number; return7: number | null; roi: number | null };
 }
+
+export interface CustomerConsumer {
+  id: string;
+  displayName: string | null;
+  email: string | null;
+  isGuest: boolean;
+  createdAt: string;
+}
+export interface CustomerRow {
+  id: string;
+  balance: number;
+  lifetimeEarned: number;
+  lastActivityAt: string;
+  joinedAt: string;
+  consumer: CustomerConsumer;
+}
+export interface CustomerList {
+  total: number;
+  page: number;
+  limit: number;
+  data: CustomerRow[];
+}
+export interface CustomerMovement {
+  id: string;
+  type: "EARN" | "REDEEM" | "REFUND" | "ADJUST";
+  points: number;
+  balanceAfter: number;
+  note: string | null;
+  createdAt: string;
+}
+export interface CustomerDetail extends CustomerRow {
+  coupons: Partial<Record<"PENDING" | "REDEEMED" | "EXPIRED" | "CANCELLED", number>>;
+  transactions: CustomerMovement[];
+}

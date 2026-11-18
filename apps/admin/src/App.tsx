@@ -8,6 +8,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { PlanPage } from "./pages/PlanPage";
 import { CampaignsPage } from "./pages/CampaignsPage";
 import { ResultsPage } from "./pages/ResultsPage";
+import { CustomersPage } from "./pages/CustomersPage";
 import { StaffPage } from "./pages/StaffPage";
 import { StoresPage } from "./pages/StoresPage";
 import { RewardsPage } from "./pages/RewardsPage";
@@ -68,6 +69,7 @@ export function App() {
           <Route element={<Protected roles={["tenant_admin"]} />}>
             <Route element={<RequireSubscription />}>
               <Route path="/campaigns" element={<CampaignsPage />} />
+              <Route path="/customers" element={<CustomersPage />} />
               <Route path="/results" element={<ResultsPage />} />
               <Route path="/brand" element={<TenantBrandPage />} />
               <Route path="/economy" element={<TenantEconomyPage />} />

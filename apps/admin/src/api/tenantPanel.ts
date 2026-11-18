@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
-import type { Campaign, Coupon, Machine, Retention, Reward, Roi, Staff, WeeklyReport, Store, TenantBrand, TenantEconomy, ThemeMode } from "./types";
+import type { Campaign, CustomerDetail, CustomerList, Coupon, Machine, Retention, Reward, Roi, Staff, WeeklyReport, Store, TenantBrand, TenantEconomy, ThemeMode } from "./types";
 
 export const useBrand = () => useQuery({ queryKey: ["brand"], queryFn: () => api<TenantBrand>("/tenant/brand") });
 
@@ -164,5 +164,27 @@ export function useDeleteCampaign() {
   return useMutation({
     mutationFn: (id: string) => api(`/tenant/campaigns/${id}`, { method: "DELETE" }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["campaigns"] }),
+  });
+}
+
+export const useCustomers = (q: string, page: number) =>
+  useQuery({
+    queryKey: ["customers", q, page],
+    queryFn: () => api<CustomerList>(`/tenant/customers?page=${page}&limit=25${q ? `&q=${encodeURIComponent(q)}` : ""}`),
+    placeholderData: (prev) => prev,
+  });
+
+export const useCustomer = (id: string | null) =>
+  useQuery({ queryKey: ["customer", id], queryFn: () => api<CustomerDetail>(`/tenant/customers/${id}`), enabled: !!id });
+
+export function useAdjustPoints() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...body }: { id: string; points: number; note: string }) =>
+      api(`/tenant/customers/${id}/adjust`, { method: "POST", body }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["customers"] });
+      qc.invalidateQueries({ queryKey: ["customer"] });
+    },
   });
 }

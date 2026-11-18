@@ -37,7 +37,7 @@ Specs relacionadas:
 - Campañas: CRUD en `/tenant/campaigns` y aplicación dentro de `qr-claim.service.ts`, en la misma transacción. Tipos: `MULTIPLIER`, `FIRST_VISIT_BONUS`, `COMEBACK_UNLOCK`.
 - Resumen semanal programado junto a `expireCoupons()`. Reglas fijas, sin IA.
 - Aceptación de términos al registrar un negocio (`acceptTerms`, `TERMS_VERSION`).
-- Panel Admin: páginas **Resultados** y **Campañas**; el formulario de economía del negocio añade ticket promedio y costo por premio; tarjeta de mejora de plan cuando la función no está incluida.
+- Panel Admin: páginas **Resultados**, **Campañas** y **Clientes** (lista con búsqueda, detalle con movimientos y ajuste manual de puntos solo para el administrador; `/tenant/customers`); el formulario de economía del negocio añade ticket promedio y costo por premio; tarjeta de mejora de plan cuando la función no está incluida.
 - `seed:demo-analytics` con datos creíbles para presentar.
 
 **Reglas que se mantienen**
