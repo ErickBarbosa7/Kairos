@@ -1,4 +1,4 @@
-import { type LucideIcon, Download, Gamepad2, LayoutDashboard, Lock, MonitorDown, Play, Wallet } from "lucide-react";
+import { type LucideIcon, ChartNoAxesColumn, Download, Gamepad2, Gift, LayoutDashboard, Lock, MapPin, Megaphone, MonitorDown, Play, ScanLine, Store, UserRound, Wallet } from "lucide-react";
 import { useLottie } from "lottie-react";
 import arrow from "../assets/arrow.json";
 import { t } from "../strings";
@@ -27,6 +27,7 @@ const ctaButton =
   "inline-flex min-h-12 items-center justify-center rounded-md border border-on-primary bg-canvas px-8 font-display text-lg font-bold tracking-wide text-ink shadow-hard transition-[transform,box-shadow] duration-100 hover:-translate-y-px active:translate-y-px";
 
 const HOW_ICONS: LucideIcon[] = [Gamepad2, Wallet, LayoutDashboard];
+const CONTROL_ICONS: LucideIcon[] = [ChartNoAxesColumn, Megaphone, UserRound, Gift, ScanLine, Store];
 
 const WINDOWS_DOWNLOAD_URL = import.meta.env.VITE_ARCADE_WINDOWS_URL?.trim();
 const LINUX_DOWNLOAD_URL = import.meta.env.VITE_ARCADE_LINUX_URL?.trim();
@@ -120,6 +121,39 @@ export default function LoginLanding({ onStartTrial, onLogin }: { onStartTrial?:
                 </article>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* 1b. Control del negocio: lo que ve el dueño en su panel. */}
+      <section id="control" aria-labelledby="control-title" className="scroll-mt-4 border-t border-line px-4 py-16 sm:px-8 lg:px-12">
+        <div className="mx-auto w-full max-w-6xl">
+          <h2 id="control-title" className="font-display text-4xl font-black sm:text-5xl">
+            {t.landing.control.title} <em className="k text-link">{t.landing.control.titleWord}</em>
+          </h2>
+          <p className="mt-3 mb-8 max-w-2xl text-lg leading-relaxed text-ink-2">{t.landing.control.intro}</p>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {t.landing.control.items.map((item, i) => {
+              const Icon = CONTROL_ICONS[i] ?? LayoutDashboard;
+              return (
+                <li key={item.title} className="flex gap-4 rounded-lg border border-line bg-surface p-5 shadow-hard">
+                  <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-link">
+                    <Icon size={22} aria-hidden />
+                  </span>
+                  <div>
+                    <h3 className="font-display text-lg font-bold">{item.title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-ink-2">{item.body}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="mt-6 flex items-start gap-4 rounded-lg border border-line bg-surface p-5">
+            <MapPin size={24} aria-hidden className="mt-0.5 shrink-0 text-link" />
+            <div>
+              <h3 className="font-display text-lg font-bold">{t.landing.control.nearbyTitle}</h3>
+              <p className="mt-1 max-w-3xl text-sm leading-relaxed text-ink-2">{t.landing.control.nearbyBody}</p>
+            </div>
           </div>
         </div>
       </section>

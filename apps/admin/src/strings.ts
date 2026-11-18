@@ -20,9 +20,9 @@ export const t = {
     sidebar: { collapse: "Contraer menú", expand: "Expandir menú", pin: "Fijar menú abierto", menu: "Menú" },
   },
   login: {
-    headline: "Fidelización que se",
-    headlineWord: "juega",
-    tagline: "Kairos es un programa de lealtad para negocios con local físico. Tus clientes juegan en una máquina Arcade, ganan premios en su celular y vuelven por más. Tú lo controlas desde este panel.",
+    headline: "Que tus clientes",
+    headlineWord: "vuelvan",
+    tagline: "Kairos es la plataforma para negocios con local físico: spas, barberías, cafés y más. Tus clientes juegan por recompensas y regresan; tú ves en un solo panel quién vuelve, qué premios das y cuánto te deja.",
     title: "Iniciar sesión",
     subtitle: "Acceso exclusivo para el administrador de la plataforma.",
     email: "Correo",
@@ -99,7 +99,7 @@ export const t = {
   landing: {
     scroll: "Conoce cómo funciona",
     howTitle: "Así funciona Kairos",
-    howIntro: "En lugar de tarjetas de sellos, tus clientes juegan para ganar recompensas en tu negocio. Tú solo defines los premios.",
+    howIntro: "En lugar de tarjetas de sellos, tus clientes juegan para ganar recompensas en tu negocio. Tú defines los premios y decides cuándo regalar más.",
     how: [
       {
         title: "1. Juegan",
@@ -114,6 +114,21 @@ export const t = {
         body: "Muestra su cupón en caja y tu personal lo valida al instante desde tu panel. Ya tiene un motivo para regresar.",
       },
     ],
+    control: {
+      title: "Tu negocio,",
+      titleWord: "bajo control",
+      intro: "Un panel para administrar tu programa de recompensas y entender si de verdad te está funcionando.",
+      items: [
+        { title: "Resultados", body: "Mira cuántos clientes nuevos y recurrentes tienes y cuántos dejaron de venir. El ROI estimado te dice si el programa se paga." },
+        { title: "Campañas", body: "Da doble puntos en horas flojas, un bono de primera visita o un premio para quien regresa. Se aplican solas." },
+        { title: "Clientes", body: "Consulta el saldo y el historial de cada cliente y ajusta puntos cuando haga falta, con registro de quién y por qué." },
+        { title: "Premios", body: "Crea tus premios con foto, costo en puntos y existencias. Tú decides qué regalas y cuánto te cuesta." },
+        { title: "Caja", body: "Tu personal valida cupones en segundos con el código del cliente. Cada cupón se canjea una sola vez." },
+        { title: "Sucursales y equipo", body: "Registra tus locales y máquinas, y da a cada empleado solo el acceso que necesita." },
+      ],
+      nearbyTitle: "Que te encuentren cerca",
+      nearbyBody: "Tus sucursales aparecen en «Cerca de ti» en la Wallet, para que clientes nuevos de la zona sepan que pueden jugar por recompensas en tu local. Tú decides si aparecer.",
+    },
     arcade: {
       label: "Terminal para negocios",
       title: "Convierte cada visita en una partida.",
@@ -141,8 +156,9 @@ export const t = {
     steps: [
       "Crea tu negocio desde este panel.",
       "Define tu marca y colores para personalizar la Wallet.",
-      "Crea tus sucursales y vincula tus máquinas Arcade con tu cuenta.",
-      "Alta a tu personal de caja para validar cupones.",
+      "Crea tus sucursales, ponles ubicación y vincula tus máquinas Arcade.",
+      "Crea tus premios y, si quieres, tu primera campaña.",
+      "Da de alta a tu personal de caja y revisa tus resultados cada semana.",
     ],
     subs: {
       title: "Suscripciones y",
@@ -163,7 +179,8 @@ export const t = {
         "Máquina Arcade con tu marca",
         "Ruleta de recompensas",
         "Caja para validar cupones",
-        "Panel de administración",
+        "Panel de administración y clientes",
+        "Aparecer en «Cerca de ti»",
       ],
     },
     cta: "Listo para empezar",
