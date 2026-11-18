@@ -91,3 +91,10 @@ Necesito uno de estos datos:
 
 Nota: el diseño del proyecto ya está definido en `docs/DISENO.md` y `packages/design/tokens.json`.
 Una skill nueva no debe contradecirlos (nada de hex en componentes; paneles admin siempre con marca `kairos-*`).
+
+---
+
+# Variables de producción (Netlify y Render)
+
+- **Netlify (panel):** `VITE_API_URL` = URL pública de la API, sin barra final. Se aplica al compilar: después de cambiarla hay que desplegar de nuevo. Sin ella el panel muestra un aviso rojo y todas las llamadas dan 404.
+- **Render (API):** `CORS_ORIGINS` = URL exacta del panel; `PUBLIC_API_URL` = URL de la API. Las imágenes subidas se guardan en disco local y se pierden en cada despliegue del plan Free.

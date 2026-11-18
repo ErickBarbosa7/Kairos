@@ -273,6 +273,7 @@ export const t = {
   errors: {
     generic: "Algo salió mal. Intenta de nuevo.",
     network: "No se pudo conectar con el servidor.",
+    apiMissing: "Configuración incompleta: falta VITE_API_URL en este despliegue, así que el panel no puede hablar con la API. Defínela con la URL pública de la API y vuelve a desplegar.",
     required: "Campo obligatorio",
     invalidEmail: "Correo inválido",
     passwordMin: "Mínimo 10 caracteres",

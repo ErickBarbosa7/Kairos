@@ -1,3 +1,4 @@
+import { TriangleAlert } from "lucide-react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { useAuth } from "./api/auth";
 import type { Me } from "./api/types";
@@ -17,6 +18,19 @@ import { TenantBrandPage } from "./pages/TenantBrandPage";
 import { TenantEconomyPage } from "./pages/TenantEconomyPage";
 import { TenantFormPage } from "./pages/TenantFormPage";
 import { TenantsPage } from "./pages/TenantsPage";
+import { t } from "./strings";
+
+/** En producción sin `VITE_API_URL` el panel llamaría a su propio dominio y todo daría 404. */
+const apiMissing = import.meta.env.PROD && !import.meta.env.VITE_API_URL;
+
+function ConfigBanner() {
+  return (
+    <div role="alert" className="sticky top-0 z-50 flex items-start gap-3 border-b border-danger bg-surface px-4 py-3 text-sm text-danger">
+      <TriangleAlert size={18} aria-hidden className="mt-0.5 shrink-0" />
+      <p>{t.errors.apiMissing}</p>
+    </div>
+  );
+}
 
 const expired = (u: Me) => "subscription" in u && u.subscription.expired;
 const home = (u: Me) => (u.role === "super_admin" ? "/tenants" : expired(u) ? "/plan" : u.role === "tenant_admin" ? "/rewards" : "/caja");
@@ -50,6 +64,8 @@ function Home() {
 export function App() {
   const { loading } = useAuth();
   return (
+    <>
+    {apiMissing && <ConfigBanner />}
     <Routes>
       <Route path="/login" element={loading ? null : <LoginPage />} />
       <Route element={<Protected />}>
@@ -82,5 +98,6 @@ export function App() {
       </Route>
       <Route path="*" element={<Home />} />
     </Routes>
+    </>
   );
 }
