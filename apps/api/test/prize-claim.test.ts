@@ -199,3 +199,20 @@ describe("GET /public/stores/:id/rewards", () => {
     expect((await request(app).get(`/public/stores/${rig.store.id}/rewards`)).status).toBe(404);
   });
 });
+
+describe("GET /public/stores/:id/campaigns", () => {
+  it("lista solo las campañas vigentes del negocio", async () => {
+    const rig = await setup();
+    const base = { tenantId: rig.tenant.id, type: "MULTIPLIER" as const, multiplierPct: 200 };
+    await prisma.campaign.create({ data: { ...base, name: "Doble puntos" } });
+    await prisma.campaign.create({ data: { ...base, name: "Apagada", isActive: false } });
+    await prisma.campaign.create({ data: { ...base, name: "Vencida", endsAt: new Date(Date.now() - 1000) } });
+    const other = await setup({ slug: "pixel" });
+    await prisma.campaign.create({ data: { ...base, tenantId: other.tenant.id, name: "De otro negocio" } });
+
+    const res = await request(app).get(`/public/stores/${rig.store.id}/campaigns`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([{ name: "Doble puntos", type: "MULTIPLIER" }]);
+    expect((await request(app).get(`/public/stores/${randomUUID()}/campaigns`)).status).toBe(404);
+  });
+});

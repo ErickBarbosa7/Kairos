@@ -63,8 +63,8 @@ Specs relacionadas:
 
 **Sin cambios obligatorios.** Las campañas se aplican en el servidor al acreditar el QR, así que la terminal no necesita saber nada y su QR firmado no cambia. Esto es deliberado: tocar la terminal obligaría a actualizar máquinas ya instaladas.
 
-**Opcional**
-- Mostrar en la pantalla de inicio de la terminal la campaña vigente como gancho. Requeriría una ruta pública parecida a `GET /public/stores/:id/rewards` y un cambio pequeño en Godot.
+**Hecho**
+- La terminal muestra las campañas vigentes bajo el título del menú (`GET /public/stores/:id/campaigns`, clase `CampaignBanner`). Sin red no muestra nada. Las máquinas ya instaladas necesitan actualizarse para verlo.
 - Para demos: `seed:arcade` ya deja negocio, premios, cajero y la configuración de la máquina. Para que el teléfono abra el QR hay que generarlo con `WALLET_URL=http://<IP-LAN>:5174`.
 
 ## 3. Cómo se relacionan

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "../../db/prisma.js";
 import { env } from "../../config/env.js";
 import { notFound } from "../../lib/errors.js";
+import { isRunning } from "../tenant/campaigns.service.js";
 import { PLAN_CATALOG, PLAN_CURRENCY, PLAN_ORDER } from "../../lib/plans.js";
 
 /**
@@ -70,6 +71,19 @@ export function publicRouter(opts: { rateLimit: boolean }) {
       select: { id: true, title: true, description: true, imageUrl: true, pointsCost: true },
     });
     res.json({ data: rewards });
+  });
+
+  // Campañas vigentes del negocio: la terminal las muestra como gancho en el menú.
+  r.get("/stores/:id/campaigns", async (req, res) => {
+    const { id } = z.object({ id: z.uuid() }).parse(req.params);
+    const store = await prisma.store.findFirst({
+      where: { id, isActive: true, tenant: { status: "ACTIVE", deletedAt: null } },
+      select: { tenantId: true },
+    });
+    if (!store) throw notFound("Sucursal no encontrada");
+    const now = new Date();
+    const all = await prisma.campaign.findMany({ where: { tenantId: store.tenantId, isActive: true }, orderBy: { createdAt: "asc" }, take: 20 });
+    res.json({ data: all.filter((c) => isRunning(c, now)).map((c) => ({ name: c.name, type: c.type })) });
   });
 
   return r;
