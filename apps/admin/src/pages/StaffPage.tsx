@@ -7,6 +7,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { Modal } from "../components/Modal";
 import { useToast } from "../components/Toast";
 import { Button, Card, cx, Field, Input, Select, Spinner } from "../components/ui";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 function StaffModal({ staff, onClose }: { staff: Partial<Staff> | null; onClose(): void }) {
@@ -89,7 +90,7 @@ export function StaffPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-4xl font-extrabold tracking-tight">
-            {t.staff.title} <em className="k">{t.staff.titleWord}</em>
+            {t.staff.title} <em className="k">{t.staff.titleWord}</em> <HelpHint topic="staff" />
           </h1>
           <p className="mt-2 text-ink-2">{t.staff.intro}</p>
         </div>

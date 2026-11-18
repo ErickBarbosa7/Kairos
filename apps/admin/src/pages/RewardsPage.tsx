@@ -10,6 +10,7 @@ import { ImageUpload } from "../components/ImageUpload";
 import { RewardPreview } from "../components/RewardPreview";
 import { useToast } from "../components/Toast";
 import { Button, Card, Field, Input, Spinner } from "../components/ui";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 interface Draft {
@@ -232,7 +233,7 @@ export function RewardsPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-4xl font-extrabold tracking-tight">
-            {t.rewards.title} <em className="k">{t.rewards.titleWord}</em>
+            {t.rewards.title} <em className="k">{t.rewards.titleWord}</em> <HelpHint topic="rewards" />
           </h1>
           <p className="mt-2 text-ink-2">{canEdit ? t.rewards.intro : t.rewards.readOnly}</p>
         </div>

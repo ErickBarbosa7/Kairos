@@ -539,4 +539,20 @@ export const t = {
     next: "Siguiente",
     page: (p: number, pages: number) => `Página ${p} de ${pages}`,
   },
+  help: {
+    button: "¿Cómo funciona?",
+    tenants: { title: "Negocios", points: ["Cada negocio es un cliente de Kairos con su propio panel, plan y marca.", "Crea el negocio y su administrador; él configura todo lo demás.", "Suspender un negocio bloquea su panel y deja de acreditar puntos en sus máquinas."] },
+    results: { title: "Resultados", points: ["Muestra si tus clientes vuelven: nuevos, recurrentes y cuántos dejaron de venir.", "El ROI es una estimación: visitas recurrentes por tu ticket promedio, menos el costo de los premios. No es dato contable.", "Para que el ROI se calcule, llena el ticket promedio en Economía y el costo de cada premio.", "El resumen semanal te dice qué cambió y qué hacer, con reglas fijas."] },
+    campaigns: { title: "Campañas", points: ["Una campaña cambia cuántos puntos gana el cliente en ciertos días u horas.", "Multiplicador: por ejemplo 200 % da el doble de puntos. Si hay varios, aplica el mayor.", "Bono de primera visita: puntos extra la primera vez que el cliente juega en tu negocio.", "Desbloqueo de regreso: cambia las horas de espera del premio de la ruleta.", "Se aplican solas al escanear el QR; la máquina no necesita cambios. Tu plan limita cuántas puedes activar."] },
+    customers: { title: "Clientes", points: ["Cada cliente tiene su saldo de puntos en tu negocio. Los invitados no dieron datos y se ven como «Invitado».", "Abre un cliente para ver su historial de movimientos y sus cupones.", "Ajustar puntos sirve para corregir un error o dar una cortesía. Queda registrado con tu motivo y no se puede borrar.", "El saldo nunca puede quedar negativo."] },
+    rewards: { title: "Premios", points: ["Son lo que el cliente puede ganar en la ruleta o canjear con sus puntos.", "Costo en puntos: lo que pagan al canjear. Stock vacío significa sin límite.", "El costo del premio (lo que te cuesta a ti) se usa para estimar el ROI.", "Un premio desactivado o sin existencias deja de aparecer en la ruleta y en la Wallet."] },
+    economy: { title: "Economía", points: ["Define cuántos puntos gana el cliente por partida.", "Puntos de juego por 1 punto: más alto significa que el cliente necesita jugar mejor para ganar puntos.", "Los máximos por partida y por día evitan abusos.", "El ticket promedio es lo que gasta un cliente en una visita; se usa solo para estimar el ROI."] },
+    stores: { title: "Sucursales y máquinas", points: ["Una sucursal es un local. Cada una tiene sus máquinas (terminales Arcade).", "Para vincular una terminal, ábrela, copia el código de 8 caracteres que muestra y escríbelo en «Vincular terminal».", "Revocar una máquina es definitivo: deja de generar QR válidos.", "Tu plan limita cuántas sucursales y máquinas activas puedes tener."] },
+    staff: { title: "Personal", points: ["Son las personas que validan cupones en el mostrador.", "El personal de caja solo ve Caja y Premios; no puede cambiar nada del negocio.", "Puedes limitarlo a una sucursal. Desactivarlo cierra su acceso."] },
+    brand: { title: "Marca", points: ["Logo y colores que ve el cliente en la Wallet y en la terminal Arcade.", "Este panel siempre usa la marca de Kairos, sin importar tus colores.", "Elige colores con buen contraste para que el texto se lea."] },
+    caja: { title: "Caja", points: ["Aquí se canjean los cupones: escribe el código que muestra el cliente en su Wallet.", "Revisa el premio y el cliente, y confirma. Un cupón solo se canjea una vez.", "Un cupón con espera de desbloqueo aún no se puede entregar."] },
+    plan: { title: "Plan", points: ["Tu plan define qué funciones tienes y cuántas sucursales y máquinas puedes activar.", "Solo el administrador puede pedir un cambio de plan.", "Si tu suscripción vence, el panel se bloquea (menos esta página) y las máquinas no acreditan puntos."] },
+  },
 };
+
+export type HelpTopic = Exclude<keyof typeof t.help, "button">;

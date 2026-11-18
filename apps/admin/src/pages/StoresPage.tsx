@@ -8,6 +8,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { Modal } from "../components/Modal";
 import { useToast } from "../components/Toast";
 import { Button, Card, cx, Field, Input, Spinner } from "../components/ui";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 function CopyId({ value, label = t.stores.storeId }: { value: string; label?: string }) {
@@ -159,7 +160,7 @@ export function StoresPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-4xl font-extrabold tracking-tight">
-            {t.stores.title} <em className="k">{t.stores.titleWord}</em>
+            {t.stores.title} <em className="k">{t.stores.titleWord}</em> <HelpHint topic="stores" />
           </h1>
           <p className="mt-2 text-ink-2">{t.stores.intro}</p>
         </div>

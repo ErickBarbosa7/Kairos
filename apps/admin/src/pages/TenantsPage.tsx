@@ -8,6 +8,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useToast } from "../components/Toast";
 import { Button, Card, Input, Select, Spinner, StatusBadge } from "../components/ui";
 import { formatDate } from "../lib/format";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 function Stat({ label, status, tone }: { label: string; status?: TenantStatus; tone: string }) {
@@ -80,7 +81,7 @@ export function TenantsPage() {
     <div className="flex flex-col gap-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <h1 className="font-display text-4xl font-extrabold tracking-tight">
-          {t.tenants.title} <em className="k">{t.tenants.titleWord}</em>
+          {t.tenants.title} <em className="k">{t.tenants.titleWord}</em> <HelpHint topic="tenants" />
         </h1>
         <Link
           to="/tenants/new"

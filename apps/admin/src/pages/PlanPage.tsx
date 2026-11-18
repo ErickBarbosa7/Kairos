@@ -10,6 +10,7 @@ import { useToast } from "../components/Toast";
 import { PlanTiers } from "../components/PlanTiers";
 import { Button } from "../components/ui";
 import { formatDate } from "../lib/format";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 const PAID: Plan[] = ["BASIC", "PRO"];
@@ -63,7 +64,7 @@ export function PlanPage() {
     <div className="flex flex-col gap-8">
       <header>
         <h1 className="font-display text-4xl font-extrabold tracking-tight">
-          {t.plan.title} <em className="k">{t.plan.titleWord}</em>
+          {t.plan.title} <em className="k">{t.plan.titleWord}</em> <HelpHint topic="plan" />
         </h1>
         {status && <p className="mt-2 text-ink-2">{status}</p>}
       </header>

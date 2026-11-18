@@ -9,6 +9,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { Modal } from "../components/Modal";
 import { useToast } from "../components/Toast";
 import { Button, Card, Field, Input, Select, Spinner } from "../components/ui";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 interface Draft {
@@ -190,7 +191,7 @@ export function CampaignsPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-4xl font-extrabold tracking-tight">
-            {t.campaigns.title} <em className="k">{t.campaigns.titleWord}</em>
+            {t.campaigns.title} <em className="k">{t.campaigns.titleWord}</em> <HelpHint topic="campaigns" />
           </h1>
           <p className="mt-2 max-w-2xl text-ink-2">{t.campaigns.intro}</p>
         </div>

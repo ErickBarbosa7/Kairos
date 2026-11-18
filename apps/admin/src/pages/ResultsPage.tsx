@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ApiError } from "../api/client";
 import { useRefreshWeekly, useRetention, useRoi, useWeekly } from "../api/tenantPanel";
 import { Button, Card, Spinner } from "../components/ui";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 const pct = (n: number | null) => (n === null ? t.results.noData : `${n}%`);
@@ -113,7 +114,7 @@ export function ResultsPage() {
     <div className="flex flex-col gap-8">
       <header>
         <h1 className="font-display text-4xl font-extrabold tracking-tight">
-          {t.results.title} <em className="k">{t.results.titleWord}</em>
+          {t.results.title} <em className="k">{t.results.titleWord}</em> <HelpHint topic="results" />
         </h1>
         <p className="mt-2 text-ink-2">{t.results.intro}</p>
       </header>

@@ -5,6 +5,7 @@ import { ApiError } from "../api/client";
 import type { Coupon, CouponStatus } from "../api/types";
 import { lookupCoupon, useRecentRedeemed, useRedeemCoupon } from "../api/tenantPanel";
 import { Button, Card, cx, Field, Input, Spinner } from "../components/ui";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 const STATUS_UI: Record<CouponStatus, { Icon: typeof Clock; tone: string }> = {
@@ -74,7 +75,7 @@ export function CajaPage() {
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
       <header>
         <h1 className="font-display text-4xl font-extrabold tracking-tight">
-          {t.caja.title} <em className="k">{t.caja.titleWord}</em>
+          {t.caja.title} <em className="k">{t.caja.titleWord}</em> <HelpHint topic="caja" />
         </h1>
         <p className="mt-2 text-ink-2">{t.caja.intro}</p>
       </header>

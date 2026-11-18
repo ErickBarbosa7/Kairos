@@ -4,6 +4,7 @@ import { ApiError } from "../api/client";
 import { useEconomy, useUpdateEconomy } from "../api/tenantPanel";
 import { useToast } from "../components/Toast";
 import { Button, Card, Field, Input, Spinner } from "../components/ui";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 /** Puntaje de ejemplo para mostrar la conversión mientras el administrador ajusta los campos. */
@@ -64,7 +65,7 @@ export function TenantEconomyPage() {
     <div className="flex flex-col gap-8">
       <header>
         <h1 className="font-display text-4xl font-extrabold tracking-tight">
-          {t.economy.title} <em className="k">{t.economy.titleWord}</em>
+          {t.economy.title} <em className="k">{t.economy.titleWord}</em> <HelpHint topic="economy" />
         </h1>
         <p className="mt-2 text-ink-2">{t.economy.intro}</p>
       </header>

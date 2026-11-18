@@ -9,6 +9,7 @@ import { ColorField } from "../components/ColorField";
 import { ImageUpload } from "../components/ImageUpload";
 import { useToast } from "../components/Toast";
 import { Button, Card, Field, Select, Spinner } from "../components/ui";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 export function TenantBrandPage() {
@@ -60,7 +61,7 @@ export function TenantBrandPage() {
     <div className="flex flex-col gap-8">
       <header>
         <h1 className="font-display text-4xl font-extrabold tracking-tight">
-          {t.brand.title} <em className="k">{t.brand.titleWord}</em>
+          {t.brand.title} <em className="k">{t.brand.titleWord}</em> <HelpHint topic="brand" />
         </h1>
         <p className="mt-2 text-ink-2">{t.brand.intro}</p>
       </header>

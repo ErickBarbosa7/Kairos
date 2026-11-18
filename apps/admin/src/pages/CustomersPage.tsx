@@ -7,6 +7,7 @@ import { Modal } from "../components/Modal";
 import { useToast } from "../components/Toast";
 import { Button, Card, cx, Field, Input, Spinner } from "../components/ui";
 import { formatDate } from "../lib/format";
+import { HelpHint } from "../components/HelpHint";
 import { t } from "../strings";
 
 const stamp = new Intl.DateTimeFormat("es", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -123,7 +124,7 @@ export function CustomersPage() {
     <div className="flex flex-col gap-8">
       <header>
         <h1 className="font-display text-4xl font-extrabold tracking-tight">
-          {t.customers.title} <em className="k">{t.customers.titleWord}</em>
+          {t.customers.title} <em className="k">{t.customers.titleWord}</em> <HelpHint topic="customers" />
         </h1>
         <p className="mt-2 text-ink-2">{t.customers.intro}</p>
       </header>
