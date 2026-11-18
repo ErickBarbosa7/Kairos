@@ -54,7 +54,7 @@ Specs relacionadas:
 
 **Por hacer**
 - **Hecho:** campaña activa visible en Inicio (`activeCampaigns` en `GET /wallet/balances`, filtradas con `isRunning`).
-- Mostrar el desbloqueo por campaña `COMEBACK_UNLOCK` en el cupón (hoy ya muestra `validFrom`).
+- **Hecho:** el desbloqueo por campaña `COMEBACK_UNLOCK` se ve en el cupón, porque el servidor fija `validFrom` y la Wallet lo muestra.
 - Pendientes de cuenta: verificación de correo y recuperación de contraseña, que requieren proveedor de correo. OTP por teléfono, Google y Apple siguen fuera de alcance.
 
 **Por qué importa para el producto:** una cuenta persistente hace que la retención se mida sobre personas reales y no sobre teléfonos que borran sus datos. Los invitados siguen contando, pero se pierden si cambian de dispositivo.
