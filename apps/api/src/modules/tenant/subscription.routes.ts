@@ -6,10 +6,12 @@ import { prisma } from "../../db/prisma.js";
 import { HttpError } from "../../lib/errors.js";
 import { limitOf } from "../../lib/plans.js";
 import { subscriptionState } from "../../lib/subscription.js";
+import { billingEnabled } from "../../lib/stripe.js";
+import { createCheckout, createPortal } from "../billing/billing.service.js";
 import { tenantAdminOnly } from "../../middleware/tenant.js";
 
 const loadTenant = (id: string) =>
-  prisma.tenant.findUniqueOrThrow({ where: { id }, select: { plan: true, subscriptionEndsAt: true, requestedPlan: true, planRequestedAt: true } });
+  prisma.tenant.findUniqueOrThrow({ where: { id }, select: { plan: true, subscriptionEndsAt: true, requestedPlan: true, planRequestedAt: true, stripeCustomerId: true, stripeStatus: true } });
 
 /** Estado de la suscripción y plan pedido. Disponible aunque la prueba haya vencido. */
 export const subscriptionRouter = Router();
@@ -28,10 +30,22 @@ async function usageOf(tenantId: string, plan: Plan) {
 
 subscriptionRouter.get("/subscription", async (req, res) => {
   const tenant = await loadTenant(req.auth!.tid!);
-  res.json({ ...subscriptionState(tenant), planRequestedAt: tenant.planRequestedAt, ...(await usageOf(req.auth!.tid!, tenant.plan)) });
+  res.json({ ...subscriptionState(tenant), planRequestedAt: tenant.planRequestedAt, billing: { enabled: billingEnabled(), hasCustomer: Boolean(tenant.stripeCustomerId), status: tenant.stripeStatus }, ...(await usageOf(req.auth!.tid!, tenant.plan)) });
 });
 
-// Todavía no hay cobro en línea: pedir un plan deja la solicitud para que el Super Admin lo active.
+/** Pago con Stripe Checkout: devuelve la URL a la que se manda al administrador. */
+subscriptionRouter.post("/subscription/checkout", tenantAdminOnly, async (req, res) => {
+  const { plan } = z.object({ plan: z.enum(["BASIC", "PRO"]) }).strict().parse(req.body);
+  const user = await prisma.tenantUser.findUniqueOrThrow({ where: { id: req.auth!.sub }, select: { email: true } });
+  res.status(201).json({ url: await createCheckout(req.auth!.tid!, user.email, plan) });
+});
+
+/** Portal de Stripe: tarjeta, facturas y cancelación. */
+subscriptionRouter.post("/subscription/portal", tenantAdminOnly, async (req, res) => {
+  res.status(201).json({ url: await createPortal(req.auth!.tid!) });
+});
+
+// Sin Stripe configurado: pedir un plan deja la solicitud para que el Super Admin lo active.
 subscriptionRouter.post("/subscription/request", tenantAdminOnly, async (req, res) => {
   const { plan } = z.object({ plan: z.enum(["BASIC", "PRO"]) }).strict().parse(req.body);
   const tid = req.auth!.tid!;

@@ -6,6 +6,7 @@ import { Layout } from "./components/Layout";
 import { Spinner } from "./components/ui";
 import { CajaPage } from "./pages/CajaPage";
 import { LoginPage } from "./pages/LoginPage";
+import { ForgotPage, ResetPage, VerifyPage } from "./pages/RecoveryPage";
 import { PlanPage } from "./pages/PlanPage";
 import { CampaignsPage } from "./pages/CampaignsPage";
 import { ResultsPage } from "./pages/ResultsPage";
@@ -68,6 +69,9 @@ export function App() {
     {apiMissing && <ConfigBanner />}
     <Routes>
       <Route path="/login" element={loading ? null : <LoginPage />} />
+      <Route path="/olvide" element={<ForgotPage />} />
+      <Route path="/restablecer" element={<ResetPage />} />
+      <Route path="/verificar" element={<VerifyPage />} />
       <Route element={<Protected />}>
         <Route element={<Layout />}>
           <Route element={<Protected roles={["super_admin"]} />}>

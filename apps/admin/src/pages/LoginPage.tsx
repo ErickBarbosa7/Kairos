@@ -1,6 +1,6 @@
 import { AlertCircle } from "lucide-react";
 import { type FormEvent, lazy, Suspense, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useLottie } from "lottie-react";
 import arrow from "../assets/arrow.json";
 import { useAuth } from "../api/auth";
@@ -319,6 +319,13 @@ export function LoginPage() {
               <Button type="submit" variant="primary" disabled={busy} className="min-h-12 w-full text-lg">
                 {mode === "register" ? (busy ? t.login.registering : t.login.registerSubmit) : busy ? t.login.submitting : t.login.submit}
               </Button>
+              {mode === "login" && kind === "tenant" && (
+                <p className="text-center text-sm">
+                  <Link to="/olvide" className="inline-flex min-h-11 items-center font-semibold text-link underline underline-offset-2 hover:text-ink">
+                    {t.recovery.forgotLink}
+                  </Link>
+                </p>
+              )}
               <p className="text-center text-sm text-ink-2">
                 {mode === "login" && <>{t.login.trialPrompt} </>}
                 <button

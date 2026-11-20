@@ -21,6 +21,12 @@ const schema = z.object({
   // Vigencia del token de un cliente invitado (vive en su teléfono).
   GUEST_TOKEN_DAYS: z.coerce.number().int().min(1).max(730).default(365),
   TERMS_VERSION: z.string().min(1).default("2026-11-17"),
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  ADMIN_URL: z.string().url().default("http://localhost:5173"),
+  // Correo saliente (Resend). Sin llave, los correos se imprimen en la consola (solo desarrollo).
+  RESEND_API_KEY: z.string().optional(),
+  MAIL_FROM: z.string().default("Kairos <no-reply@kairos.local>"),
   TRIAL_DAYS: z.coerce.number().int().min(1).max(90).default(14),
 });
 

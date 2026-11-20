@@ -57,6 +57,11 @@ enum CampaignType {
   FIRST_VISIT_BONUS
   COMEBACK_UNLOCK
 }
+enum EmailTokenPurpose {
+  TENANT_RESET
+  TENANT_VERIFY
+  CONSUMER_RESET
+}
 enum SubjectType {
   SUPER_ADMIN
   TENANT_USER
@@ -87,6 +92,11 @@ model Tenant {
   // Plan de pago que el negocio pidió al terminar su prueba. El Super Admin lo activa a mano.
   requestedPlan      Plan?        @map("requested_plan")
   planRequestedAt    DateTime?    @map("plan_requested_at")
+  // Cobro en línea (Stripe). Sin cliente = nunca ha pagado por la vía automática.
+  stripeCustomerId     String? @unique @map("stripe_customer_id")
+  stripeSubscriptionId String? @unique @map("stripe_subscription_id")
+  // Estado en Stripe: active, past_due, canceled...
+  stripeStatus         String? @map("stripe_status")
 
   logoUrl        String?   @map("logo_url")
   primaryColor   String    @default("#7C3AED") @map("primary_color")
@@ -213,6 +223,7 @@ model TenantUser {
   name         String
   role         TenantRole
   isActive     Boolean    @default(true) @map("is_active")
+  emailVerifiedAt DateTime? @map("email_verified_at")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
 
@@ -465,4 +476,18 @@ model WeeklyReport {
 
   @@unique([tenantId, weekStart])
   @@map("weekly_reports")
+}
+
+/// Enlaces y códigos de un solo uso enviados por correo: recuperar clave y verificar correo.
+model EmailToken {
+  id        String                @id @default(uuid()) @db.Uuid
+  purpose   EmailTokenPurpose
+  subjectId String                @map("subject_id") @db.Uuid
+  tokenHash String                @unique @map("token_hash")
+  expiresAt DateTime              @map("expires_at")
+  usedAt    DateTime?             @map("used_at")
+  createdAt DateTime              @default(now()) @map("created_at")
+
+  @@index([purpose, subjectId])
+  @@map("email_tokens")
 }

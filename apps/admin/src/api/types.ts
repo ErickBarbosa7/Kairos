@@ -66,6 +66,8 @@ export interface PlansCatalog {
 /** Subscription con lo que lleva usado el negocio de cada límite. */
 export interface SubscriptionDetail extends Subscription {
   planRequestedAt: string | null;
+  /** Cobro en línea: `enabled` si la API tiene Stripe; `hasCustomer` si ya pagó alguna vez. */
+  billing: { enabled: boolean; hasCustomer: boolean; status: string | null };
   limits: { stores: number; machines: number };
   usage: { stores: number; machines: number };
 }
@@ -83,6 +85,8 @@ export interface Subscription {
 export interface TenantMe {
   id: string;
   email: string;
+  /** Falso hasta que abre el enlace que se le mandó al registrarse. */
+  emailVerified: boolean;
   name: string;
   role: "tenant_admin" | "tenant_staff";
   storeId: string | null;

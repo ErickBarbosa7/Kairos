@@ -41,13 +41,18 @@ Todos incluyen la máquina con la marca del negocio, la ruleta de recompensas, l
 | `POST /tenant/subscription/request` | Solo administrador | Pide `BASIC` o `PRO` |
 | `GET /auth/me` | Cualquier usuario del negocio | Incluye `subscription` |
 
+## Cobro en línea (Stripe) y correo
+
+- **Pago:** `POST /tenant/subscription/checkout` crea una sesión de Stripe Checkout (suscripción mensual en MXN, precio de `plans.ts`); `POST /tenant/subscription/portal` abre el portal del cliente. Sin `STRIPE_SECRET_KEY` el panel vuelve al flujo manual de arriba.
+- **Webhook** `POST /webhooks/stripe` (necesita `STRIPE_WEBHOOK_SECRET`; en local `stripe listen --forward-to localhost:3000/webhooks/stripe`): único camino que activa o corta el plan. Pago fallido = 3 días de gracia; cancelar corta al fin del periodo pagado.
+- **Correo** (`src/lib/mailer.ts`): Resend si hay `RESEND_API_KEY`; sin ella se imprime en la consola de la API. Recuperar contraseña (`/auth/forgot-password`, `/auth/reset-password`; Wallet: `/wallet/forgot-password`, `/wallet/reset-password` con código de 8 caracteres) y verificar correo (`/auth/verify-email`; solo avisa, no bloquea).
+
 ## Lo que todavía no existe
 
-- **Cobro en línea:** pedir un plan solo deja una solicitud; el Super Admin lo activa a mano.
-- **Verificación del correo:** cualquiera puede registrar un negocio con cualquier correo. El límite de 5 registros por hora y por IP frena el abuso, pero no lo impide.
-- **Aviso por correo** de que la prueba está por terminar o de que se activó el plan.
+- **Avisos por correo** de fin de prueba o pago fallido.
 - **Suspensión automática:** vencer bloquea el panel y las máquinas, pero el `status` del negocio no cambia solo.
-- **Límites de personal de caja y de recompensas:** solo se limitan sucursales y máquinas; el personal y las recompensas no tienen tope por plan.
+- **Límites de personal de caja y de recompensas:** solo se limitan sucursales y máquinas.
+- **Facturación CFDI.**
 
 ## Negocios sin fecha de vencimiento
 

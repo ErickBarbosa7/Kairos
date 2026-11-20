@@ -1,3 +1,4 @@
+import { stripeWebhookRouter } from "./modules/billing/webhook.routes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -31,6 +32,7 @@ export function createApp(opts: { rateLimit?: boolean } = {}) {
       credentials: true,
     }),
   );
+  app.use("/webhooks", stripeWebhookRouter); // cuerpo crudo: antes de express.json
   app.use(express.json({ limit: "100kb" }));
   app.use(cookieParser());
 

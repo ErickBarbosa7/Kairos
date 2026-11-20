@@ -5,6 +5,7 @@ import { prisma } from "../../db/prisma.js";
 import { unauthorized } from "../../lib/errors.js";
 import { hashPassword, verifyPassword } from "../../lib/password.js";
 import { subscriptionState } from "../../lib/subscription.js";
+import { sendTenantVerification } from "./recovery.service.js";
 import { hashToken, newRefreshToken, type Role, signAccessToken } from "../../lib/tokens.js";
 
 interface Subject {
@@ -108,6 +109,7 @@ export async function registerTenant(input: { businessName: string; adminName: s
     return { tenant, user };
   });
   const session = await issueSession({ type: "TENANT_USER", id: user.id, role: "tenant_admin", tenantId: tenant.id });
+  await sendTenantVerification(user.id).catch(() => undefined);
   return {
     session,
     tenant: { id: tenant.id, name: tenant.name, slug: tenant.slug },
@@ -175,6 +177,7 @@ export async function getProfile(userId: string, role: Role) {
   return {
     id: u.id,
     email: u.email,
+    emailVerified: u.emailVerifiedAt !== null,
     name: u.name,
     role,
     storeId: u.storeId,

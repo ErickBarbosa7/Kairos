@@ -1,5 +1,7 @@
 import { Building2, ChartNoAxesColumn, Coins, Megaphone, CreditCard, Gift, LogOut, Palette, PanelLeftClose, PanelLeftOpen, ScanLine, Smartphone, Store, UserRound, Users } from "lucide-react";
 import { useState } from "react";
+import { api } from "../api/client";
+import { useToast } from "./Toast";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../api/auth";
 import { t } from "../strings";
@@ -212,8 +214,32 @@ export function Layout() {
             ))}
           </nav>
         )}
+        {user && "emailVerified" in user && !user.emailVerified && <VerifyBanner />}
         <Outlet />
       </main>
     </div>
+  );
+}
+
+/** Aviso mientras el correo del administrador no esté confirmado. No bloquea nada. */
+function VerifyBanner() {
+  const toast = useToast();
+  const [sent, setSent] = useState(false);
+  async function resend() {
+    setSent(true);
+    try {
+      await api("/auth/resend-verification", { method: "POST" });
+      toast(t.recovery.resent);
+    } catch {
+      setSent(false);
+    }
+  }
+  return (
+    <p role="status" className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-warning bg-warning/10 px-4 py-2 text-sm font-medium">
+      {t.recovery.unverified}
+      <button type="button" disabled={sent} onClick={() => void resend()} className="min-h-11 font-semibold underline underline-offset-2 disabled:opacity-60">
+        {t.recovery.resend}
+      </button>
+    </p>
   );
 }

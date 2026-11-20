@@ -1,3 +1,4 @@
+import { requestConsumerReset, resetConsumerPassword } from "../auth/recovery.service.js";
 import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
@@ -18,7 +19,7 @@ export function walletRouter(opts: { rateLimit: boolean }) {
 
   if (opts.rateLimit) {
     r.use("/claims", rateLimit({ windowMs: 60_000, limit: 20, standardHeaders: "draft-8", legacyHeaders: false }));
-    r.use(["/register", "/login"], rateLimit({ windowMs: 60 * 60_000, limit: 10, standardHeaders: "draft-8", legacyHeaders: false }));
+    r.use(["/register", "/login", "/forgot-password", "/reset-password"], rateLimit({ windowMs: 60 * 60_000, limit: 10, standardHeaders: "draft-8", legacyHeaders: false }));
     r.use("/guest", rateLimit({ windowMs: 60 * 60_000, limit: 20, standardHeaders: "draft-8", legacyHeaders: false }));
   }
 
@@ -35,6 +36,18 @@ export function walletRouter(opts: { rateLimit: boolean }) {
   const sessionTtl = env.GUEST_TOKEN_DAYS * 24 * 60 * 60;
 
   // Inicio de sesión. Si llega el token de un invitado, sus puntos se fusionan en la cuenta.
+  // Recuperar cuenta: se manda un código al correo y se teclea en la app. Responde igual exista o no.
+  r.post("/forgot-password", async (req, res) => {
+    const { email } = z.object({ email: z.string().trim().toLowerCase().email().max(254) }).strict().parse(req.body);
+    await requestConsumerReset(email);
+    res.status(204).end();
+  });
+  r.post("/reset-password", async (req, res) => {
+    const { email, code, password } = credentials.extend({ code: z.string().min(6).max(20) }).strict().parse(req.body);
+    await resetConsumerPassword(email, code, password);
+    res.status(204).end();
+  });
+
   r.post("/login", async (req, res) => {
     const { email, password } = credentials.strict().parse(req.body);
     const account = await prisma.consumer.findFirst({ where: { email, deletedAt: null, isGuest: false } });

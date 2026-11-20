@@ -1,7 +1,7 @@
 import { Check, Lock } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../api/auth";
 import { api, ApiError } from "../api/client";
 import { usePlans, useSubscriptionDetail } from "../api/plans";
@@ -24,15 +24,45 @@ export function PlanPage() {
   const { data: detail } = useSubscriptionDetail();
   const [busy, setBusy] = useState<Plan | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [params, setParams] = useSearchParams();
 
   // Al entrar se vuelve a leer el estado: si ya activaron el plan, se nota sin volver a iniciar sesión.
   useEffect(() => {
     void refreshMe().catch(() => undefined);
   }, [refreshMe]);
 
+  // Al volver de Stripe se avisa del resultado y se limpia la URL. El plan lo activa el webhook.
+  const result = params.get("pago");
+  useEffect(() => {
+    if (!result) return;
+    toast(result === "ok" ? t.plan.paid : t.plan.payCancelled);
+    if (result === "ok") {
+      void qc.invalidateQueries({ queryKey: ["subscription"] });
+      // El webhook puede tardar un instante: se vuelve a leer el estado un par de veces.
+      [2000, 6000].forEach((ms) => setTimeout(() => void refreshMe().catch(() => undefined), ms));
+    }
+    setParams({}, { replace: true });
+  }, [result]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!user || !("subscription" in user)) return null;
   const sub = user.subscription;
   const isAdmin = user.role === "tenant_admin";
+
+  const online = detail?.billing.enabled ?? false;
+
+  /** Manda a Stripe (pago o portal) en la misma pestaña. */
+  async function goStripe(path: "checkout" | "portal", plan?: Plan) {
+    if (busy) return;
+    setBusy(plan ?? "BASIC");
+    setError(null);
+    try {
+      const { url } = await api<{ url: string }>(`/tenant/subscription/${path}`, { method: "POST", body: plan ? { plan } : undefined });
+      window.location.assign(url);
+    } catch (err) {
+      setError(err instanceof ApiError && err.status !== 0 ? t.plan.payError : t.login.networkError);
+      setBusy(null);
+    }
+  }
 
   async function request(plan: Plan) {
     if (busy) return;
@@ -79,7 +109,14 @@ export function PlanPage() {
         </div>
       )}
 
-      {sub.requestedPlan && (
+      {detail?.billing.status === "past_due" && (
+        <p role="alert" className="flex items-start gap-2 rounded-md border border-danger bg-danger/10 p-4 text-sm font-medium">
+          <Lock size={18} aria-hidden className="mt-0.5 shrink-0 text-danger" />
+          {t.plan.pastDue}
+        </p>
+      )}
+
+      {!online && sub.requestedPlan && (
         <p role="status" className="flex items-start gap-2 rounded-md border border-success bg-success/10 p-4 text-sm font-medium">
           <Check size={18} aria-hidden className="mt-0.5 shrink-0 text-success" />
           {t.plan.requestedNote}
@@ -97,12 +134,18 @@ export function PlanPage() {
         action={(key) =>
           isAdmin && PAID.includes(key) ? (
             <Button
-              variant={sub.requestedPlan === key ? undefined : "primary"}
-              disabled={busy !== null || sub.requestedPlan === key}
-              aria-pressed={sub.requestedPlan === key}
-              onClick={() => void request(key)}
+              variant={!online && sub.requestedPlan === key ? undefined : "primary"}
+              disabled={busy !== null || (online ? sub.plan === key && !sub.expired && !sub.onTrial : sub.requestedPlan === key)}
+              aria-pressed={!online && sub.requestedPlan === key}
+              onClick={() => void (online ? goStripe("checkout", key) : request(key))}
             >
-              {sub.requestedPlan === key ? (
+              {online ? (
+                sub.plan === key && !sub.expired && !sub.onTrial ? (
+                  t.plan.current
+                ) : (
+                  t.plan.pay
+                )
+              ) : sub.requestedPlan === key ? (
                 <>
                   <Check size={16} aria-hidden /> {t.plan.requested}
                 </>
@@ -119,7 +162,14 @@ export function PlanPage() {
           {error}
         </p>
       )}
-      <p className="text-sm text-ink-2">{t.plan.payNote}</p>
+      {online && isAdmin && detail?.billing.hasCustomer && (
+        <div>
+          <Button disabled={busy !== null} onClick={() => void goStripe("portal")}>
+            {t.plan.manage}
+          </Button>
+        </div>
+      )}
+      <p className="text-sm text-ink-2">{online ? t.plan.payNote : t.plan.payNoteManual}</p>
 
       {!sub.expired && (
         <div>

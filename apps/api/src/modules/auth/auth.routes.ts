@@ -4,6 +4,7 @@ import { z } from "zod";
 import { isProd } from "../../config/env.js";
 import { unauthorized } from "../../lib/errors.js";
 import { requireAuth } from "../../middleware/auth.js";
+import * as recovery from "./recovery.service.js";
 import * as auth from "./auth.service.js";
 
 const COOKIE = "kairos_rt";
@@ -39,7 +40,7 @@ export function authRouter(opts: { rateLimit: boolean }) {
 
   if (opts.rateLimit) {
     r.use(
-      ["/super-admin/login", "/tenant/login"],
+      ["/super-admin/login", "/tenant/login", "/reset-password"],
       rateLimit({
         windowMs: 15 * 60_000,
         limit: 10,
@@ -76,6 +77,39 @@ export function authRouter(opts: { rateLimit: boolean }) {
       tenant: result.tenant,
       trialEndsAt: result.trialEndsAt,
     });
+  });
+
+  // Recuperar contraseña: responde igual exista o no la cuenta. Limitado por IP.
+  if (opts.rateLimit) {
+    r.use(
+      ["/forgot-password", "/resend-verification"],
+      rateLimit({
+        windowMs: 60 * 60_000,
+        limit: 8,
+        standardHeaders: "draft-8",
+        legacyHeaders: false,
+        message: { error: { code: "rate_limited", message: "Demasiadas solicitudes. Intenta más tarde" } },
+      }),
+    );
+  }
+  r.post("/forgot-password", async (req, res) => {
+    const { tenantSlug, email } = z.object({ tenantSlug: z.string().min(1).max(60), email: z.email().max(254) }).strict().parse(req.body);
+    await recovery.requestTenantReset(tenantSlug, email);
+    res.status(204).end();
+  });
+  r.post("/reset-password", async (req, res) => {
+    const { token, password } = z.object({ token: z.string().min(8).max(100), password: z.string().min(10, "Mínimo 10 caracteres").max(128) }).strict().parse(req.body);
+    await recovery.resetTenantPassword(token, password);
+    res.status(204).end();
+  });
+  r.post("/verify-email", async (req, res) => {
+    const { token } = z.object({ token: z.string().min(8).max(100) }).strict().parse(req.body);
+    await recovery.verifyTenantEmail(token);
+    res.status(204).end();
+  });
+  r.post("/resend-verification", requireAuth, async (req, res) => {
+    if (req.auth!.role !== "super_admin") await recovery.sendTenantVerification(req.auth!.sub);
+    res.status(204).end();
   });
 
   r.post("/super-admin/login", async (req, res) => {
