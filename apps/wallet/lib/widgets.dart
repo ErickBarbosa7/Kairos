@@ -87,16 +87,12 @@ class Progress extends StatelessWidget {
         duration: const Duration(milliseconds: 1100),
         curve: Curves.easeOutCubic,
         builder: (_, v, _) => Stack(children: [
-          Container(height: 14, decoration: BoxDecoration(color: fg.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(99))),
+          Container(height: 8, decoration: BoxDecoration(color: fg.withValues(alpha: 0.28), borderRadius: BorderRadius.circular(99))),
           FractionallySizedBox(
             widthFactor: v.clamp(0.04, 1.0),
             child: Container(
-              height: 14,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(99),
-                boxShadow: [BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 10)],
-              ),
+              height: 8,
+              decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(99)),
             ),
           ),
         ]),
@@ -104,7 +100,7 @@ class Progress extends StatelessWidget {
       const SizedBox(height: 10),
       Row(children: [
         Expanded(child: Text(label, style: body(14, color: fg, weight: FontWeight.w700))),
-        Text('${(target * 100).round()}%', style: display(20, color: fg)),
+        Text('${(target * 100).round()}%', style: display(16, color: fg)),
       ]),
     ]);
   }
@@ -122,55 +118,29 @@ class BrandAvatar extends StatelessWidget {
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(size * 0.3)),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
       child: Text(name.isEmpty ? '?' : name[0].toUpperCase(), style: display(size * 0.62, color: onColor(color))),
     );
     if (url == null) return fallback;
     return ClipRRect(
-      borderRadius: BorderRadius.circular(size * 0.3),
+      borderRadius: BorderRadius.circular(8),
       child: Image.network(url!, width: size, height: size, fit: BoxFit.cover, errorBuilder: (_, _, _) => fallback),
     );
   }
 }
 
-/// Tarjeta del color del negocio: degradado, círculos decorativos y brillo.
+/// Tarjeta del color del negocio: color sólido, radio 20 y borde de 1 px (design.md: sin degradados ni brillos).
 class BrandCard extends StatelessWidget {
-  const BrandCard({super.key, required this.color, required this.child, this.padding = const EdgeInsets.all(22)});
+  const BrandCard({super.key, required this.color, required this.child, this.padding = const EdgeInsets.all(20)});
   final Color color;
   final Widget child;
   final EdgeInsets padding;
   @override
   Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(26),
-          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color.lerp(color, Colors.white, 0.12)!, color, Color.lerp(color, Colors.black, 0.3)!]),
-          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.35), blurRadius: 24, offset: const Offset(0, 12))],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(26),
-          child: CustomPaint(painter: _Rings(onColor(color)), child: Padding(padding: padding, child: child)),
-        ),
+        padding: padding,
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(20)),
+        child: child,
       );
-}
-
-class _Rings extends CustomPainter {
-  _Rings(this.c);
-  final Color c;
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..color = c.withValues(alpha: 0.13);
-    final center = Offset(size.width * 1.02, -size.height * 0.05);
-    for (var r = 40.0; r < size.width * 1.3; r += 34) {
-      canvas.drawCircle(center, r, p);
-    }
-    canvas.drawCircle(Offset(-20, size.height * 1.05), 70, Paint()..color = c.withValues(alpha: 0.07));
-  }
-
-  @override
-  bool shouldRepaint(_Rings old) => old.c != c;
 }
 
 /// Ticket con muescas laterales y línea punteada, como un vale de arcade.
@@ -201,7 +171,7 @@ class _TicketPainter extends CustomPainter {
   // La muesca queda en la unión entre las dos mitades; se calcula con una altura estimada de la parte superior.
   @override
   void paint(Canvas canvas, Size size) {
-    const r = 14.0, notch = 12.0;
+    const r = 12.0, notch = 10.0;
     final y = size.height * 0.46;
     final path = Path()
       ..moveTo(r, 0)
@@ -218,8 +188,7 @@ class _TicketPainter extends CustomPainter {
       ..lineTo(0, r)
       ..arcToPoint(Offset(r, 0), radius: const Radius.circular(r))
       ..close();
-    canvas.drawShadow(path, Colors.black.withValues(alpha: 0.35), 6, false);
-    canvas.drawPath(path, Paint()..color = fill);
+        canvas.drawPath(path, Paint()..color = fill);
     canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = line);
     final dash = Paint()..color = line.withValues(alpha: 0.7)..strokeWidth = 1.5;
     for (var x = notch + 6; x < size.width - notch - 6; x += 10) {
@@ -312,30 +281,14 @@ class _ConfettiPainter extends CustomPainter {
 }
 
 
-/// Sello discreto «Con Kairos»: indica que el negocio usa la plataforma sin competir con su marca.
+/// Marca Kairos discreta: solo el nombre en cursiva serif.
 class KairosSeal extends StatelessWidget {
   const KairosSeal({super.key});
   @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final soft = cs.onSurface.withValues(alpha: 0.65);
-    return Semantics(
-      label: S.sealLabel,
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Container(
-          width: 22,
-          height: 22,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(color: K.primary, borderRadius: BorderRadius.circular(7)),
-          child: Text('K', style: accent(16, color: Colors.white)),
-        ),
-        const SizedBox(width: 8),
-        Text(S.sealWith, style: body(13, color: soft, weight: FontWeight.w600)),
-        const SizedBox(width: 4),
-        Text(S.appName, style: accent(20, color: cs.onSurface)),
-      ]),
-    );
-  }
+  Widget build(BuildContext context) => Semantics(
+        label: S.sealLabel,
+        child: Text(S.appName, style: accent(24, color: Theme.of(context).colorScheme.onSurface)),
+      );
 }
 
 

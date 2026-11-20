@@ -1,8 +1,7 @@
 /// Todos los textos de la Wallet, en un solo lugar.
 class S {
   static const appName = 'Kairos';
-  static const sealWith = 'Con';
-  static const sealLabel = 'Con Kairos, la plataforma de recompensas de este negocio';
+  static const sealLabel = 'Kairos, la plataforma de recompensas de este negocio';
   static const navHome = 'Inicio';
   static const navScan = 'Escanear';
   static const navPrizes = 'Mis premios';
@@ -82,7 +81,18 @@ class S {
   static const logoutConfirm = 'Tus puntos quedan guardados en tu cuenta. Vuelve a entrar cuando quieras.';
   static const invalidEmail = 'Escribe un correo válido.';
   static const shortPassword = 'La contraseña debe tener al menos 8 caracteres.';
+  static const forgot = '¿Olvidaste tu contraseña?';
+  static const forgotTitle = 'Recupera tu cuenta';
+  static const forgotBody = 'Escribe tu correo y te enviamos un código.';
+  static const sendCode = 'Enviar código';
+  static const codeSent = 'Si la cuenta existe, te enviamos un código. Revisa también el spam.';
+  static const fieldCode = 'Código del correo';
+  static const fieldNewPassword = 'Contraseña nueva (mínimo 8 caracteres)';
+  static const savePassword = 'Guardar contraseña';
+  static const passwordChanged = 'Contraseña cambiada. Ya puedes entrar.';
+
   static const accountErrors = {
+    'invalid_token': 'El código no es válido o ya venció. Pide uno nuevo.',
     'email_taken': 'Ese correo ya tiene una cuenta. Prueba en «Entrar».',
     'invalid_credentials': 'Correo o contraseña incorrectos.',
     'already_registered': 'Ya tienes una cuenta.',

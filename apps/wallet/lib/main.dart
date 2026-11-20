@@ -110,20 +110,19 @@ class _NavBar extends StatelessWidget {
           item(3, Icons.explore_outlined, Icons.explore, S.navNearby),
           Expanded(
             child: Transform.translate(
-              offset: const Offset(0, -14),
+              offset: const Offset(0, -16),
               child: Center(
                 child: GestureDetector(
                   onTap: () => onTap(1),
                   child: Container(
-                    width: 62,
-                    height: 62,
+                    width: 68,
+                    height: 68,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(20),
                       color: K.primary,
-                      border: Border.all(color: cs.surface, width: 4),
-                      boxShadow: [BoxShadow(color: K.primary.withValues(alpha: 0.45), blurRadius: 16, offset: const Offset(0, 6))],
+                      border: Border.all(color: cs.surface, width: 3),
                     ),
-                    child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 30),
+                    child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 36),
                   ),
                 ),
               ),

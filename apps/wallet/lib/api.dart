@@ -101,6 +101,12 @@ class Api {
     return _adopt(d);
   }
 
+  /// Manda un código al correo. La respuesta es la misma exista o no la cuenta.
+  Future<void> forgotPassword(String email) => _raw('POST', '/wallet/forgot-password', body: {'email': email});
+
+  Future<void> resetPassword(String email, String code, String password) =>
+      _raw('POST', '/wallet/reset-password', body: {'email': email, 'code': code, 'password': password});
+
   /// Cierra la sesión de este dispositivo. La próxima vez se crea un invitado nuevo.
   Future<void> logout() async {
     _token = null;

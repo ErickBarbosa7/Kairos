@@ -70,9 +70,9 @@ class _Empty extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Icon(Icons.sports_esports_rounded, color: Colors.white, size: 40),
           const SizedBox(height: 14),
-          Text(S.homeEmptyTitle, style: display(34, color: Colors.white)),
+          Text(S.homeEmptyTitle, style: display(28, color: Colors.white)),
           const SizedBox(height: 6),
-          Text(S.homeEmptyItalic, style: accent(34, color: K.reward)),
+          Text(S.homeEmptyItalic, style: accent(30, color: Colors.white)),
           const SizedBox(height: 12),
           Text(S.homeEmptyBody, style: body(15, color: Colors.white.withValues(alpha: 0.9), weight: FontWeight.w500)),
         ]),
@@ -114,7 +114,7 @@ class _BalanceCard extends StatelessWidget {
         Row(children: [
           BrandAvatar(name: b.tenant.name, url: b.tenant.logoUrl, color: on.withValues(alpha: 0.18)),
           const SizedBox(width: 12),
-          Expanded(child: Text(b.tenant.name, style: display(26, color: on))),
+          Expanded(child: Text(b.tenant.name, style: display(20, color: on))),
           if (b.readyCoupons > 0)
             GestureDetector(
               onTap: onPrizes,
@@ -129,24 +129,24 @@ class _BalanceCard extends StatelessWidget {
               ),
             ),
         ]),
-        const SizedBox(height: 22),
+        const SizedBox(height: 20),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          CountUp(value: b.balance, style: display(92, color: on, height: 0.85)),
-          const SizedBox(width: 10),
-          Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(S.points, style: accent(30, color: on.withValues(alpha: 0.9)))),
+          CountUp(value: b.balance, style: display(56, color: on, height: 0.9)),
+          const SizedBox(width: 8),
+          Padding(padding: const EdgeInsets.only(bottom: 4), child: Text(S.points, style: body(16, color: on.withValues(alpha: 0.9), weight: FontWeight.w600))),
         ]),
-        const SizedBox(height: 22),
+        const SizedBox(height: 20),
         if (next != null)
-          Progress(value: b.balance, max: next.pointsCost, label: S.missing(next.missing, next.title), color: K.reward, textColor: on)
+          Progress(value: b.balance, max: next.pointsCost, label: S.missing(next.missing, next.title), color: on, textColor: on)
         else
           Text(S.allReached, style: body(15, color: on, weight: FontWeight.w800)),
         for (final c in b.campaigns) ...[
           const SizedBox(height: 12),
-          Text('🔥 $c', style: body(15, color: on, weight: FontWeight.w800)),
+          Row(children: [Icon(Icons.local_fire_department_rounded, size: 16, color: on), const SizedBox(width: 6), Expanded(child: Text(c, style: body(14, color: on, weight: FontWeight.w700)))]),
         ],
         if (b.affordable > 0) ...[
           const SizedBox(height: 12),
-          Text('✨ ${S.canRedeem(b.affordable)}', style: body(15, color: on, weight: FontWeight.w800)),
+          Row(children: [Icon(Icons.card_giftcard_rounded, size: 16, color: on), const SizedBox(width: 6), Expanded(child: Text(S.canRedeem(b.affordable), style: body(14, color: on, weight: FontWeight.w700)))]),
         ],
         const SizedBox(height: 18),
         FilledButton(

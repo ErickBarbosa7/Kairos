@@ -114,9 +114,9 @@ class _Success extends StatelessWidget {
           _Pop(
             delay: 300,
             child: TicketCard(
-              accentColor: K.reward,
+              accentColor: K.primary,
               top: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(S.youWonItalic, style: accent(34, color: K.warning)),
+                Text(S.youWonItalic, style: accent(34, color: K.primary)),
                 const SizedBox(height: 2),
                 Text(result.rewardTitle!, style: display(40, height: 0.95)),
               ]),

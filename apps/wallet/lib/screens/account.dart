@@ -118,6 +118,14 @@ class _AccountScreenState extends State<AccountScreen> {
                 suffixIcon: IconButton(icon: Icon(_hide ? Icons.visibility_rounded : Icons.visibility_off_rounded), onPressed: () => setState(() => _hide = !_hide)),
               ),
             ),
+            if (!_register)
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ResetScreen(email: _email.text.trim()))),
+                  child: const Text(S.forgot),
+                ),
+              ),
             if (_error != null) ...[
               const SizedBox(height: 12),
               Text(_error!, style: body(14, color: cs.error, weight: FontWeight.w700)),
@@ -222,4 +230,89 @@ class AccountButton extends StatelessWidget {
           );
         },
       );
+}
+
+
+/// Recuperar la cuenta: primero se pide el código por correo y luego se elige la contraseña nueva.
+class ResetScreen extends StatefulWidget {
+  const ResetScreen({super.key, this.email = ''});
+  final String email;
+  @override
+  State<ResetScreen> createState() => _ResetScreenState();
+}
+
+class _ResetScreenState extends State<ResetScreen> {
+  late final _email = TextEditingController(text: widget.email);
+  final _code = TextEditingController(), _password = TextEditingController();
+  bool _sent = false, _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _code.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _run(Future<void> Function() action, VoidCallback onOk) async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await action();
+      if (mounted) onOk();
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = S.accountErrors[e.code] ?? e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  void _send() {
+    final email = _email.text.trim();
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) return setState(() => _error = S.invalidEmail);
+    _run(() => Api.instance.forgotPassword(email), () => setState(() => _sent = true));
+  }
+
+  void _save() {
+    if (_password.text.length < 8) return setState(() => _error = S.shortPassword);
+    _run(() => Api.instance.resetPassword(_email.text.trim(), _code.text.trim(), _password.text), () {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(S.passwordChanged)));
+      Navigator.pop(context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Scaffold(
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+      body: SafeArea(
+        child: ListView(padding: const EdgeInsets.fromLTRB(22, 0, 22, 32), children: [
+          Text(S.forgotTitle, style: display(32)),
+          const SizedBox(height: 8),
+          Text(_sent ? S.codeSent : S.forgotBody, style: body(14, color: cs.onSurface.withValues(alpha: 0.7))),
+          const SizedBox(height: 18),
+          TextField(controller: _email, enabled: !_sent, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: S.fieldEmail)),
+          if (_sent) ...[
+            const SizedBox(height: 12),
+            TextField(controller: _code, textCapitalization: TextCapitalization.characters, decoration: const InputDecoration(labelText: S.fieldCode)),
+            const SizedBox(height: 12),
+            TextField(controller: _password, obscureText: true, onSubmitted: (_) => _save(), decoration: const InputDecoration(labelText: S.fieldNewPassword)),
+          ],
+          if (_error != null) ...[
+            const SizedBox(height: 12),
+            Text(_error!, style: body(14, color: cs.error, weight: FontWeight.w700)),
+          ],
+          const SizedBox(height: 20),
+          FilledButton(
+            onPressed: _busy ? null : (_sent ? _save : _send),
+            child: _busy ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 3)) : Text(_sent ? S.savePassword : S.sendCode),
+          ),
+        ]),
+      ),
+    );
+  }
 }
